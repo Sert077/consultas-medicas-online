@@ -1,0 +1,27 @@
+body {
+    background-color: #e0f7e9; /* Verde claro */
+    color: #4a2c7f; /* Púrpura */
+}
+.container {
+    max-width: 500px;
+    margin: 50px auto;
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2);
+}
+h2 {
+    color: #4a2c7f;
+}
+.form-control {
+    border: 1px solid #4a2c7f;
+    border-radius: 5px;
+    margin-bottom: 15px;
+}
+.btn-primary {
+    background-color: #4a2c7f;
+    border-color: #4a2c7f;
+}
+.btn-primary:hover {
+    background-color: #36336b;
+}
