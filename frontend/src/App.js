@@ -22,14 +22,28 @@
 //}
 
 import React from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import Home from './components/Home';
 import RegisterDoctor from './components/RegisterDoctor';
+import Doctores from './components/Doctores'; 
 import './css/style.css';
 
 function App() {
     return (
         <div className="App">
-            <RegisterDoctor />
+            <Router>
+                <Routes>
+                    <Route path="/" element={<Home />} />
+                    <Route path="/register" element={<RegisterDoctor />} />
+                    <Route path="/doctores" element={<Doctores />} /> 
+                </Routes>
+            </Router>
         </div>
     );
 }
+
 export default App;
+
+
+
+
