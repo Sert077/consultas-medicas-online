@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import '../css/Doctores.css';
 
-
 const Doctores = () => {
     const [doctors, setDoctors] = useState([]);
 
@@ -14,14 +13,18 @@ const Doctores = () => {
 
     return (
         <div className="doctor-list-container">
-            <h2>Lista de Doctores</h2>
-            <ul>
+            <h2 className="title">Lista de Doctores</h2>
+            <ul className="doctor-list">
                 {doctors.map((doctor, index) => (
                     <li key={index} className="doctor-item">
-                        <img src={doctor.profile_picture} alt={`${doctor.first_name} ${doctor.last_name}`} />
+                        <img
+                            src={doctor.profile_picture}
+                            alt={`${doctor.first_name} ${doctor.last_name}`}
+                            className="doctor-image"
+                        />
                         <div className="doctor-info">
-                            <h3>{doctor.first_name} {doctor.last_name}</h3>
-                            <p>Especialidad: {doctor.specialty}</p>
+                            <h3 className="doctor-name">{doctor.first_name} {doctor.last_name}</h3>
+                            <p className="doctor-specialty">Especialidad: {doctor.specialty}</p>
                         </div>
                     </li>
                 ))}

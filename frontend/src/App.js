@@ -26,12 +26,14 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Home from './components/Home';
 import RegisterDoctor from './components/RegisterDoctor';
 import Doctores from './components/Doctores'; 
+import Header from './components/Header'; // Importar el componente Header
 import './css/style.css';
 
 function App() {
     return (
         <div className="App">
             <Router>
+                <Header /> {/* Aquí agregas el Header para que aparezca en todas las rutas */}
                 <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="/register" element={<RegisterDoctor />} />

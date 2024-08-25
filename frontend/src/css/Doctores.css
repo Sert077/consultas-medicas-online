@@ -1,32 +1,66 @@
+.doctor-list-container {
+    text-align: center;
+    padding: 20px;
+}
+
+.title {
+    color: #4CAF50; /* Púrpura */
+    margin-bottom: 20px;
+    font-size: 2rem;
+}
+
 .doctor-list {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    padding: 20px;
+    list-style-type: none;
+    padding: 0;
 }
 
-.doctor-card {
-    background-color: #f9f9f9;
+.doctor-item {
+    background-color: #ccc; /* Verde claro */
     border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     margin: 15px;
     padding: 20px;
-    width: 300px;
-    text-align: center;
+    width: 250px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s;
 }
 
-.doctor-card img {
-    border-radius: 50%;
-    height: 100px;
-    width: 100px;
+.doctor-item:hover {
+    transform: translateY(-5px);
+}
+
+.doctor-image {
+    width: 100%;
+    height: 200px;
     object-fit: cover;
+    border-radius: 8px;
 }
 
-.doctor-card h3 {
-    margin: 10px 0;
-    color: #333;
+.doctor-info {
+    margin-top: 15px;
 }
 
-.doctor-card p {
-    color: #666;
+.doctor-name {
+    color: #4CAF50; /* Verde oscuro */
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+}
+
+.doctor-specialty {
+    color: #6A1B9A; /* Púrpura */
+    font-size: 1.2rem;
+}
+
+@media (max-width: 768px) {
+    .doctor-item {
+        width: 45%;
+    }
+}
+
+@media (max-width: 480px) {
+    .doctor-item {
+        width: 90%;
+    }
 }

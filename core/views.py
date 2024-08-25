@@ -6,6 +6,9 @@ from rest_framework.response import Response
 from .serializers import DoctorSerializer
 from django.http import JsonResponse
 from django.views import View
+from django.urls import reverse
+from django.conf import settings
+
 
 # API para crear un nuevo médico
 @api_view(['POST'])
@@ -31,8 +34,10 @@ class DoctorCreateView(generics.CreateAPIView):
 class DoctorListView(View):
     def get(self, request):
         doctors = Doctor.objects.all().values('first_name', 'last_name', 'specialty', 'profile_picture')
+        for doctor in doctors:
+            if doctor['profile_picture']:
+                doctor['profile_picture'] = request.build_absolute_uri(settings.MEDIA_URL + doctor['profile_picture'])
         return JsonResponse(list(doctors), safe=False)
-
 # Vista para ver detalles de un médico
 class DoctorDetailView(generics.RetrieveAPIView):
     queryset = Doctor.objects.all()
