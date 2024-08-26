@@ -26,7 +26,9 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Home from './components/Home';
 import RegisterDoctor from './components/RegisterDoctor';
 import Doctores from './components/Doctores'; 
-import Header from './components/Header'; // Importar el componente Header
+import DoctorDetail from './components/DoctorDetail';  // Importa el nuevo componente
+import Header from './components/Header';
+import Footer from './components/Footer';
 import './css/style.css';
 
 function App() {
@@ -38,13 +40,16 @@ function App() {
                     <Route path="/" element={<Home />} />
                     <Route path="/register" element={<RegisterDoctor />} />
                     <Route path="/doctores" element={<Doctores />} /> 
+                    <Route path="/doctores/:id" element={<DoctorDetail />} /> {/* Nueva ruta */}
                 </Routes>
+                <Footer />
             </Router>
         </div>
     );
 }
 
 export default App;
+
 
 
 

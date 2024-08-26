@@ -12,12 +12,9 @@ urlpatterns = [
     # Vista genérica para crear un médico (opcional)
     path('doctors/create/view/', DoctorCreateView.as_view(), name='doctor-create'),
 
-    # API para listar todos los médicos usando function-based view
-    path('api/doctors/', doctor_list, name='doctor-list'),
-
     # Vista genérica para listar todos los médicos usando class-based view (opcional)
-    path('doctors/', DoctorListView.as_view(), name='doctor-list-view'),
+    path('doctores/', DoctorListView.as_view(), name='doctor-list-view'),
 
     # Vista genérica para obtener los detalles de un médico
-    path('doctors/<int:pk>/', DoctorDetailView.as_view(), name='doctor-detail'),
+    path('doctores/<int:pk>/', DoctorDetailView.as_view(), name='doctor-detail'),
 ]

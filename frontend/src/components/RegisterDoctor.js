@@ -146,7 +146,10 @@ const RegisterDoctor = () => {
                 </div>
                 <button type="submit" className="btn btn-primary">Registrar</button>
             </form>
+            <br></br>
+            <br></br>
         </div>
+        
     );
 };
 

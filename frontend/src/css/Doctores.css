@@ -4,7 +4,7 @@
 }
 
 .title {
-    color: #4CAF50; /* Púrpura */
+    color: #5a9c5c; /* Púrpura */
     margin-bottom: 20px;
     font-size: 2rem;
 }
@@ -44,13 +44,24 @@
 
 .doctor-name {
     color: #4CAF50; /* Verde oscuro */
-    font-size: 1.5rem;
-    margin-bottom: 10px;
+    font-size: 1.3rem; /* Tamaño de fuente más pequeño por defecto */
+    margin-bottom: 0.7rem;
+    min-height: 50px; /* Fijar altura mínima para uniformidad */
+    width: 100%;
+    display: inline-block;
+    word-wrap: break-word; /* Permitir que el texto se ajuste en varias líneas */
+    line-height: 1.2; /* Reducir el espacio entre líneas */
 }
 
 .doctor-specialty {
     color: #6A1B9A; /* Púrpura */
-    font-size: 1.2rem;
+    font-size: 1rem;
+    min-height: 1.5rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 100%;
+    display: inline-block; 
 }
 
 @media (max-width: 768px) {
@@ -64,3 +75,35 @@
         width: 90%;
     }
 }
+
+.doctor-item {
+    /* Estilos existentes */
+    padding: 20px;
+    margin: 10px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    background-color: #f9f9f9;
+    transition: transform 0.2s;
+}
+
+.doctor-item:hover {
+    transform: translateY(-5px);
+}
+
+.more-info-button {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 10px 20px;
+    background-color: #6c63ff; /* Púrpura */
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+.more-info-button:hover {
+    background-color: #4e4ab7; /* Tono más oscuro de púrpura */
+}
+

@@ -10,10 +10,12 @@ const Header = () => {
             </div>
             <nav className="navigation">
                 <ul>
-                    <li><a href="/doctores">Médicos</a></li>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/doctores">Médicos</a></li>                    
                     <li><a href="#!" className="disabled">Conoce mas!</a></li>
+                    <li><a href="/register">Registrar Médico</a></li>
                     <li><a href="#!" className="disabled">Usuario</a></li>
-                    <li><a href="#!" className="disabled">Foto de Perfil</a></li>
+                    <li><img src="/path/to/user.png" alt="user" /></li>
                 </ul>
             </nav>
         </header>

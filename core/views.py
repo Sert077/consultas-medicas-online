@@ -33,7 +33,7 @@ class DoctorCreateView(generics.CreateAPIView):
 # Vista para listar todos los médicos usando Class-Based Views (opcional)
 class DoctorListView(View):
     def get(self, request):
-        doctors = Doctor.objects.all().values('first_name', 'last_name', 'specialty', 'profile_picture')
+        doctors = Doctor.objects.all().values('id','first_name', 'last_name', 'specialty', 'profile_picture')
         for doctor in doctors:
             if doctor['profile_picture']:
                 doctor['profile_picture'] = request.build_absolute_uri(settings.MEDIA_URL + doctor['profile_picture'])

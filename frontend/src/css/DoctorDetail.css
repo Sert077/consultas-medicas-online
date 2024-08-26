@@ -1,0 +1,67 @@
+.doctor-detail-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+}
+
+.doctor-info-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    max-width: 700px;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    padding: 20px;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+.doctor-image {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    margin-right: 20px;
+}
+
+.doctor-details {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.doctor-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.consult-button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.consult-button:hover {
+    background-color: #45a049;
+}
+.consult-button:last-child {
+    background-color: #6c63ff; /* Púrpura */
+}
+.consult-button:last-child:hover {
+    background-color: #4e4ab7;
+}
+
+.doctor-biography-container {
+    text-align: center;
+    width: 100%;
+    max-width: 700px;
+    border: 1px solid #ddd;
+    padding: 20px;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
