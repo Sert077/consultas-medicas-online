@@ -2,7 +2,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #4A148C; /* Púrpura oscuro */
+    background-color: #301466; /* Púrpura oscuro */
     padding: 15px 30px;
     color: white;
 }
@@ -25,12 +25,15 @@
 .navigation ul {
     list-style: none;
     display: flex;
+    align-items: center;
     margin: 0;
     padding: 0;
 }
 
 .navigation ul li {
     margin-left: 20px;
+    display: flex;
+    align-items: center; /* Asegura que el texto y las imágenes estén alineados verticalmente */
 }
 
 .navigation ul li a {
@@ -42,6 +45,13 @@
 
 .navigation ul li a:hover {
     color: #1DE9B6; /* Verde claro */
+}
+
+.navigation ul li img {
+    width: 40px; /* Ajusta el ancho de la imagen del usuario */
+    height: 40px; /* Ajusta la altura de la imagen del usuario */
+    border-radius: 50%; /* Hace que la imagen sea circular */
+    object-fit: cover; /* Asegura que la imagen cubra completamente el área del icono */
 }
 
 .disabled {

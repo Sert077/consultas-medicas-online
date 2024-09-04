@@ -15,7 +15,7 @@ const Header = () => {
                     <li><a href="#!" className="disabled">Conoce mas!</a></li>
                     <li><a href="/register">Registrar Médico</a></li>
                     <li><a href="#!" className="disabled">Usuario</a></li>
-                    <li><img src="/path/to/user.png" alt="user" /></li>
+                    <li><img src="/images/icon-user.png" alt="user" /></li>
                 </ul>
             </nav>
         </header>

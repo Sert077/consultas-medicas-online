@@ -37,7 +37,7 @@ const DoctorDetail = () => {
                 <h3>Biografía</h3>
                 <p>{doctor.biography}</p>
             </div>
-            <br></br>
+           
             
         </div>
     );
