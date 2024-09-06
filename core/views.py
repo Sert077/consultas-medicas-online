@@ -8,6 +8,8 @@ from django.http import JsonResponse
 from django.views import View
 from django.urls import reverse
 from django.conf import settings
+from .models import Consulta
+from .serializers import ConsultaSerializer
 
 
 # API para crear un nuevo médico
@@ -42,3 +44,21 @@ class DoctorListView(View):
 class DoctorDetailView(generics.RetrieveAPIView):
     queryset = Doctor.objects.all()
     serializer_class = DoctorSerializer
+
+
+class ConsultaCreateView(generics.CreateAPIView):
+    queryset = Consulta.objects.all()
+    serializer_class = ConsultaSerializer
+
+class ConsultaListView(generics.ListAPIView):
+    queryset = Consulta.objects.all()
+    serializer_class = ConsultaSerializer
+
+# API para crear una consulta
+@api_view(['POST'])
+def create_consulta(request):
+    serializer = ConsultaSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=201)
+    return Response(serializer.errors, status=400)

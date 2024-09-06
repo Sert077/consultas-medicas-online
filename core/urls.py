@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import DoctorCreateView, DoctorListView, DoctorDetailView, create_doctor, doctor_list
+from .views import DoctorCreateView, DoctorListView, DoctorDetailView, create_doctor, doctor_list, ConsultaCreateView, ConsultaListView
 
 urlpatterns = [
     # Rutas comentadas, puedes descomentarlas si las necesitas
@@ -17,4 +17,7 @@ urlpatterns = [
 
     # Vista genérica para obtener los detalles de un médico
     path('doctores/<int:pk>/', DoctorDetailView.as_view(), name='doctor-detail'),
+
+    path('consultas/', ConsultaListView.as_view(), name='consulta-list'),
+    path('consultas/create/', ConsultaCreateView.as_view(), name='consulta-create'),
 ]
