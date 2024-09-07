@@ -18,7 +18,7 @@ h2 {
 
 /* Grupos de formulario */
 .form-group {
-    margin-bottom: 15px;
+    gap: 15px;
 }
 
 /* Etiquetas del formulario */

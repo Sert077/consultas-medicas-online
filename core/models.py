@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 # Create your models here.
 
@@ -28,4 +30,25 @@ class Consulta(models.Model):
 
     def __str__(self):
         return f"Consulta con {self.medico} el {self.fecha} a las {self.hora}"
+    
+class Perfil(models.Model):
+    USUARIO_CHOICES = [
+        ('paciente', 'Paciente'),
+        ('medico', 'Médico'),
+    ]
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    tipo_usuario = models.CharField(max_length=10, choices=USUARIO_CHOICES)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.tipo_usuario}"
+    
+#@receiver(post_save, sender=User)
+#def crear_perfil(sender, instance, created, **kwargs):
+#    if created:
+#        Perfil.objects.create(user=instance)
+
+#@receiver(post_save, sender=User)
+#def guardar_perfil(sender, instance, **kwargs):
+#    instance.perfil.save()
 

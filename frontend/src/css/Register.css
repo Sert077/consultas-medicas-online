@@ -1,0 +1,50 @@
+/* Register.css */
+.register-container {
+    max-width: 500px; /* Aumentamos el ancho máximo para que el formulario se vea más amplio */
+    width: 100%; /* Aseguramos que se ajuste al ancho del contenedor */
+    margin: 0 auto;
+    padding: 20px; /* Un poco más de espacio alrededor del formulario */
+    background-color: #f5f5f5; /* Fondo claro */
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1); /* Sombra más suave */
+}
+
+h2 {
+    color: #4CAF50; /* Verde */
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* Mayor separación entre los campos */
+}
+
+label {
+    color: #6A1B9A; /* Púrpura */
+    margin-bottom: 5px;
+}
+
+input {
+    width: 100%;
+    padding: 10px; /* Un poco más de espacio en los campos */
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+button {
+    background-color: #4CAF50; /* Verde */
+    color: white;
+    padding: 10px 15px; /* Botón más grande para mayor visibilidad */
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease; /* Transición suave en el hover */
+}
+
+button:hover {
+    background-color: #45a049;
+}
+

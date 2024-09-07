@@ -29,6 +29,8 @@ import Doctores from './components/Doctores';
 import DoctorDetail from './components/DoctorDetail';  // Importa el nuevo componente
 import Header from './components/Header';
 import Footer from './components/Footer';
+import Register from './components/Register';
+import Login from './components/Login';
 import './css/style.css';
 
 function App() {
@@ -38,9 +40,11 @@ function App() {
                 <Header /> {/* Aquí agregas el Header para que aparezca en todas las rutas */}
                 <Routes>
                     <Route path="/" element={<Home />} />
-                    <Route path="/register" element={<RegisterDoctor />} />
+                    <Route path="/registerdoctor" element={<RegisterDoctor />} />
                     <Route path="/doctores" element={<Doctores />} /> 
                     <Route path="/doctores/:id" element={<DoctorDetail />} /> {/* Nueva ruta */}
+                    <Route path="/register" element={<Register />} />
+                    <Route path="/login" element={<Login />} />
                 </Routes>
                 <Footer />
             </Router>

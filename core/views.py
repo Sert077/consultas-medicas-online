@@ -1,5 +1,7 @@
 from django.shortcuts import render
 from rest_framework import generics
+from django.contrib.auth import authenticate
+from rest_framework.response import Response
 from .models import Doctor
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -10,6 +12,9 @@ from django.urls import reverse
 from django.conf import settings
 from .models import Consulta
 from .serializers import ConsultaSerializer
+from .serializers import UserRegistrationSerializer
+from rest_framework.authtoken.models import Token
+from rest_framework.permissions import AllowAny
 
 
 # API para crear un nuevo médico
@@ -62,3 +67,21 @@ def create_consulta(request):
         serializer.save()
         return Response(serializer.data, status=201)
     return Response(serializer.errors, status=400)
+
+# API para registro de usuarios
+class UserRegistrationView(generics.CreateAPIView):
+    serializer_class = UserRegistrationSerializer
+    permission_classes = [AllowAny]
+
+# API para login de usuarios
+@api_view(['POST'])
+def login_user(request):
+    username = request.data.get('username')
+    password = request.data.get('password')
+    user = authenticate(username=username, password=password)
+    
+    if user is not None:
+        token, created = Token.objects.get_or_create(user=user)
+        return Response({'token': token.key})
+    return Response({'error': 'Invalid Credentials'}, status=400)
+
