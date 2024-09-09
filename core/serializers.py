@@ -8,8 +8,7 @@ from .models import Perfil
 class DoctorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Doctor
-        #fields = '__all__'  # Incluye todos los campos del modelo Doctor
-        fields = ['id', 'first_name', 'last_name', 'email', 'specialty', 'phone_number', 'profile_picture', 'address', 'biography', 'created_at', 'updated_at','horario_atencion', 'horario_atencion']
+        fields = ['id', 'first_name', 'last_name', 'email', 'specialty', 'phone_number', 'profile_picture', 'address', 'biography', 'created_at', 'updated_at', 'horario_atencion', 'user']
 
 class ConsultaSerializer(serializers.ModelSerializer):
     class Meta:
@@ -40,16 +39,18 @@ class PerfilSerializer(serializers.ModelSerializer):
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
     perfil = PerfilSerializer()
+    doctor = DoctorSerializer(required=False)  # Añadimos el doctor como opcional
 
     class Meta:
         model = User
-        fields = ('username', 'password', 'first_name', 'last_name', 'email', 'perfil')
+        fields = ('username', 'password', 'first_name', 'last_name', 'email', 'perfil', 'doctor')
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
-        # Extraemos los datos del perfil
+        # Extraemos los datos del perfil y del doctor si es que existen
         perfil_data = validated_data.pop('perfil')
-        
+        doctor_data = validated_data.pop('doctor', None)
+
         # Creamos el usuario
         user = User.objects.create_user(
             username=validated_data['username'],
@@ -58,8 +59,12 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             last_name=validated_data.get('last_name', ''),
             email=validated_data.get('email', '')
         )
-        
+
         # Creamos el perfil asociado
         Perfil.objects.create(user=user, tipo_usuario=perfil_data['tipo_usuario'])
+
+        # Si el tipo de usuario es 'medico', creamos el registro de Doctor
+        if perfil_data['tipo_usuario'] == 'medico' and doctor_data:
+            Doctor.objects.create(user=user, **doctor_data)
 
         return user

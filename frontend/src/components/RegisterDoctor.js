@@ -32,61 +32,43 @@ const RegisterDoctor = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Paso 1: Crear el usuario en la tabla User junto con su perfil
-    const userData = {
-      username: formData.username,
-      password: formData.password,
-      first_name: formData.firstName,
-      last_name: formData.lastName,
-      email: formData.email,
-      perfil: {
-        tipo_usuario: 'medico', // Tipo de usuario médico
-      },
-    };
+    // Paso 1: Crear el usuario en la tabla User junto con su perfil y doctor
+    const formDataToSend = new FormData();
+    formDataToSend.append('username', formData.username);
+    formDataToSend.append('password', formData.password);
+    formDataToSend.append('first_name', formData.firstName);
+    formDataToSend.append('last_name', formData.lastName);
+    formDataToSend.append('email', formData.email);
+    formDataToSend.append('perfil.tipo_usuario', 'medico');  // Tipo de usuario médico
+
+    // Añadir los datos del doctor
+    formDataToSend.append('doctor.first_name', formData.firstName);
+    formDataToSend.append('doctor.last_name', formData.lastName);
+    formDataToSend.append('doctor.email', formData.email);
+    formDataToSend.append('doctor.specialty', formData.specialty);
+    formDataToSend.append('doctor.phone_number', formData.phoneNumber);
+    formDataToSend.append('doctor.address', formData.address);
+    formDataToSend.append('doctor.biography', formData.biography);
+    formDataToSend.append('doctor.horario_atencion', formData.horarioAtencion);
+    formDataToSend.append('doctor.profile_picture', formData.profilePicture);
 
     try {
-      const userResponse = await fetch('http://127.0.0.1:8000/api/register/', {
+      const response = await fetch('http://127.0.0.1:8000/api/register/', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(userData),
+        body: formDataToSend,
       });
 
-      if (userResponse.ok) {
-        const userResult = await userResponse.json();
-
-        // Paso 2: Crear el doctor con el user_id recibido
-        const data = new FormData();
-        data.append('first_name', formData.firstName);
-        data.append('last_name', formData.lastName);
-        data.append('email', formData.email);
-        data.append('specialty', formData.specialty);
-        data.append('phone_number', formData.phoneNumber);
-        data.append('address', formData.address);
-        data.append('profile_picture', formData.profilePicture);
-        data.append('biography', formData.biography);
-        data.append('horario_atencion', formData.horarioAtencion); // Enviar el horario de atención
-        data.append('user', userResult.id); // Asociar el ID del usuario creado
-
-        const doctorResponse = await fetch('http://127.0.0.1:8000/api/doctors/create/', {
-          method: 'POST',
-          body: data,
-        });
-
-        if (doctorResponse.ok) {
-          alert('Doctor registrado exitosamente');
-        } else {
-          alert('Error al registrar el doctor');
-        }
+      if (response.ok) {
+        alert('Doctor registrado exitosamente');
       } else {
-        alert('Error al crear el usuario médico');
+        alert('Error al registrar el doctor');
       }
     } catch (error) {
       console.error('Error:', error);
       alert('Error en el registro');
     }
   };
+
 
   return (
     <div className="container">

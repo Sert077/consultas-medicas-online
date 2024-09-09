@@ -5,6 +5,7 @@ import '../css/DoctorDetail.css';
 const DoctorDetail = () => {
     const { id } = useParams();
     const [doctor, setDoctor] = useState(null);
+    const [consultas, setConsultas] = useState([]);
     const [showModal, setShowModal] = useState(false); // Estado para manejar la visibilidad del modal
     const [fecha, setFecha] = useState('');
     const [hora, setHora] = useState('');
@@ -12,12 +13,27 @@ const DoctorDetail = () => {
     useEffect(() => {
         fetch(`http://localhost:8000/api/doctores/${id}/`)
             .then(response => response.json())
-            .then(data => setDoctor(data))
-            .catch(error => console.error('Error fetching doctor details:', error));
+            .then(data => {
+                setDoctor(data);
+                // Obtener las consultas del doctor
+                return fetch(`http://localhost:8000/api/consultas/${id}/`);
+            })
+            .then(response => response.json())
+            .then(data => setConsultas(data))
+            .catch(error => console.error('Error fetching doctor details or consultations:', error));
     }, [id]);
+
+    const isAvailable = (fecha, hora) => {
+        return !consultas.some(consulta => consulta.fecha === fecha && consulta.hora === hora);
+    };
 
     const handleReserva = (e) => {
         e.preventDefault();
+        if (!isAvailable(fecha, hora)) {
+            alert('La fecha y hora seleccionadas ya están ocupadas.');
+            return;
+        }
+
         // Realizar la petición POST para crear la consulta
         fetch('http://localhost:8000/api/consultas/create/', {
             method: 'POST',
@@ -33,11 +49,17 @@ const DoctorDetail = () => {
             .then((response) => response.json())
             .then((data) => {
                 console.log('Consulta creada:', data);
+                setConsultas([...consultas, data]); // Actualizar la lista de consultas
                 setShowModal(false); // Cerrar modal después de crear la consulta
             })
             .catch((error) => {
                 console.error('Error creando consulta:', error);
             });
+    };
+
+    const getAvailableTimeSlots = () => {
+        const allTimeSlots = ["09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00"]; // Ejemplo de horarios posibles
+        return allTimeSlots.filter(slot => isAvailable(fecha, slot));
     };
 
     if (!doctor) {
@@ -84,13 +106,17 @@ const DoctorDetail = () => {
                                 required
                             />
                             <label htmlFor="hora">Hora:</label>
-                            <input
-                                type="time"
+                            <select
                                 id="hora"
                                 value={hora}
                                 onChange={(e) => setHora(e.target.value)}
                                 required
-                            />
+                            >
+                                <option value="">Selecciona una hora</option>
+                                {getAvailableTimeSlots().map(slot => (
+                                    <option key={slot} value={slot}>{slot}</option>
+                                ))}
+                            </select>
                             <button type="submit" className="consult-button">Reservar</button>
                         </form>
                         <button className="close-modal" onClick={() => setShowModal(false)}>Cerrar</button>
