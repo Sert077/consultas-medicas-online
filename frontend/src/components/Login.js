@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom'; // Para redireccionar después del login
 import '../css/Login.css';
+
 const Login = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [message, setMessage] = useState('');
+    const navigate = useNavigate(); // Hook de navegación para redirigir
 
     const handleLogin = async (e) => {
         e.preventDefault();
-
+    
         const response = await fetch('http://localhost:8000/api/login/', {
             method: 'POST',
             headers: {
@@ -18,15 +21,18 @@ const Login = () => {
                 password: password,
             }),
         });
-
+    
         const data = await response.json();
         if (response.ok) {
             setMessage('Login successful');
             localStorage.setItem('token', data.token); // Guardar el token en localStorage
+            localStorage.setItem('username', username); // Guardar el nombre de usuario en localStorage
+            window.location.href = "/"; // Redirigir al home después de iniciar sesión
         } else {
             setMessage('Login failed: ' + data.error);
         }
     };
+    
 
     return (
         <div className="login-container">
@@ -50,8 +56,8 @@ const Login = () => {
                         required
                     />
                 </div>
-                <button type="submit">Iniciar Sesion</button>
-                <label className='button-registrarce'>No tienes cuenta? <a href="/register">Registrate</a></label>
+                <button type="submit">Iniciar Sesión</button>
+                <label className='button-registrarce'>No tienes cuenta? <a href="/register">Regístrate</a></label>
             </form>
             <p>{message}</p>
         </div>

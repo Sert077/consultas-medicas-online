@@ -66,6 +66,30 @@
     background-color: #f9f9f9;
 }
 
+.consultas-container {
+    text-align: left; /* Alinea el contenido a la izquierda */
+    width: 100%;
+    max-width: 700px;
+    border: 1px solid #ddd;
+    padding: 20px;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+h3{
+    text-align: center;
+}
+.consultas-container ul {
+    list-style-position: inside; /* Asegura que el punto de la lista esté dentro */
+    padding-left: 0; /* Elimina el margen por defecto */
+}
+
+.consultas-container li {
+    margin-bottom: 10px; /* Añade espacio entre las consultas */
+    font-size: 1.1rem; /* Ajusta el tamaño del texto */
+    color: #333; /* Color de texto para mayor contraste */
+}
+
 /* Estilos para el modal */
 .modal {
     position: fixed;

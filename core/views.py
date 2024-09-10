@@ -15,6 +15,7 @@ from .serializers import ConsultaSerializer
 from .serializers import UserRegistrationSerializer
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import AllowAny
+from rest_framework.exceptions import ValidationError
 
 
 # API para crear un nuevo médico
@@ -55,33 +56,46 @@ class ConsultaCreateView(generics.CreateAPIView):
     queryset = Consulta.objects.all()
     serializer_class = ConsultaSerializer
 
+    def perform_create(self, serializer):
+        medico_id = self.request.data.get('medico')
+        fecha = self.request.data.get('fecha')
+        hora = self.request.data.get('hora')
+
+        # Verificar si ya existe una consulta con la misma fecha y hora para el médico
+        consulta_existente = Consulta.objects.filter(medico_id=medico_id, fecha=fecha, hora=hora).exists()
+
+        if consulta_existente:
+            raise ValidationError("Ya existe una consulta reservada para este médico en la fecha y hora seleccionadas.")
+
+        # Si no existe duplicado, guarda la nueva consulta
+        serializer.save()
+
 class ConsultaListView(generics.ListAPIView):
     queryset = Consulta.objects.all()
     serializer_class = ConsultaSerializer
-
-# API para crear una consulta
-@api_view(['POST'])
-def create_consulta(request):
-    serializer = ConsultaSerializer(data=request.data)
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data, status=201)
-    return Response(serializer.errors, status=400)
 
 # API para registro de usuarios
 class UserRegistrationView(generics.CreateAPIView):
     serializer_class = UserRegistrationSerializer
     permission_classes = [AllowAny]
 
-# API para login de usuarios
 @api_view(['POST'])
 def login_user(request):
     username = request.data.get('username')
     password = request.data.get('password')
     user = authenticate(username=username, password=password)
-    
+
     if user is not None:
         token, created = Token.objects.get_or_create(user=user)
-        return Response({'token': token.key})
+        return Response({
+            'token': token.key,
+            'username': user.username  # Asegúrate de enviar el nombre de usuario también
+        })
     return Response({'error': 'Invalid Credentials'}, status=400)
+
+@api_view(['GET'])
+def consultas_doctor(request, doctor_id):
+    consultas = Consulta.objects.filter(medico_id=doctor_id)
+    serializer = ConsultaSerializer(consultas, many=True)
+    return Response(serializer.data)
 
