@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { addDays, isSameDay } from 'date-fns'; // Para manipular fechas
+import { addDays, isSameDay } from 'date-fns';
 import '../css/DoctorDetail.css';
 
 const DoctorDetail = () => {
@@ -10,16 +10,14 @@ const DoctorDetail = () => {
     const [doctor, setDoctor] = useState(null);
     const [consultas, setConsultas] = useState([]);
     const [showModal, setShowModal] = useState(false);
-    const [fecha, setFecha] = useState(null); // Usamos objeto Date en lugar de string
+    const [fecha, setFecha] = useState(null);
     const [hora, setHora] = useState('');
 
     useEffect(() => {
-        // Fetch detalles del doctor
         fetch(`http://localhost:8000/api/doctores/${id}/`)
             .then(response => response.json())
             .then(data => {
                 setDoctor(data);
-                // Obtener las consultas del doctor
                 return fetch(`http://localhost:8000/api/consultas/${id}/`);
             })
             .then(response => response.json())
@@ -27,27 +25,32 @@ const DoctorDetail = () => {
             .catch(error => console.error('Error fetching doctor details or consultations:', error));
     }, [id]);
 
-    // Función para comprobar si el día está completamente ocupado
     const isDayFullyBooked = (date) => {
         const consultasDia = consultas.filter(consulta => isSameDay(new Date(consulta.fecha), date));
         const allTimeSlots = ["09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00"];
-        return consultasDia.length >= allTimeSlots.length; // Si todas las horas están ocupadas, el día está lleno
+        return consultasDia.length >= allTimeSlots.length;
     };
 
-    // Deshabilitar días sin disponibilidad completa
     const filterUnavailableDays = (date) => {
         return !isDayFullyBooked(date);
     };
 
-    // Función para comprobar si el horario está disponible en una fecha específica
     const isAvailable = (fecha, hora) => {
         return !consultas.some(consulta => consulta.fecha === fecha && consulta.hora === hora);
     };
 
     const handleReserva = (e) => {
         e.preventDefault();
-        const formattedDate = fecha.toISOString().split('T')[0]; // Formato YYYY-MM-DD para enviar al backend
-    
+        const formattedDate = fecha.toISOString().split('T')[0];
+        const pacienteId = localStorage.getItem('paciente_id');
+        const pacienteName = `${localStorage.getItem('first_name')} ${localStorage.getItem('last_name')}`;
+        const pacienteEmail = localStorage.getItem('email');
+        
+        if (!pacienteId) {
+            alert('Error: No se ha encontrado un paciente válido. Inicie sesión para reservar.');
+            return;
+        }
+
         fetch('http://localhost:8000/api/consultas/create/', {
             method: 'POST',
             headers: {
@@ -55,6 +58,7 @@ const DoctorDetail = () => {
             },
             body: JSON.stringify({
                 medico: id,
+                paciente: pacienteId,
                 fecha: formattedDate,
                 hora: hora,
             }),
@@ -70,11 +74,67 @@ const DoctorDetail = () => {
         .then((data) => {
             alert('Consulta reservada correctamente');
             console.log('Consulta creada:', data);
-            setConsultas([...consultas, data]); // Actualizar la lista de consultas
-            setShowModal(false); // Cerrar modal después de crear la consulta
+            setConsultas([...consultas, data]);
+            setShowModal(false);
+
+            // Enviar correos usando la API
+            const emailData = {
+                subject: 'Recordatorio de Consulta Médica',
+                message_paciente: `Estimado(a) ${pacienteName},\n\n` +
+                                  `Tiene una consulta programada con el Dr(a). ${doctor.first_name} ${doctor.last_name}` +
+                                  ` el ${formattedDate} a las ${hora}.\n\nGracias por usar nuestro servicio.`,
+                message_medico: `Estimado(a) Dr(a). ${doctor.first_name} ${doctor.last_name},\n\n` +
+                                `Tiene una consulta programada con ${pacienteName}` +
+                                ` el ${formattedDate} a las ${hora}.\n\nGracias por usar nuestro servicio.`,
+                recipient_list_paciente: [pacienteEmail],
+                recipient_list_medico: [doctor.email],
+            };
+
+            fetch('http://localhost:8000/api/send-email/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    subject: emailData.subject,
+                    message: emailData.message_paciente,
+                    recipient_list: emailData.recipient_list_paciente,
+                }),
+            })
+            .then((response) => {
+                if (!response.ok) {
+                    return response.json().then((data) => {
+                        throw new Error(data.error || 'Error al enviar correo al paciente.');
+                    });
+                }
+                console.log('Correo enviado al paciente');
+                return fetch('http://localhost:8000/api/send-email/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        subject: emailData.subject,
+                        message: emailData.message_medico,
+                        recipient_list: emailData.recipient_list_medico,
+                    }),
+                });
+            })
+            .then((response) => {
+                if (!response.ok) {
+                    return response.json().then((data) => {
+                        throw new Error(data.error || 'Error al enviar correo al médico.');
+                    });
+                }
+                console.log('Correo enviado al médico');
+            })
+            .catch((error) => {
+                alert(error.message);
+                console.error('Error enviando correos:', error);
+            });
         })
         .catch((error) => {
-            alert(error.message); // Mostrar el error al usuario
+            alert(error.message);
             console.error('Error creando consulta:', error);
         });
     };
@@ -114,7 +174,6 @@ const DoctorDetail = () => {
                 <p>{doctor.biography}</p>
             </div>
 
-            {/* Mostrar consultas existentes */}
             <div className="consultas-container">
                 <h3>Consultas Reservadas</h3>
                 {consultas.length > 0 ? (
@@ -126,7 +185,7 @@ const DoctorDetail = () => {
                         ))}
                     </ul>
                 ) : (
-                    <p>No hay consultas reservadas para este médico.</p>
+                    <p>No hay consultas reservadas.</p>
                 )}
             </div>
 

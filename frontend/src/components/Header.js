@@ -5,23 +5,33 @@ import '../css/Header.css';
 const Header = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [username, setUsername] = useState('');
+    const [isSuperUser, setIsSuperUser] = useState(false); // Nuevo estado para el superusuario
     const [showDropdown, setShowDropdown] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
         const token = localStorage.getItem('token');
         const user = localStorage.getItem('username');
+        const superUser = localStorage.getItem('is_superuser'); // Obtener si es superusuario
     
         if (token && user) {
             setIsLoggedIn(true);
             setUsername(user);
+            setIsSuperUser(superUser === 'true'); // Ajustar para valores booleanos o string
         }
     }, [isLoggedIn]);
 
     const handleLogout = () => {
+        // Eliminar token y estado de usuario
         localStorage.removeItem('token');
         localStorage.removeItem('username');
+        localStorage.removeItem('is_superuser'); // Eliminar también el estado de superusuario
+
+        // Actualizar los estados
         setIsLoggedIn(false);
+        setIsSuperUser(false); // Asegurarse de que isSuperUser se reinicie
+
+        // Redirigir a la página de inicio de sesión
         navigate('/login');
     };
 
@@ -40,7 +50,11 @@ const Header = () => {
                     <li><Link to="/">Home</Link></li>
                     <li><Link to="/doctores">Médicos</Link></li>
                     <li><Link to="#!" className="disabled">Conoce más!</Link></li>
-                    <li><Link to="/registerdoctor">Registrar Médico</Link></li>
+
+                    {/* Mostrar el botón "Registrar Médico" solo si es superusuario */}
+                    {isSuperUser && (
+                        <li><Link to="/registerdoctor">Registrar Médico</Link></li>
+                    )}
 
                     {isLoggedIn ? (
                         <li className="user-menu">

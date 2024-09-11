@@ -2,6 +2,7 @@ from django.urls import path
 from .views import DoctorCreateView, DoctorListView, DoctorDetailView, create_doctor, doctor_list, ConsultaCreateView, ConsultaListView
 from .views import UserRegistrationView, login_user
 from . import views
+from .views import send_email
 
 urlpatterns = [
     # Rutas comentadas, puedes descomentarlas si las necesitas
@@ -26,4 +27,6 @@ urlpatterns = [
 
     path('register/', UserRegistrationView.as_view(), name='register'),
     path('login/', login_user, name='login'),
+
+    path('send-email/', send_email, name='send_email'),
 ]

@@ -62,6 +62,14 @@ REST_FRAMEWORK = {
     ],
 }
 
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp-relay.brevo.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = '7bd5d4001@smtp-brevo.com'
+EMAIL_HOST_PASSWORD = 'O1Nr8c6VDLsqSkaP'
+
+
 CORS_ALLOW_ALL_ORIGINS = True  # Esto permite cualquier origen, útil para desarrollo.
 
 ROOT_URLCONF = 'consultas_medicas_online.urls'

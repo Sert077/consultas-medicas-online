@@ -6,7 +6,7 @@ const Login = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [message, setMessage] = useState('');
-    const navigate = useNavigate(); // Hook de navegación para redirigir
+    //const navigate = useNavigate(); // Hook de navegación para redirigir
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -27,9 +27,14 @@ const Login = () => {
             setMessage('Login successful');
             localStorage.setItem('token', data.token); // Guardar el token en localStorage
             localStorage.setItem('username', username); // Guardar el nombre de usuario en localStorage
+            localStorage.setItem('is_superuser', data.is_superuser); // Guardar is_superuser en localStorage
+            localStorage.setItem('paciente_id', data.id); // Guardar el id del usuario en localStorage como paciente_id
+            localStorage.setItem('first_name', data.first_name); // Guardar el primer nombre en localStorage
+            localStorage.setItem('last_name', data.last_name); // Guardar el apellido en localStorage
+            localStorage.setItem('email', data.email); // Guardar el email en localStorage
             window.location.href = "/"; // Redirigir al home después de iniciar sesión
         } else {
-            setMessage('Login failed: ' + data.error);
+            setMessage(data.error);
         }
     };
     

@@ -31,6 +31,7 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import Register from './components/Register';
 import Login from './components/Login';
+import EmailForm from './components/EmailForm';
 import './css/style.css';
 
 function App() {
@@ -45,6 +46,7 @@ function App() {
                     <Route path="/doctores/:id" element={<DoctorDetail />} /> {/* Nueva ruta */}
                     <Route path="/register" element={<Register />} />
                     <Route path="/login" element={<Login />} />
+                    <Route path="/send-email" element={<EmailForm />} />
                 </Routes>
                 <Footer />
             </Router>

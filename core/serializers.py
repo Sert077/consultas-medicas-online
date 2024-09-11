@@ -13,12 +13,16 @@ class DoctorSerializer(serializers.ModelSerializer):
 class ConsultaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Consulta
-        fields = ['id','paciente', 'medico', 'fecha', 'hora', 'estado']
+        fields = ['id', 'paciente', 'medico', 'fecha', 'hora', 'estado']  # Asegúrate de incluir 'paciente' en los campos
+
+    def create(self, validated_data):
+        return Consulta.objects.create(**validated_data)
+
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('username', 'password', 'first_name', 'last_name', 'email')
+        fields = ('username', 'password', 'first_name', 'last_name', 'email', 'is_superuser')  # Incluye is_superuser
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):

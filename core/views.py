@@ -16,7 +16,13 @@ from .serializers import UserRegistrationSerializer
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import AllowAny
 from rest_framework.exceptions import ValidationError
+from django.contrib.auth.models import User
+from django.core.mail import send_mail
 
+
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
 
 # API para crear un nuevo médico
 @api_view(['POST'])
@@ -58,6 +64,7 @@ class ConsultaCreateView(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         medico_id = self.request.data.get('medico')
+        paciente_id = self.request.data.get('paciente')  # Obtener el paciente_id del request
         fecha = self.request.data.get('fecha')
         hora = self.request.data.get('hora')
 
@@ -67,8 +74,46 @@ class ConsultaCreateView(generics.CreateAPIView):
         if consulta_existente:
             raise ValidationError("Ya existe una consulta reservada para este médico en la fecha y hora seleccionadas.")
 
-        # Si no existe duplicado, guarda la nueva consulta
-        serializer.save()
+        # Obtener el paciente y el médico
+        paciente = User.objects.get(id=paciente_id)  # Obtener el paciente de la tabla User
+        medico = Doctor.objects.get(id=medico_id)  # Obtener el médico de la tabla Doctor
+
+        # Guardar la consulta con el médico y paciente asociados
+        consulta = serializer.save(paciente=paciente, medico=medico)
+
+        # Obtener los emails del médico y del paciente directamente de los objetos
+        email_medico = medico.email  # Correo del médico desde la tabla Doctor
+        email_paciente = paciente.email  # Correo del paciente desde la tabla User
+
+        # Asunto y cuerpo del correo
+        subject = 'Recordatorio de Consulta Médica'
+        message_paciente = f'Estimado(a) {paciente.first_name} {paciente.last_name},\n\n' \
+                           f'Tiene una consulta programada con el Dr(a). {medico.first_name} {medico.last_name} ' \
+                           f'el {consulta.fecha} a las {consulta.hora}.\n\n' \
+                           'Gracias por usar nuestro servicio.'
+
+        message_medico = f'Estimado(a) Dr(a). {medico.first_name} {medico.last_name},\n\n' \
+                         f'Tiene una consulta programada con {paciente.first_name} {paciente.last_name} ' \
+                         f'el {consulta.fecha} a las {consulta.hora}.\n\n' \
+                         'Gracias por usar nuestro servicio.'
+
+        # Enviar correo al paciente
+        send_mail(
+            subject,
+            message_paciente,
+            settings.EMAIL_HOST_USER,
+            [email_paciente],
+            fail_silently=False,
+        )
+
+        # Enviar correo al médico
+        send_mail(
+            subject,
+            message_medico,
+            settings.EMAIL_HOST_USER,
+            [email_medico],
+            fail_silently=False,
+        )
 
 class ConsultaListView(generics.ListAPIView):
     queryset = Consulta.objects.all()
@@ -89,9 +134,16 @@ def login_user(request):
         token, created = Token.objects.get_or_create(user=user)
         return Response({
             'token': token.key,
-            'username': user.username  # Asegúrate de enviar el nombre de usuario también
+            'username': user.username,
+            'id': user.id,  # Devolver el ID del usuario para el frontend
+            'is_superuser': user.is_superuser,  # Devolver si es superuser
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'email': user.email,
         })
-    return Response({'error': 'Invalid Credentials'}, status=400)
+    return Response({'error': 'No se encontro el usuario o la contraseña es incorrecta'}, status=400)
+
+
 
 @api_view(['GET'])
 def consultas_doctor(request, doctor_id):
@@ -99,3 +151,25 @@ def consultas_doctor(request, doctor_id):
     serializer = ConsultaSerializer(consultas, many=True)
     return Response(serializer.data)
 
+
+@csrf_exempt
+def send_email(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            subject = data.get('subject')
+            message = data.get('message')
+            recipient_list = data.get('recipient_list')
+
+            send_mail(
+                subject,
+                message,
+                'servesa07@gmail.com',  # Cambia esto por tu dirección de correo
+                recipient_list,
+                fail_silently=False,
+            )
+
+            return JsonResponse({'status': 'Email sent successfully'}, status=200)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+    return JsonResponse({'error': 'Invalid request method'}, status=400)
