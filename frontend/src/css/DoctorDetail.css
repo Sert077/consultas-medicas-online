@@ -1,0 +1,128 @@
+.doctor-detail-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+}
+
+.doctor-info-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    max-width: 700px;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    padding: 20px;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+.doctor-image {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    margin-right: 20px;
+}
+
+.doctor-details {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.doctor-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.consult-button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.consult-button:hover {
+    background-color: #45a049;
+}
+.consult-button:last-child {
+    background-color: #6c63ff; /* Púrpura */
+}
+.consult-button:last-child:hover {
+    background-color: #4e4ab7;
+}
+
+.doctor-biography-container {
+    text-align: center;
+    width: 100%;
+    max-width: 700px;
+    border: 1px solid #ddd;
+    padding: 20px;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+.consultas-container {
+    text-align: left; /* Alinea el contenido a la izquierda */
+    width: 100%;
+    max-width: 700px;
+    border: 1px solid #ddd;
+    padding: 20px;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+h3{
+    text-align: center;
+}
+.consultas-container ul {
+    list-style-position: inside; /* Asegura que el punto de la lista esté dentro */
+    padding-left: 0; /* Elimina el margen por defecto */
+}
+
+.consultas-container li {
+    margin-bottom: 10px; /* Añade espacio entre las consultas */
+    font-size: 1.1rem; /* Ajusta el tamaño del texto */
+    color: #333; /* Color de texto para mayor contraste */
+}
+
+/* Estilos para el modal */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    width: 400px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.close-modal {
+    background-color: #e74c3c;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.close-modal:hover {
+    background-color: #c0392b;
+}
+

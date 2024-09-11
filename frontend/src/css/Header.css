@@ -1,0 +1,125 @@
+/* General Header Styles */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #301466; /* Púrpura oscuro */
+    padding: 15px 30px;
+    color: white;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+}
+
+.logo img {
+    height: 40px;
+    margin-right: 10px;
+}
+
+.logo span {
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+.navigation ul {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+}
+
+.navigation ul li {
+    margin-left: 20px;
+    display: flex;
+    align-items: center;
+}
+
+.navigation ul li a {
+    text-decoration: none;
+    color: white;
+    font-size: 1.2em;
+    transition: color 0.3s ease;
+}
+
+.navigation ul li a:hover {
+    color: #1DE9B6; /* Verde claro */
+}
+
+/* Dropdown Menu */
+.user-menu {
+    position: relative;
+    cursor: pointer;
+}
+
+.user-menu img {
+    width: 30px;
+    height: 30px;
+    margin-left: 10px;
+    vertical-align: middle;
+}
+
+/* Dropdown container */
+.dropdown {
+    position: absolute;
+    right: 0;
+    top: 100%;
+    background-color: #3f1a8a; /* Fondo púrpura oscuro para contrastar con el texto */
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+    width: 200px;
+    text-align: left;
+    z-index: 10;
+    display: flex;
+    flex-direction: column; /* Asegura que los elementos del dropdown se coloquen en columnas */
+}
+
+/* Dropdown items */
+.dropdown li {
+    list-style: none;
+    padding: 10px 10px; /* Espaciado aumentado para mejor usabilidad */
+    border-bottom: 1px solid #ddd;
+    font-size: 12px;
+    color: white; /* Asegura que el texto sea visible sobre el fondo oscuro */
+    text-align: left;
+}
+
+.dropdown li:last-child {
+    border-bottom: none; /* Elimina el borde del último elemento */
+}
+
+/* Estilo de los enlaces y botones */
+.dropdown li button, .dropdown li a {
+    background: none;
+    border: none;
+    color: white; /* Texto blanco para mejor contraste */
+    cursor: pointer;
+    text-decoration: none;
+    width: 100%;
+    display: block;
+    text-align: left; /* Asegura que el texto esté alineado a la izquierda */
+    font-size: 15px;
+}
+
+.dropdown li button:hover, .dropdown li a:hover {
+    background-color: #1DE9B6; /* Cambio de fondo en hover */
+    color: #301466; /* Cambia el color del texto cuando se hace hover */
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .navigation ul {
+        flex-direction: column;
+    }
+
+    .user-menu img {
+        width: 25px;
+        height: 25px;
+    }
+
+    .dropdown {
+        width: 100%;
+    }
+}

@@ -1,0 +1,53 @@
+.footer-container {
+    background-color: #57bb64; /* Color verde agradable */
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap; /* Permite que los elementos se ajusten */
+}
+
+.footer-left {
+    flex: 1;
+    text-align: left;
+    color: white;
+}
+
+.contact-button {
+    background-color: transparent; /* Fondo transparente */
+    color: white; /* Letras blancas */
+    padding: 10px 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.contact-button:hover {
+    color: #f1f1f1; /* Cambia a un blanco más claro al pasar el mouse */
+    text-decoration: underline; /* Agrega un subrayado al pasar el mouse */
+}
+
+
+.social-icons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex: 1;
+}
+
+.social-icons img {
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.social-icons img:hover {
+    transform: scale(1.1);
+}
+
+.footer-right {
+    flex: 1;
+    text-align: right;
+    color: white;
+}
