@@ -45,6 +45,17 @@ class Perfil(models.Model):
     def __str__(self):
         return f"{self.user.username} - {self.tipo_usuario}"
     
+
+class ChatMessage(models.Model):
+    consulta = models.ForeignKey('Consulta', on_delete=models.CASCADE)
+    sender = models.ForeignKey(User, related_name='sender_messages', on_delete=models.CASCADE)
+    receiver = models.ForeignKey(User, related_name='receiver_messages', on_delete=models.CASCADE)
+    message = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'Message from {self.sender} to {self.receiver} at {self.timestamp}'
+    
 #@receiver(post_save, sender=User)
 #def crear_perfil(sender, instance, created, **kwargs):
 #    if created:

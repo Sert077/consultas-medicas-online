@@ -42,8 +42,19 @@ INSTALLED_APPS = [
     'core',
     'corsheaders',
     'rest_framework.authtoken',
+    'channels',
 
 ]
+
+# Configuración de ASGI
+ASGI_APPLICATION = 'consultas_medicas_online.asgi.application'
+
+# Configuración de Redis como backend para Channel Layers
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',  # Para desarrollo
+    },
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

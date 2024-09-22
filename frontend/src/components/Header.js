@@ -49,6 +49,7 @@ const Header = () => {
                 <ul>
                     <li><Link to="/">Home</Link></li>
                     <li><Link to="/doctores">Médicos</Link></li>
+                    <li><Link to="/misreservas">Mis Reservas</Link></li> {/* Nueva sección "Mis Reservas" */}
                     <li><Link to="#!" className="disabled">Conoce más!</Link></li>
 
                     {/* Mostrar el botón "Registrar Médico" solo si es superusuario */}

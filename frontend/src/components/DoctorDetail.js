@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { addDays, isSameDay } from 'date-fns';
@@ -7,6 +7,7 @@ import '../css/DoctorDetail.css';
 
 const DoctorDetail = () => {
     const { id } = useParams();
+    const navigate = useNavigate();
     const [doctor, setDoctor] = useState(null);
     const [consultas, setConsultas] = useState([]);
     const [showModal, setShowModal] = useState(false);
@@ -165,7 +166,10 @@ const DoctorDetail = () => {
                     <p>Dirección: {doctor.address}</p>
                     <div className="doctor-buttons">
                         <button className="consult-button" onClick={() => setShowModal(true)}>Reservar consulta médica</button>
-                        <button className="consult-button">Realizar consulta médica</button>
+                        <button className="consult-button" onClick={() => navigate(`/chat/${id}`)}>
+                        Realizar consulta médica
+                        </button>
+
                     </div>
                 </div>
             </div>

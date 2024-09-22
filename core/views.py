@@ -173,3 +173,27 @@ def send_email(request):
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
     return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+
+@api_view(['GET'])
+def consultas_paciente(request, paciente_id):
+    consultas = Consulta.objects.filter(paciente_id=paciente_id).select_related('medico')
+    
+    # Agregar los datos del médico a la respuesta
+    data = []
+    for consulta in consultas:
+        data.append({
+            'id': consulta.id,
+            'fecha': consulta.fecha,
+            'hora': consulta.hora,
+            'estado': consulta.estado,
+            'medico_name': f'{consulta.medico.first_name} {consulta.medico.last_name}'  # Nombre completo del médico
+        })
+    
+    return Response(data)
+
+@api_view(['POST'])
+def cancelar_consulta(request, consulta_id):
+    consulta = Consulta.objects.get(id=consulta_id)
+    consulta.delete()
+    return Response({'message': 'Consulta cancelada correctamente.'})
