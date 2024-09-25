@@ -6,26 +6,31 @@ const MisReservas = () => {
     const [reservas, setReservas] = useState([]);
     const navigate = useNavigate();
     const pacienteId = localStorage.getItem('paciente_id');
+    const token = localStorage.getItem('token'); // Obtener el token
 
     useEffect(() => {
+        // Verificar si el usuario está autenticado
+        if (!token) {
+            // Redirigir a la página de inicio de sesión si no está autenticado
+            navigate('/login');
+            return;
+        }
+
         // Obtener las consultas del paciente
         fetch(`http://localhost:8000/api/consultas/paciente/${pacienteId}/`)
             .then(response => response.json())
             .then(data => setReservas(data))
             .catch(error => console.error('Error fetching reservas:', error));
-    }, [pacienteId]);
+    }, [pacienteId, token, navigate]);
 
     const handleRealizarConsulta = (consultaId) => {
-        // Redirigir al chat de la consulta
         navigate(`/chat/${consultaId}`);
     };
 
     const handleCancelarConsulta = (consultaId) => {
-        // Mostrar mensaje de confirmación
         const confirmar = window.confirm('¿Está seguro de que desea cancelar esta consulta?');
 
         if (confirmar) {
-            // Enviar la solicitud para cancelar la consulta si el usuario confirma
             fetch(`http://localhost:8000/api/consultas/${consultaId}/cancelar/`, {
                 method: 'POST',
                 headers: {
@@ -34,7 +39,6 @@ const MisReservas = () => {
             })
             .then(response => response.json())
             .then(data => {
-                // Actualizar la lista de reservas
                 setReservas(reservas.filter(consulta => consulta.id !== consultaId));
                 alert('Consulta cancelada correctamente.');
             })
@@ -58,7 +62,7 @@ const MisReservas = () => {
                 <ul className="reservas-list">
                     {reservas.map(consulta => (
                         <li key={consulta.id}>
-                            <p>Doctor: {consulta.medico_name}</p>  {/* Mostrar el nombre del médico */}
+                            <p>Doctor: {consulta.medico_name}</p>
                             <p>Fecha: {consulta.fecha}</p>
                             <p>Hora: {consulta.hora}</p>
                             <button

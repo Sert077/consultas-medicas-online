@@ -5,33 +5,29 @@ import '../css/Header.css';
 const Header = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [username, setUsername] = useState('');
-    const [isSuperUser, setIsSuperUser] = useState(false); // Nuevo estado para el superusuario
+    const [isSuperUser, setIsSuperUser] = useState(false);
     const [showDropdown, setShowDropdown] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
         const token = localStorage.getItem('token');
         const user = localStorage.getItem('username');
-        const superUser = localStorage.getItem('is_superuser'); // Obtener si es superusuario
+        const superUser = localStorage.getItem('is_superuser');
     
         if (token && user) {
             setIsLoggedIn(true);
             setUsername(user);
-            setIsSuperUser(superUser === 'true'); // Ajustar para valores booleanos o string
+            setIsSuperUser(superUser === 'true');
         }
     }, [isLoggedIn]);
 
     const handleLogout = () => {
-        // Eliminar token y estado de usuario
         localStorage.removeItem('token');
         localStorage.removeItem('username');
-        localStorage.removeItem('is_superuser'); // Eliminar también el estado de superusuario
+        localStorage.removeItem('is_superuser');
 
-        // Actualizar los estados
         setIsLoggedIn(false);
-        setIsSuperUser(false); // Asegurarse de que isSuperUser se reinicie
-
-        // Redirigir a la página de inicio de sesión
+        setIsSuperUser(false);
         navigate('/login');
     };
 
@@ -49,10 +45,14 @@ const Header = () => {
                 <ul>
                     <li><Link to="/">Home</Link></li>
                     <li><Link to="/doctores">Médicos</Link></li>
-                    <li><Link to="/misreservas">Mis Reservas</Link></li> {/* Nueva sección "Mis Reservas" */}
+
+                    {/* Mostrar "Mis Reservas" solo si el usuario ha iniciado sesión */}
+                    {isLoggedIn && (
+                        <li><Link to="/misreservas">Mis Reservas</Link></li>
+                    )}
+
                     <li><Link to="#!" className="disabled">Conoce más!</Link></li>
 
-                    {/* Mostrar el botón "Registrar Médico" solo si es superusuario */}
                     {isSuperUser && (
                         <li><Link to="/registerdoctor">Registrar Médico</Link></li>
                     )}
