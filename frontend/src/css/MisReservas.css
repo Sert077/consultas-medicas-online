@@ -1,7 +1,7 @@
 .reservas-container {
-    margin: 20px auto; /* Centrar el contenedor en la página */
-    width: 90%; /* Ocupar el 90% del ancho de la pantalla */
-    max-width: 1000px;  /* Ancho máximo más amplio */
+    margin: 20px auto;
+    width: 90%;
+    max-width: 1000px;
 }
 
 .reservas-list {
@@ -10,48 +10,85 @@
 }
 
 .reservas-list li {
-    margin-bottom: 15px;
-    padding: 10px;
+    margin-bottom: 20px;
+    padding: 20px;
     border: 1px solid #ccc;
-    border-radius: 5px;
-    background-color: #f9f9f9;  /* Fondo más claro */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);  /* Sombra ligera */
-    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Efecto de hover */
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 .reservas-list li:hover {
-    transform: translateY(-5px); /* Efecto de elevación */
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* Sombra más profunda al pasar el mouse */
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
 }
 
-.reservas-list p {
-    font-size: 1.1em;
+.reserva-info {
+    display: flex;
+    align-items: center;
+    margin-bottom: -17px; /* Casi eliminar el espaciado entre líneas */
+}
+
+.reserva-info p {
+    font-size: 1.1em; /* Reducir el tamaño de la fuente un poco más */
     color: #555;
-    margin: 10px 0;
+    margin-left: 10px;
+}
+
+/* Estilos de los íconos */
+.icono-doctor {
+    font-size: 1.4em;
+    color: #4CAF50;
+}
+
+.icono-calendario {
+    font-size: 1.4em;
+    color: #FF9800;
+}
+
+.icono-reloj {
+    font-size: 1.4em;
+    color: #2196F3;
+}
+
+.button-group {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 10px;
 }
 
 .reservas-list button {
-    margin-right: 10px;
-    padding: 8px 12px;
+    padding: 7px 10px; /* Reducir el tamaño del botón */
     border: none;
     border-radius: 5px;
-    background-color: #4CAF50; /* Verde para realizar consulta */
+    background-color: #4CAF50;
     color: white;
+    /*font-size: 0.97em; /* Reducir tamaño de la fuente en los botones */
     cursor: pointer;
-    transition: background-color 0.3s ease; /* Transición suave en hover */
+    transition: background-color 0.3s ease;
 }
 
-/* Botón para cancelar consulta */
 .reservas-list button:last-child {
-    background-color: #FF4C4C; /* Rojo para cancelar */
+    background-color: #FF4C4C;
     color: white;
 }
 
 .reservas-list button:last-child:hover {
-    background-color: #ff3333; /* Rojo más oscuro al hacer hover */
+    background-color: #ff3333;
 }
 
 .reservas-list button:disabled {
     background-color: #ccc;
     cursor: not-allowed;
+}
+
+.divider {
+    height: 1px;
+    background-color: #ddd;
+    margin: 10px 0;
 }

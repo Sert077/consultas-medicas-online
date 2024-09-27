@@ -6,6 +6,10 @@ python manage.py startapp core
 pip install mysqlclient
 python manage.py createsuperuser
 
+para iconos:
+npm install react-icons
+
+
 npx create-react-app frontend
 cd frontend
 pip install djangorestframework
