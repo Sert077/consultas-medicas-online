@@ -131,6 +131,9 @@ def login_user(request):
     user = authenticate(username=username, password=password)
 
     if user is not None:
+        # Suponiendo que tienes un modelo Perfil relacionado con User
+        perfil = user.perfil  # Asegúrate de que esto es correcto según tu modelo
+
         token, created = Token.objects.get_or_create(user=user)
         return Response({
             'token': token.key,
@@ -140,9 +143,9 @@ def login_user(request):
             'first_name': user.first_name,
             'last_name': user.last_name,
             'email': user.email,
+            'tipo_usuario': perfil.tipo_usuario,  # Devolver el tipo de usuario
         })
-    return Response({'error': 'No se encontro el usuario o la contraseña es incorrecta'}, status=400)
-
+    return Response({'error': 'No se encontró el usuario o la contraseña es incorrecta'}, status=400)
 
 
 @api_view(['GET'])
@@ -197,3 +200,24 @@ def cancelar_consulta(request, consulta_id):
     consulta = Consulta.objects.get(id=consulta_id)
     consulta.delete()
     return Response({'message': 'Consulta cancelada correctamente.'})
+
+
+def consultas_medico(request, user_id):
+    try:
+        # Verificar si el usuario es un médico
+        doctor = Doctor.objects.get(user_id=user_id)  # Buscar el doctor por su user_id
+        consultas = Consulta.objects.filter(medico_id=doctor.id)  # Filtrar las consultas por el medico_id
+        
+        # Preparar los datos para la respuesta
+        consultas_data = [
+            {
+                "id": consulta.id,
+                "paciente_name": f"{consulta.paciente.first_name} {consulta.paciente.last_name}",
+                "fecha": consulta.fecha,
+                "hora": consulta.hora,
+            } for consulta in consultas
+        ]
+        return JsonResponse(consultas_data, safe=False)
+    
+    except Doctor.DoesNotExist:
+        return JsonResponse({"error": "Este usuario no es un médico"}, status=404)
