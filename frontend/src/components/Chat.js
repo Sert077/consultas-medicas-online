@@ -1,50 +1,64 @@
 import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 
-const Chat = ({ consultaId, userId, receiverId }) => {
+const Chat = () => {
+    const { chatId } = useParams(); // Obtener el ID del chat desde la URL
     const [messages, setMessages] = useState([]);
-    const [newMessage, setNewMessage] = useState('');
-    const [socket, setSocket] = useState(null);
+    const [message, setMessage] = useState('');
+    const userId = localStorage.getItem('paciente_id'); // ID del usuario logueado
+    const ws = new WebSocket(`ws://localhost:8000/ws/chat/${chatId}/`);
 
     useEffect(() => {
-        const socket = new WebSocket(`ws://localhost:8000/ws/chat/${consultaId}/`);
-        setSocket(socket);
-
-        socket.onmessage = function (event) {
+        // Recepción de mensajes desde el WebSocket
+        ws.onmessage = (event) => {
             const data = JSON.parse(event.data);
             setMessages((prevMessages) => [...prevMessages, data]);
         };
 
+        // Limpiar conexión de WebSocket cuando se desmonte el componente
         return () => {
-            socket.close();
+            ws.close();
         };
-    }, [consultaId]);
+    }, [ws]);
 
     const sendMessage = () => {
-        if (socket && newMessage) {
-            socket.send(JSON.stringify({
-                'message': newMessage,
-                'sender': userId,
-                'receiver': receiverId,
+        if (message.trim()) {
+            // Enviar el mensaje al servidor a través del WebSocket
+            ws.send(JSON.stringify({
+                'message': message,
+                'sender_id': userId
             }));
-            setNewMessage('');
+
+            // Actualizar la lista de mensajes localmente sin esperar la respuesta del WebSocket
+            setMessages((prevMessages) => [
+                ...prevMessages, 
+                { message, sender_id: userId }
+            ]);
+
+            // Limpiar el campo de entrada de texto
+            setMessage('');
         }
     };
 
     return (
-        <div className="chat-container">
+        <div>
+            <h2>Chat</h2>
             <div className="chat-messages">
                 {messages.map((msg, index) => (
-                    <div key={index}>
-                        <strong>{msg.sender}:</strong> {msg.message}
+                    <div key={index} className={msg.sender_id === userId ? 'my-message' : 'other-message'}>
+                        <p>{msg.message}</p>
                     </div>
                 ))}
             </div>
-            <input
-                type="text"
-                value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
-            />
-            <button onClick={sendMessage}>Enviar</button>
+            <div className="chat-input">
+                <input
+                    type="text"
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    placeholder="Escribe un mensaje..."
+                />
+                <button onClick={sendMessage}>Enviar</button>
+            </div>
         </div>
     );
 };

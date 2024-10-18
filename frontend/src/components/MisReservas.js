@@ -18,7 +18,7 @@ const MisReservas = () => {
 
         // Hacer la llamada API dependiendo del tipo de usuario
         if (tipoUsuario === 'medico') {
-            fetch(`http://localhost:8000/api/api/consultas/medico/${localStorage.getItem('paciente_id')}/`)
+            fetch(`http://localhost:8000/api/consultas/medico/${localStorage.getItem('paciente_id')}/`)
                 .then(response => response.json())
                 .then(data => setReservas(data))
                 .catch(error => console.error('Error fetching reservas:', error));

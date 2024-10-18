@@ -35,6 +35,7 @@ import EmailForm from './components/EmailForm';
 import './css/style.css';
 import ChatComponent from './components/ChatComponent';
 import MisReservas from './components/MisReservas';
+import Chat from './components/Chat';
 function App() {
     return (
         <div className="App">
@@ -48,8 +49,9 @@ function App() {
                     <Route path="/register" element={<Register />} />
                     <Route path="/login" element={<Login />} />
                     <Route path="/send-email" element={<EmailForm />} />
-                    <Route path="/chat/:consultaId" element={<ChatComponent />} />
+                    {/*<Route path="/chat/:consultaId" element={<ChatComponent />} />*/}
                     <Route path="/misreservas" element={<MisReservas />} />
+                    <Route path="/chat/:chatId" element={<Chat />} />  {/* Nueva ruta para el chat */}
                 </Routes>
                 <Footer />
             </Router>
