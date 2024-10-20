@@ -85,7 +85,7 @@ const MisReservas = () => {
                             <div className="button-group">
                                 <button
                                     onClick={() => handleRealizarConsulta(consulta.id)}
-                                    disabled={!isRealizarConsultaEnabled(consulta.fecha, consulta.hora)}
+                                    
                                 >
                                     Realizar consulta
                                 </button>

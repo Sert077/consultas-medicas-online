@@ -44,18 +44,15 @@ class Perfil(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.tipo_usuario}"
-    
 
 class ChatMessage(models.Model):
-    consulta = models.ForeignKey('Consulta', on_delete=models.CASCADE)
-    sender = models.ForeignKey(User, related_name='sender_messages', on_delete=models.CASCADE)
-    receiver = models.ForeignKey(User, related_name='receiver_messages', on_delete=models.CASCADE)
+    chat_id = models.CharField(max_length=255)
+    sender_id = models.IntegerField()
     message = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f'Message from {self.sender} to {self.receiver} at {self.timestamp}'
-
+        return f'Message from {self.sender_id} in chat {self.chat_id}'
 
 class Chat(models.Model):
     paciente = models.ForeignKey(User, on_delete=models.CASCADE)

@@ -18,7 +18,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.exceptions import ValidationError
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
-
+from .models import ChatMessage
 
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -221,3 +221,9 @@ def consultas_medico(request, user_id):
     
     except Doctor.DoesNotExist:
         return JsonResponse({"error": "Este usuario no es un médico"}, status=404)
+    
+
+def get_chat_messages(request, chat_id):
+    messages = ChatMessage.objects.filter(chat_id=chat_id).order_by('timestamp')
+    messages_data = [{'message': msg.message, 'sender_id': msg.sender_id} for msg in messages]
+    return JsonResponse(messages_data, safe=False)

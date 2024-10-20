@@ -115,6 +115,9 @@ pip install daphne
 pip install uvicorn
 pip install python-dotenv
 
+en front
+npm install axios
+
 
 
 

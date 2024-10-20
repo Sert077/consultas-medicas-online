@@ -52,7 +52,10 @@ ASGI_APPLICATION = 'consultas_medicas_online.asgi.application'
 # Configuración de Redis como backend para Channel Layers
 CHANNEL_LAYERS = {
     'default': {
-        'BACKEND': 'channels.layers.InMemoryChannelLayer',  # Para desarrollo
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('127.0.0.1', 6379)],
+        },
     },
 }
 

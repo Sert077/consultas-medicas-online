@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import axios from 'axios'; // Asegúrate de tener axios instalado
+import '../css/ChatComponent.css';
 
 const Chat = () => {
     const { chatId } = useParams(); // Obtener el ID del chat desde la URL
@@ -7,6 +9,17 @@ const Chat = () => {
     const [message, setMessage] = useState('');
     const userId = localStorage.getItem('paciente_id'); // ID del usuario logueado
     const ws = new WebSocket(`ws://localhost:8000/ws/chat/${chatId}/`);
+
+    // Obtener los mensajes anteriores del backend
+    useEffect(() => {
+        axios.get(`http://localhost:8000/api/chat/${chatId}/messages/`)
+            .then(response => {
+                setMessages(response.data);
+            })
+            .catch(error => {
+                console.error('Error al cargar mensajes anteriores:', error);
+            });
+    }, [chatId]);
 
     useEffect(() => {
         // Recepción de mensajes desde el WebSocket

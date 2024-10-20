@@ -3,6 +3,7 @@ from .views import DoctorCreateView, DoctorListView, DoctorDetailView, create_do
 from .views import UserRegistrationView, login_user
 from . import views
 from .views import send_email
+from .views import get_chat_messages
 
 urlpatterns = [
     # Rutas comentadas, puedes descomentarlas si las necesitas
@@ -32,5 +33,6 @@ urlpatterns = [
     path('consultas/paciente/<int:paciente_id>/', consultas_paciente, name='consultas_paciente'),
     path('consultas/<int:consulta_id>/cancelar/', cancelar_consulta, name='cancelar_consulta'),
     path('consultas/medico/<int:user_id>/', consultas_medico, name='consultas_medico'),
+    path('chat/<str:chat_id>/messages/', get_chat_messages, name='get_chat_messages'),
 
 ]
