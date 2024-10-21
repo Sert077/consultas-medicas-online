@@ -48,6 +48,7 @@ class Perfil(models.Model):
 class ChatMessage(models.Model):
     chat_id = models.CharField(max_length=255)
     sender_id = models.IntegerField()
+    sender_name = models.CharField(max_length=255, null=True)  # Almacenar el nombre del remitente
     message = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
 
