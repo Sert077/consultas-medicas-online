@@ -1,45 +1,18 @@
-/* ChatComponent.css */
 .chat-container {
     display: flex;
     flex-direction: column;
     width: 100%;
-    max-width: 500px; /* Más estrecho */
-    margin: 20px auto; /* Centrar el contenedor */
-    border: 1px solid #ddd;
-    border-radius: 10px; /* Bordes redondeados */
-    background-color: #fff;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra para darle profundidad */
-    padding: 10px;
+    max-width: 600px;
+    margin: auto;
 }
 
 .chat-messages {
     border: 1px solid #ddd;
     padding: 10px;
-    height: 300px;
+    height: 400px;
     overflow-y: scroll;
     background-color: #f9f9f9;
-    border-radius: 5px;
     margin-bottom: 10px;
-}
-
-.my-message {
-    text-align: right;
-    background-color: #e1ffc7; /* Color diferente para el usuario */
-    padding: 8px;
-    margin-bottom: 5px;
-    border-radius: 10px;
-    max-width: 80%;
-    align-self: flex-end; /* Alinea mensajes a la derecha */
-}
-
-.other-message {
-    text-align: left;
-    background-color: #f1f1f1;
-    padding: 8px;
-    margin-bottom: 5px;
-    border-radius: 10px;
-    max-width: 80%;
-    align-self: flex-start; /* Alinea mensajes a la izquierda */
 }
 
 .chat-input {
@@ -50,20 +23,35 @@
 .chat-input input {
     flex-grow: 1;
     padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
 }
 
 .chat-input button {
     padding: 10px 20px;
-    background-color: #4caf50; /* Botón verde */
-    color: white;
-    border: none;
-    border-radius: 5px;
-    margin-left: 5px;
-    cursor: pointer;
 }
 
-.chat-input button:hover {
-    background-color: #45a049;
+/* Mensajes del usuario */
+.my-message {
+    background-color: #28a745;
+    color: white;
+    padding: 10px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    max-width: 70%;
+    align-self: flex-end; /* Alinear a la derecha */
+}
+
+/* Mensajes de otros usuarios */
+.other-message {
+    background-color: #f1f1f1;
+    color: #333;
+    padding: 10px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    max-width: 70%;
+    align-self: flex-start; /* Alinear a la izquierda */
+}
+
+.chat-messages p {
+    margin: 0;
+    word-wrap: break-word;
 }
