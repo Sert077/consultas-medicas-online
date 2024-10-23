@@ -28,9 +28,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
         data = json.loads(text_data)
         message = data['message']
         sender_id = data['sender_id']
+        sender_name = data['sender_name']  # Capturar el nombre del remitente
 
-        # Guardar el mensaje en la base de datos
-        await self.save_message(self.chat_id, sender_id, message)
+        # Guardar el mensaje en la base de datos con el nombre del remitente
+        await self.save_message(self.chat_id, sender_id, sender_name, message)
 
         # Enviar mensaje al grupo de chat
         await self.channel_layer.group_send(
@@ -38,22 +39,25 @@ class ChatConsumer(AsyncWebsocketConsumer):
             {
                 'type': 'chat_message',
                 'message': message,
-                'sender_id': sender_id
+                'sender_id': sender_id,
+                'sender_name': sender_name  # Incluir el nombre del remitente
             }
         )
 
     # Guardar el mensaje en la base de datos de manera sincrónica
     @database_sync_to_async  # Usa database_sync_to_async en lugar de sync_to_async
-    def save_message(self, chat_id, sender_id, message):
-        ChatMessage.objects.create(chat_id=chat_id, sender_id=sender_id, message=message)
+    def save_message(self, chat_id, sender_id, sender_name, message):
+        ChatMessage.objects.create(chat_id=chat_id, sender_id=sender_id, sender_name=sender_name, message=message)
 
     # Recibir mensaje del grupo de chat
     async def chat_message(self, event):
         message = event['message']
         sender_id = event['sender_id']
+        sender_name = event['sender_name']  # Capturar el nombre del remitente
 
         # Enviar mensaje al WebSocket
         await self.send(text_data=json.dumps({
             'message': message,
-            'sender_id': sender_id
+            'sender_id': sender_id,
+            'sender_name': sender_name  # Enviar el nombre del remitente al frontend
         }))

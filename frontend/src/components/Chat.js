@@ -9,7 +9,7 @@ const Chat = () => {
     const [message, setMessage] = useState('');
     const userId = localStorage.getItem('paciente_id');
     const userName = localStorage.getItem('first_name'); // Nombre del usuario logueado
-    const ws = new WebSocket(`ws://localhost:8000/ws/chat/${chatId}/`);
+    const [ws, setWs] = useState(null); // Manejando WebSocket como estado
     const messagesEndRef = useRef(null); // Referencia para scroll al final del chat
 
     // Obtener los mensajes anteriores del backend
@@ -25,45 +25,44 @@ const Chat = () => {
     }, [chatId]);
 
     useEffect(() => {
-        // Recepción de mensajes desde el WebSocket
-        ws.onmessage = (event) => {
+        // Crear WebSocket al montar el componente
+        const socket = new WebSocket(`ws://localhost:8000/ws/chat/${chatId}/`);
+        setWs(socket);
+
+        socket.onmessage = (event) => {
             const data = JSON.parse(event.data);
-            
-            // Verifica si el mensaje recibido contiene `sender_name`
-            console.log('Mensaje recibido:', data);  // Añade esta línea para depuración
-            
-            // Asegúrate de que data tenga `sender_name`
+            console.log('Mensaje recibido:', data);  // Para depuración
             setMessages((prevMessages) => [...prevMessages, data]);
         };
-    
+
+        socket.onclose = () => console.log('WebSocket desconectado');
+        
         // Limpiar conexión de WebSocket cuando se desmonte el componente
         return () => {
-            ws.close();
+            socket.close();
         };
-    }, [ws]);
-    
+    }, [chatId]);
 
     const sendMessage = () => {
         if (message.trim()) {
-            ws.send(JSON.stringify({
-                'message': message,
-                'sender_id': userId,
-                'sender_name': userName // Enviar nombre del usuario
-            }));
-
-            // Actualizar la lista de mensajes localmente para mostrarlo de inmediato
-            setMessages((prevMessages) => [
-                ...prevMessages,
-                { message, sender_id: userId, sender_name: userName }
-            ]);
-
-            setMessage(''); // Limpiar campo de texto
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({
+                    'message': message,
+                    'sender_id': userId,
+                    'sender_name': userName // Enviar nombre del usuario
+                }));
+    
+                setMessage(''); // Limpiar campo de texto
+            } else {
+                console.error('WebSocket no está conectado.');
+            }
         }
     };
 
     // Función para manejar el envío al presionar la tecla "Enter"
     const handleKeyPress = (e) => {
         if (e.key === 'Enter') {
+            e.preventDefault(); // Evitar el comportamiento por defecto de 'Enter'
             sendMessage();
         }
     };
