@@ -225,5 +225,12 @@ def consultas_medico(request, user_id):
 
 def get_chat_messages(request, chat_id):
     messages = ChatMessage.objects.filter(chat_id=chat_id).order_by('timestamp')
-    messages_data = [{'message': msg.message, 'sender_id': msg.sender_id} for msg in messages]
+    messages_data = [
+        {
+            'message': msg.message,
+            'sender_id': msg.sender_id,
+            'sender_name': msg.sender_name  # Obtener el nombre del remitente
+        } 
+        for msg in messages
+    ]
     return JsonResponse(messages_data, safe=False)

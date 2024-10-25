@@ -1,21 +1,21 @@
-/* ChatComponent.css */
 .chat-container {
     display: flex;
     flex-direction: column;
     width: 100%;
-    max-width: 500px; /* Más estrecho */
-    margin: 20px auto; /* Centrar el contenedor */
+    max-width: 500px;
+    margin: 20px auto;
     border: 1px solid #ddd;
-    border-radius: 10px; /* Bordes redondeados */
+    border-radius: 10px;
     background-color: #fff;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra para darle profundidad */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     padding: 10px;
+    font-family: Arial, sans-serif;
 }
 
 .chat-messages {
     border: 1px solid #ddd;
     padding: 10px;
-    height: 300px;
+    height: 400px;
     overflow-y: scroll;
     background-color: #f9f9f9;
     border-radius: 5px;
@@ -23,47 +23,111 @@
 }
 
 .my-message {
-    text-align: right;
-    background-color: #e1ffc7; /* Color diferente para el usuario */
-    padding: 8px;
-    margin-bottom: 5px;
-    border-radius: 10px;
-    max-width: 80%;
-    align-self: flex-end; /* Alinea mensajes a la derecha */
+    background-color: #dcf8c6; /* Verde claro de WhatsApp */
+    margin-bottom: 10px;
+    padding: 10px 15px;
+    border-radius: 10px 0 10px 10px; /* Esquina superior derecha sin borde redondeado */
+    max-width: 59%;
+    margin-left: auto;
+    position: relative;
+    word-wrap: break-word;
+    text-align: left; /* Alineación a la izquierda para mayor legibilidad */
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08); /* Sombra suave para darle un toque ligero */
+    font-size: 14px;
+    color: #333; /* Color de texto gris oscuro para contraste */
+}
+
+.my-message:before {
+    content: '';
+    position: absolute;
+    top: 1px;
+    right: -10px; /* Mueve la flecha más hacia afuera */
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 10px 0 10px 12px;
+    border-color: transparent transparent transparent #dcf8c6; /* Ajustamos el color al verde claro */
 }
 
 .other-message {
-    text-align: left;
-    background-color: #f1f1f1;
-    padding: 8px;
-    margin-bottom: 5px;
-    border-radius: 10px;
-    max-width: 80%;
-    align-self: flex-start; /* Alinea mensajes a la izquierda */
+    background-color: #e7e7e7dd; /* Un tono rosa pastel suave */
+    border: 1px solid #f1eeee88; /* Bordes rosa suave */
+    margin-bottom: 10px;
+    padding: 10px 15px;
+    border-radius: 18px 18px 18px 0px; /* Bordes redondeados */
+    max-width: 59%;
+    align-self: flex-start;
+    position: relative;
+    word-wrap: break-word;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08); /* Sombra ligera */
+    font-size: 14px;
+    color: #333; /* Color de texto gris oscuro */
+}
+
+.other-message:before {
+    content: '';
+    position: absolute;
+    top: 10px;
+    left: -12px;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 10px 12px 10px 0;
+    border-color: transparent #e7e7e7dd transparent transparent; /* Ajustamos el color al fondo rosa pastel */
+}
+
+/* Ajustamos también los efectos hover para hacerlo más sutil */
+.my-message:hover,
+.other-message:hover {
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Sombra un poco más intensa al pasar el mouse */
+}
+
+.my-message .sender-name,
+.other-message .sender-name {
+    font-weight: bold;
+    font-size: 12px;
+    margin-bottom: 4px;
+    color: #555;
+}
+
+.my-message .message-text,
+.other-message .message-text {
+    font-size: 14px;
+    margin: 0;
+    white-space: pre-wrap;
 }
 
 .chat-input {
     display: flex;
     margin-top: 10px;
+    border-top: 1px solid #ddd;
+    padding-top: 10px;
 }
 
 .chat-input input {
     flex-grow: 1;
     padding: 10px;
     border: 1px solid #ddd;
-    border-radius: 5px;
+    border-radius: 10px;
+    outline: none;
+    font-size: 14px;
 }
 
 .chat-input button {
-    padding: 10px 20px;
-    background-color: #4caf50; /* Botón verde */
+    padding: 10px 10px;
+    background-color: #4caf50;
     color: white;
     border: none;
-    border-radius: 5px;
+    border-radius: 10px;
     margin-left: 5px;
     cursor: pointer;
+    transition: background-color 0.2s;
 }
 
 .chat-input button:hover {
     background-color: #45a049;
+}
+
+.chat-input input:focus {
+    border-color: #4caf50;
 }

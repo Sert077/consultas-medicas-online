@@ -54,7 +54,7 @@
 }
 
 .doctor-specialty {
-    color: #6A1B9A; /* Púrpura */
+    color: #3f51b5; /* Púrpura */
     font-size: 1rem;
     min-height: 1.5rem;
     overflow: hidden;
@@ -95,7 +95,7 @@
     display: inline-block;
     margin-top: 10px;
     padding: 10px 20px;
-    background-color: #6c63ff; /* Púrpura */
+    background-color: #3d57ec; /* Púrpura */
     color: #fff;
     text-decoration: none;
     border-radius: 5px;
@@ -104,6 +104,6 @@
 }
 
 .more-info-button:hover {
-    background-color: #4e4ab7; /* Tono más oscuro de púrpura */
+    background-color: #3f51b5; /* Tono más oscuro de púrpura */
 }
 
