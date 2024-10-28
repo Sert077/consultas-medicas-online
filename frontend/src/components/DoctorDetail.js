@@ -194,18 +194,19 @@ const DoctorDetail = () => {
 
             {/* Modal para reserva de consulta */}
 {showModal && (
-    <div className="modal">
-        <div className="modal-content">
+    <div className="modal-overlay" onClick={() => setShowModal(false)}>
+        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <h3>Reservar Consulta Médica</h3>
-            <form onSubmit={handleReserva}>
+            <form onSubmit={handleReserva} className="modal-form">
                 <label htmlFor="fecha" className="modal-label">Fecha:</label>
                 <DatePicker
                     selected={fecha}
                     onChange={(date) => setFecha(date)}
                     minDate={new Date()}
-                    filterDate={filterUnavailableDays} // Deshabilitar días completos
+                    filterDate={filterUnavailableDays}
                     required
-                    className="input-field"
+                    inline
+                    className="calendar-picker"
                 />
                 <label htmlFor="hora" className="modal-label">Hora:</label>
                 <select

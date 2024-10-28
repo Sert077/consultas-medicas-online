@@ -91,58 +91,81 @@ h3{
 }
 
 /* Estilos para el modal */
-/* Estilo para las etiquetas del modal */
-.modal-label {
-    display: block;
-    text-align: left;
-    margin-bottom: -5px;
-    color: #301466;
-}
-
-/* Fondo del modal */
-.modal {
+/* Fondo semitransparente para el modal */
+.modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.6);
     display: flex;
     justify-content: center;
     align-items: center;
-    transition: opacity 0.3s ease;
+    z-index: 1000;
+}
+
+/* Animación del modal */
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* Contenido del modal */
 .modal-content {
     background-color: #fff;
-    padding: 30px;
     border-radius: 12px;
-    width: 400px;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
     text-align: center;
-    transition: transform 0.3s ease;
-    transform: translateY(0);
+    animation: slideDown 0.3s ease; /* Aplicar animación */
 }
 
-/* Encabezado */
+/* Formulario del modal */
+.modal-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
 .modal-content h3 {
     margin-top: 0;
     font-size: 1.4rem;
     color: #4CAF50;
 }
 
-/* Campo de entrada */
+/* Etiquetas del formulario */
+.modal-label {
+    color: #301466;
+    margin-bottom: 8px;
+    text-align: left;
+    width: 100%;
+}
+
+/* Calendario */
+.calendar-picker {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 16px;
+}
+
+/* Campo de selección de hora */
 .input-field {
     width: 100%;
-    padding: 10px;
-    margin-top: 8px;
-    margin-bottom: 15px;
+    padding: 8px;
     border: 1px solid #ddd;
-    border-radius: 6px;
-    font-size: 1rem;
-    background-color: #ffffff;
-    transition: border-color 0.3s ease;
+    border-radius: 8px;
+    margin-bottom: 16px;
 }
 
 .input-field:focus {
@@ -150,51 +173,39 @@ h3{
     border-color: #6c63ff;
 }
 
-/* Botones */
-.button {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 6px;
-    color: white;
-    cursor: pointer;
-    width: 48%;
-    font-size: 1rem;
-    transition: background-color 0.3s ease;
-    box-sizing: border-box;
+/* Botones en el modal */
+.modal-buttons-container {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    gap: 10px;
+    margin-top: 16px;
 }
 
-/* Botón de Reservar */
-.reservar {
+.button {
+    background-color: #6c63ff;
+    color: white;
+    padding: 10px 27px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+.button.reservar {
     background-color: #6c63ff;
 }
 
-.reservar:hover {
-    background-color: #4e4ab7;
+.button.close-modal {
+    background-color: #f44336;
 }
 
-/* Botón de Cerrar */
-.close-modal {
-    background-color: #e74c3c;
+.button:hover {
+    background-color: #4e4ab7;
 }
 
 .close-modal:hover {
     background-color: #c0392b;
 }
 
-/* Contenedor de botones */
-.modal-buttons-container {
-    display: flex;
-    justify-content: center; /* Alinea los botones al centro */
-    gap: 10px;
-    margin-top: 20px;
-}
-
-/* Transición de entrada */
-.modal-content {
-    animation: fadeIn 0.3s ease;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
