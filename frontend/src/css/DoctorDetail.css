@@ -50,7 +50,7 @@
     background-color: #45a049;
 }
 .consult-button:last-child {
-    background-color: #3f51b5; /* Púrpura */
+    background-color: #6c63ff; /* Púrpura */
 }
 .consult-button:last-child:hover {
     background-color: #4e4ab7;
@@ -91,6 +91,15 @@ h3{
 }
 
 /* Estilos para el modal */
+/* Estilo para las etiquetas del modal */
+.modal-label {
+    display: block;
+    text-align: left;
+    margin-bottom: -5px;
+    color: #301466;
+}
+
+/* Fondo del modal */
 .modal {
     position: fixed;
     top: 0;
@@ -101,28 +110,91 @@ h3{
     display: flex;
     justify-content: center;
     align-items: center;
+    transition: opacity 0.3s ease;
 }
 
+/* Contenido del modal */
 .modal-content {
     background-color: #fff;
-    padding: 20px;
-    border-radius: 8px;
+    padding: 30px;
+    border-radius: 12px;
     width: 400px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
     text-align: center;
+    transition: transform 0.3s ease;
+    transform: translateY(0);
 }
 
-.close-modal {
-    background-color: #e74c3c;
-    color: white;
+/* Encabezado */
+.modal-content h3 {
+    margin-top: 0;
+    font-size: 1.4rem;
+    color: #4CAF50;
+}
+
+/* Campo de entrada */
+.input-field {
+    width: 100%;
+    padding: 10px;
+    margin-top: 8px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 1rem;
+    background-color: #ffffff;
+    transition: border-color 0.3s ease;
+}
+
+.input-field:focus {
+    outline: none;
+    border-color: #6c63ff;
+}
+
+/* Botones */
+.button {
     padding: 10px 20px;
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
+    color: white;
     cursor: pointer;
-    margin-top: 10px;
+    width: 48%;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+    box-sizing: border-box;
+}
+
+/* Botón de Reservar */
+.reservar {
+    background-color: #6c63ff;
+}
+
+.reservar:hover {
+    background-color: #4e4ab7;
+}
+
+/* Botón de Cerrar */
+.close-modal {
+    background-color: #e74c3c;
 }
 
 .close-modal:hover {
     background-color: #c0392b;
 }
 
+/* Contenedor de botones */
+.modal-buttons-container {
+    display: flex;
+    justify-content: center; /* Alinea los botones al centro */
+    gap: 10px;
+    margin-top: 20px;
+}
+
+/* Transición de entrada */
+.modal-content {
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}

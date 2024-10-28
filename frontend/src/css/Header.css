@@ -3,7 +3,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #3f51b5; /* Púrpura oscuro */
+    background-color: #301466; /* Púrpura oscuro */
     padding: 15px 30px;
     color: white;
 }
@@ -66,7 +66,7 @@
     position: absolute;
     right: 0;
     top: 100%;
-    background-color: #3f51b5; /* Fondo púrpura oscuro para contrastar con el texto */
+    background-color: #301466; /* Fondo púrpura oscuro para contrastar con el texto */
     box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);
     border-radius: 5px;
     width: 200px;

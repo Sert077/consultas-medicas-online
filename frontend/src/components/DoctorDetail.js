@@ -169,7 +169,6 @@ const DoctorDetail = () => {
                         <button className="consult-button" onClick={() => navigate(`/chat/${id}`)}>
                         Realizar consulta médica
                         </button>
-
                     </div>
                 </div>
             </div>
@@ -194,37 +193,42 @@ const DoctorDetail = () => {
             </div>
 
             {/* Modal para reserva de consulta */}
-            {showModal && (
-                <div className="modal">
-                    <div className="modal-content">
-                        <h3>Reservar Consulta Médica</h3>
-                        <form onSubmit={handleReserva}>
-                            <label htmlFor="fecha">Fecha:</label>
-                            <DatePicker
-                                selected={fecha}
-                                onChange={(date) => setFecha(date)}
-                                minDate={new Date()}
-                                filterDate={filterUnavailableDays} // Deshabilitar días completos
-                                required
-                            />
-                            <label htmlFor="hora">Hora:</label>
-                            <select
-                                id="hora"
-                                value={hora}
-                                onChange={(e) => setHora(e.target.value)}
-                                required
-                            >
-                                <option value="">Selecciona una hora</option>
-                                {getAvailableTimeSlots().map(slot => (
-                                    <option key={slot} value={slot}>{slot}</option>
-                                ))}
-                            </select>
-                            <button type="submit" className="consult-button">Reservar</button>
-                        </form>
-                        <button className="close-modal" onClick={() => setShowModal(false)}>Cerrar</button>
-                    </div>
+{showModal && (
+    <div className="modal">
+        <div className="modal-content">
+            <h3>Reservar Consulta Médica</h3>
+            <form onSubmit={handleReserva}>
+                <label htmlFor="fecha" className="modal-label">Fecha:</label>
+                <DatePicker
+                    selected={fecha}
+                    onChange={(date) => setFecha(date)}
+                    minDate={new Date()}
+                    filterDate={filterUnavailableDays} // Deshabilitar días completos
+                    required
+                    className="input-field"
+                />
+                <label htmlFor="hora" className="modal-label">Hora:</label>
+                <select
+                    id="hora"
+                    value={hora}
+                    onChange={(e) => setHora(e.target.value)}
+                    required
+                    className="input-field"
+                >
+                    <option value="">Selecciona una hora</option>
+                    {getAvailableTimeSlots().map(slot => (
+                        <option key={slot} value={slot}>{slot}</option>
+                    ))}
+                </select>
+                <div className="modal-buttons-container">
+                    <button type="submit" className="button reservar">Reservar</button>
+                    <button type="button" className="button close-modal" onClick={() => setShowModal(false)}>Cerrar</button>
                 </div>
-            )}
+            </form>
+        </div>
+    </div>
+)}
+
         </div>
     );
 };
