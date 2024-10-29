@@ -8,16 +8,25 @@ const Chat = () => {
     const [messages, setMessages] = useState([]);
     const [message, setMessage] = useState('');
     const userId = localStorage.getItem('paciente_id');
-    const userName = localStorage.getItem('first_name'); // Nombre del usuario logueado
-    const [ws, setWs] = useState(null); // Manejando WebSocket como estado
-    const messagesEndRef = useRef(null); // Referencia para scroll al final del chat
+    const userName = localStorage.getItem('first_name');
+    const [ws, setWs] = useState(null);
+    const messagesEndRef = useRef(null);
 
-    // Obtener los mensajes anteriores del backend
+    // Obtener los mensajes anteriores del backend y cargar imágenes del localStorage
     useEffect(() => {
+        // Cargar mensajes desde el backend
         axios.get(`http://localhost:8000/api/chat/${chatId}/messages/`)
             .then(response => {
-                // Asegúrate de que los mensajes anteriores incluyan sender_name
-                setMessages(response.data);
+                // Cargar imágenes desde localStorage
+                const savedImages = JSON.parse(localStorage.getItem('chatImages')) || [];
+                const allMessages = [...response.data, ...savedImages]; // Combinar mensajes
+                
+                // Filtrar duplicados antes de establecer el estado
+                const uniqueMessages = allMessages.filter((msg, index, self) =>
+                    index === self.findIndex((m) => m.message === msg.message && m.sender_id === msg.sender_id)
+                );
+
+                setMessages(uniqueMessages);
             })
             .catch(error => {
                 console.error('Error al cargar mensajes anteriores:', error);
@@ -32,7 +41,22 @@ const Chat = () => {
         socket.onmessage = (event) => {
             const data = JSON.parse(event.data);
             console.log('Mensaje recibido:', data);  // Para depuración
-            setMessages((prevMessages) => [...prevMessages, data]);
+
+            // Almacenar la imagen en localStorage si es un mensaje de tipo imagen
+            if (data.type === 'image') {
+                const savedImages = JSON.parse(localStorage.getItem('chatImages')) || [];
+                savedImages.push(data); // Agregar la imagen al arreglo
+                localStorage.setItem('chatImages', JSON.stringify(savedImages));
+            }
+
+            // Solo agregar el mensaje si no existe ya en messages
+            setMessages(prevMessages => {
+                const messageExists = prevMessages.some(msg => msg.message === data.message && msg.sender_id === data.sender_id);
+                if (!messageExists) {
+                    return [...prevMessages, data]; // Agregar mensaje al estado
+                }
+                return prevMessages; // No agregar si ya existe
+            });
         };
 
         socket.onclose = () => console.log('WebSocket desconectado');
@@ -59,6 +83,33 @@ const Chat = () => {
         }
     };
 
+    const sendImage = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = () => {
+                const imgData = {
+                    message: reader.result, // Guardar imagen en formato Base64
+                    sender_id: userId,
+                    sender_name: userName,
+                    type: 'image' // Añadir tipo de mensaje
+                };
+
+                // Guardar imagen en el localStorage
+                const savedImages = JSON.parse(localStorage.getItem('chatImages')) || [];
+                savedImages.push(imgData); // Agregar imagen al arreglo
+                localStorage.setItem('chatImages', JSON.stringify(savedImages));
+
+                // Enviar la imagen a través del WebSocket
+                if (ws && ws.readyState === WebSocket.OPEN) {
+                    ws.send(JSON.stringify(imgData)); // Enviar solo la imagen
+                }
+                // No agregar la imagen al estado aquí
+            };
+            reader.readAsDataURL(file); // Leer la imagen como URL de datos
+        }
+    };
+
     // Función para manejar el envío al presionar la tecla "Enter"
     const handleKeyPress = (e) => {
         if (e.key === 'Enter') {
@@ -80,8 +131,16 @@ const Chat = () => {
             <div className="chat-messages">
                 {messages.map((msg, index) => (
                     <div key={index} className={msg.sender_id === userId ? 'my-message' : 'other-message'}>
-                        {/* Mostrar nombre del remitente */}
-                        <p><strong>{msg.sender_name}:</strong> {msg.message}</p>
+                        <p><strong>{msg.sender_name}:</strong></p>
+                        {msg.type === 'image' ? (
+                            <img 
+                                src={msg.message} 
+                                alt="Mensaje enviado" 
+                                style={{ maxWidth: '100%', height: 'auto' }} 
+                            />
+                        ) : (
+                            <p>{msg.message}</p>
+                        )}
                     </div>
                 ))}
                 <div ref={messagesEndRef} /> {/* Referencia para el scroll */}
@@ -95,6 +154,16 @@ const Chat = () => {
                     placeholder="Escribe un mensaje..."
                 />
                 <button onClick={sendMessage}>Enviar</button>
+                <input 
+                    type="file" 
+                    accept="image/*" 
+                    onChange={sendImage} 
+                    style={{ display: 'none' }} 
+                    id="file-upload" 
+                />
+                <label htmlFor="file-upload" className="custom-file-upload">
+                    Enviar Imagen
+                </label>
             </div>
         </div>
     );

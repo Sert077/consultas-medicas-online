@@ -183,14 +183,15 @@ h3{
 }
 
 .button {
-    background-color: #6c63ff;
-    color: white;
-    padding: 10px 27px;
+    padding: 10px 20px;
     border: none;
     border-radius: 6px;
+    color: white;
     cursor: pointer;
-    font-size: 14px;
+    width: 48%;
+    font-size: 1rem;
     transition: background-color 0.3s ease;
+    box-sizing: border-box;
 }
 
 .button.reservar {

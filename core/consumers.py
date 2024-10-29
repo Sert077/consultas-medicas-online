@@ -8,39 +8,31 @@ class ChatConsumer(AsyncWebsocketConsumer):
         self.chat_id = self.scope['url_route']['kwargs']['chat_id']
         self.group_name = f'chat_{self.chat_id}'
 
-        # Unirse al grupo de chat
-        await self.channel_layer.group_add(
-            self.group_name,
-            self.channel_name
-        )
-
+        await self.channel_layer.group_add(self.group_name, self.channel_name)
         await self.accept()
 
     async def disconnect(self, close_code):
-        # Salir del grupo de chat
-        await self.channel_layer.group_discard(
-            self.group_name,
-            self.channel_name
-        )
+        await self.channel_layer.group_discard(self.group_name, self.channel_name)
 
-    # Recibir mensaje del WebSocket
     async def receive(self, text_data):
         data = json.loads(text_data)
         message = data['message']
         sender_id = data['sender_id']
-        sender_name = data['sender_name']  # Capturar el nombre del remitente
+        sender_name = data['sender_name']
+        message_type = data.get('type', 'text')
 
-        # Guardar el mensaje en la base de datos con el nombre del remitente
-        await self.save_message(self.chat_id, sender_id, sender_name, message)
+        # Si es un mensaje de texto, guárdalo en la base de datos; si es imagen, no lo guarda
+        if message_type == 'text':
+            await self.save_message(self.chat_id, sender_id, sender_name, message)
 
-        # Enviar mensaje al grupo de chat
         await self.channel_layer.group_send(
             self.group_name,
             {
                 'type': 'chat_message',
                 'message': message,
                 'sender_id': sender_id,
-                'sender_name': sender_name  # Incluir el nombre del remitente
+                'sender_name': sender_name,
+                'message_type': message_type
             }
         )
 
@@ -51,13 +43,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     # Recibir mensaje del grupo de chat
     async def chat_message(self, event):
-        message = event['message']
-        sender_id = event['sender_id']
-        sender_name = event['sender_name']  # Capturar el nombre del remitente
-
-        # Enviar mensaje al WebSocket
         await self.send(text_data=json.dumps({
-            'message': message,
-            'sender_id': sender_id,
-            'sender_name': sender_name  # Enviar el nombre del remitente al frontend
+            'message': event['message'],
+            'sender_id': event['sender_id'],
+            'sender_name': event['sender_name'],
+            'type': event['message_type']
         }))
