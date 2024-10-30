@@ -99,29 +99,55 @@
 
 .chat-input {
     display: flex;
+    align-items: center;
+    justify-content: flex-start; /* Cambiar a flex-start para que los elementos se alineen a la izquierda */
     margin-top: 10px;
     border-top: 1px solid #ddd;
     padding-top: 10px;
+    flex-wrap: wrap; /* Permite que los elementos se muevan a la siguiente línea si no hay espacio */
+}
+
+.chat-input .custom-file-upload {
+    display: flex;
+    align-items: center; /* Centra el icono verticalmente */
+    justify-content: center; /* Centra el icono horizontalmente */
+    padding: 0; /* Elimina el padding extra */
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    margin-right: 5px;
+    width: 38px; /* Define el ancho fijo para que coincida con la altura */
+    height: 38px; /* Asegura que la altura sea consistente */
+    transition: background-color 0.2s;
+}
+
+.chat-input .custom-file-upload:hover {
+    background-color: #45a049;
+}
+
+.chat-input button {
+    padding: 10px;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    height: 38px; /* Asegura que tenga la misma altura */
+    transition: background-color 0.2s;
 }
 
 .chat-input input {
-    flex-grow: 1;
+    flex: 1; /* Permite que el input crezca para ocupar el espacio disponible */
+    min-width: 0; /* Previene que el input exceda el tamaño del contenedor */
     padding: 10px;
     border: 1px solid #ddd;
     border-radius: 10px;
     outline: none;
     font-size: 14px;
-}
-
-.chat-input button {
-    padding: 10px 10px;
-    background-color: #4caf50;
-    color: white;
-    border: none;
-    border-radius: 10px;
-    margin-left: 5px;
-    cursor: pointer;
-    transition: background-color 0.2s;
+    margin-right: 10px;
+    height: 38px; /* Asegura que la altura del input coincida con los botones */
 }
 
 .chat-input button:hover {
@@ -131,3 +157,4 @@
 .chat-input input:focus {
     border-color: #4caf50;
 }
+
