@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
-import { FaImage } from 'react-icons/fa'; // Importamos el ícono de imagen de react-icons/fa
+import { FaImage, FaDownload, FaTimes, FaVideo } from 'react-icons/fa'; // Importa el icono de video
 import '../css/ChatComponent.css';
 
 const Chat = () => {
@@ -12,13 +12,14 @@ const Chat = () => {
     const userName = localStorage.getItem('first_name');
     const [ws, setWs] = useState(null);
     const messagesEndRef = useRef(null);
+    const [selectedImage, setSelectedImage] = useState(null);
 
     useEffect(() => {
         axios.get(`http://localhost:8000/api/chat/${chatId}/messages/`)
             .then(response => {
                 const savedImages = JSON.parse(localStorage.getItem('chatImages')) || [];
                 const allMessages = [...response.data, ...savedImages];
-                
+
                 const uniqueMessages = allMessages.filter((msg, index, self) =>
                     index === self.findIndex((m) => m.message === msg.message && m.sender_id === msg.sender_id)
                 );
@@ -54,7 +55,7 @@ const Chat = () => {
         };
 
         socket.onclose = () => console.log('WebSocket desconectado');
-        
+
         return () => {
             socket.close();
         };
@@ -66,7 +67,7 @@ const Chat = () => {
                 ws.send(JSON.stringify({
                     'message': message,
                     'sender_id': userId,
-                    'sender_name': userName 
+                    'sender_name': userName
                 }));
                 setMessage('');
             } else {
@@ -112,9 +113,38 @@ const Chat = () => {
         }
     }, [messages]);
 
+    // Función para abrir la imagen en modo previsualización
+    const openImagePreview = (image) => {
+        setSelectedImage(image);
+    };
+
+    // Función para cerrar la previsualización
+    const closeImagePreview = () => {
+        setSelectedImage(null);
+    };
+
+    // Generar un enlace de Google Meet y enviarlo al chat
+    const generateMeetLink = () => {
+        const meetLink = 'https://meet.google.com/new';
+        const linkMessage = `Únete a la reunión aquí: ${meetLink}`;
+        setMessage(linkMessage);
+        sendMessage();
+    };
+
+    // Convertir enlaces en el mensaje a enlaces clicables
+    const formatMessageWithLinks = (msg) => {
+        const urlRegex = /(https?:\/\/[^\s]+)/g;
+        return msg.replace(urlRegex, (url) => `<a href="${url}" target="_blank">${url}</a>`);
+    };
+
     return (
         <div className="chat-container">
             <h2>Chat</h2>
+            <div className="meet-button-container">
+                <button onClick={generateMeetLink} className="meet-button">
+                    <FaVideo /> Meet
+                </button>
+            </div>
             <div className="chat-messages">
                 {messages.map((msg, index) => (
                     <div key={index} className={msg.sender_id === userId ? 'my-message' : 'other-message'}>
@@ -123,31 +153,46 @@ const Chat = () => {
                             <img 
                                 src={msg.message} 
                                 alt="Mensaje enviado" 
-                                style={{ maxWidth: '100%', height: 'auto' }} 
+                                style={{ maxWidth: '100%', height: 'auto', cursor: 'pointer' }} 
+                                onClick={() => openImagePreview(msg.message)}
                             />
                         ) : (
-                            <p>{msg.message}</p>
+                            <p dangerouslySetInnerHTML={{ __html: formatMessageWithLinks(msg.message) }}></p>
                         )}
                     </div>
                 ))}
                 <div ref={messagesEndRef} />
             </div>
             <div className="chat-input">
-    <div style={{ display: 'flex', justifyContent: 'flex-start', width: '100%' }}>
-        <input
-            type="text"
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            onKeyDown={handleKeyPress}
-            placeholder="Escribe un mensaje..."
-        />
-        <label htmlFor="file-upload" className="custom-file-upload">
-            <FaImage className="image-icon" /> {/* Icono de imagen */}
-        </label>
-        <input type="file" accept="image/*" onChange={sendImage} style={{ display: 'none' }} id="file-upload" />
-        <button onClick={sendMessage}>Enviar</button>
-    </div>
-</div>
+                <div style={{ display: 'flex', justifyContent: 'flex-start', width: '100%' }}>
+                    <input
+                        type="text"
+                        value={message}
+                        onChange={(e) => setMessage(e.target.value)}
+                        onKeyDown={handleKeyPress}
+                        placeholder="Escribe un mensaje..."
+                    />
+                    <label htmlFor="file-upload" className="custom-file-upload">
+                        <FaImage className="image-icon" />
+                    </label>
+                    <input type="file" accept="image/*" onChange={sendImage} style={{ display: 'none' }} id="file-upload" />
+                    <button onClick={sendMessage}>Enviar</button>
+                </div>
+            </div>
+
+            {selectedImage && (
+                <div className="image-preview-overlay" onClick={closeImagePreview}>
+                    <div className="image-preview-content" onClick={(e) => e.stopPropagation()}>
+                        <img src={selectedImage} alt="Imagen en previsualización" />
+                        <a href={selectedImage} download className="download-icon" onClick={(e) => e.stopPropagation()}>
+                            <FaDownload />
+                        </a>
+                        <button className="close-icon" onClick={closeImagePreview}>
+                            <FaTimes />
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

@@ -1,4 +1,5 @@
 .chat-container {
+    position: relative;
     display: flex;
     flex-direction: column;
     width: 100%;
@@ -10,6 +11,9 @@
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     padding: 10px;
     font-family: Arial, sans-serif;
+}
+.chat-container h2 {
+    margin-bottom: 5px;
 }
 
 .chat-messages {
@@ -157,4 +161,82 @@
 .chat-input input:focus {
     border-color: #4caf50;
 }
+
+.image-preview-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.image-preview-content {
+    position: relative;
+    max-width: 90%;
+    max-height: 90%;
+}
+
+.image-preview-content img {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+}
+
+.download-icon,
+.close-icon {
+    position: absolute;
+    top: 10px;
+    color: rgba(255, 255, 255, 0.8); /* Color semi-transparente */
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: color 0.3s;
+    background: transparent; /* Sin fondo */
+    border: none; /* Sin borde */
+    padding: 5px; /* Espacio interno para mejor interacción */
+    outline: none; /* Elimina el borde de foco */
+    box-shadow: none; /* Elimina cualquier sombra */
+}
+
+.download-icon {
+    right: 50px; /* Espacio suficiente entre los iconos */
+}
+
+.close-icon {
+    right: 10px;
+}
+
+.download-icon:hover,
+.close-icon:hover {
+    color: white; /* Color blanco puro al hacer hover */
+    background-color: transparent; /* Sin color de fondo */
+    box-shadow: none; /* Sin sombra en el hover */
+}
+
+.meet-button-container {
+    align-self: flex-end;
+    margin-bottom: 5px;
+    padding: 2px 2px; /* Asegura suficiente espacio interno */
+    border-radius: 10px; /* Redondeo consistente */
+    background-color: #4caf50;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+    height: 38px;
+    width: 80px;
+}
+
+.meet-button-container:hover {
+    background-color: #45a049;
+}
+
+
+
 
