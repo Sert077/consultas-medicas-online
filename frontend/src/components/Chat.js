@@ -125,8 +125,9 @@ const Chat = () => {
 
     // Generar un enlace de Google Meet y enviarlo al chat
     const generateMeetLink = () => {
-        const meetLink = 'https://meet.google.com/new';
-        const linkMessage = `Únete a la reunión aquí: ${meetLink}`;
+        const roomName = `reunion-${Date.now()}`;
+        const jitsiLink = `https://meet.jit.si/${roomName}`;
+        const linkMessage = `Únete a la reunión aquí: ${jitsiLink}`;
         setMessage(linkMessage);
         sendMessage();
     };
