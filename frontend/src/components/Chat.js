@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
-import { FaImage, FaDownload, FaTimes, FaVideo } from 'react-icons/fa'; // Importa el icono de video
+import { FaImage, FaDownload, FaTimes, FaVideo } from 'react-icons/fa';
 import '../css/ChatComponent.css';
 
 const Chat = () => {
@@ -15,43 +15,30 @@ const Chat = () => {
     const [selectedImage, setSelectedImage] = useState(null);
 
     useEffect(() => {
-        axios.get(`http://localhost:8000/api/chat/${chatId}/messages/`)
-            .then(response => {
-                const savedImages = JSON.parse(localStorage.getItem('chatImages')) || [];
-                const allMessages = [...response.data, ...savedImages];
-
-                const uniqueMessages = allMessages.filter((msg, index, self) =>
-                    index === self.findIndex((m) => m.message === msg.message && m.sender_id === msg.sender_id)
-                );
-
-                setMessages(uniqueMessages);
-            })
-            .catch(error => {
+        const fetchMessages = async () => {
+            try {
+                const response = await axios.get(`http://localhost:8000/api/chat/${chatId}/messages/`);
+                setMessages(response.data);
+            } catch (error) {
                 console.error('Error al cargar mensajes anteriores:', error);
-            });
-    }, [chatId]);
+            }
+        };
 
-    useEffect(() => {
+        fetchMessages();
+
         const socket = new WebSocket(`ws://localhost:8000/ws/chat/${chatId}/`);
         setWs(socket);
-
+        
         socket.onmessage = (event) => {
             const data = JSON.parse(event.data);
             console.log('Mensaje recibido:', data);
 
             if (data.type === 'image') {
-                const savedImages = JSON.parse(localStorage.getItem('chatImages')) || [];
-                savedImages.push(data);
-                localStorage.setItem('chatImages', JSON.stringify(savedImages));
+                const imageUrl = data.image; // Asegúrate de que `data.image` contenga la URL correcta
+                setMessages(prevMessages => [...prevMessages, { ...data, image: imageUrl }]);
+            } else {
+                setMessages(prevMessages => [...prevMessages, data]);
             }
-
-            setMessages(prevMessages => {
-                const messageExists = prevMessages.some(msg => msg.message === data.message && msg.sender_id === data.sender_id);
-                if (!messageExists) {
-                    return [...prevMessages, data];
-                }
-                return prevMessages;
-            });
         };
 
         socket.onclose = () => console.log('WebSocket desconectado');
@@ -79,26 +66,36 @@ const Chat = () => {
     const sendImage = (e) => {
         const file = e.target.files[0];
         if (file) {
-            const reader = new FileReader();
-            reader.onload = () => {
-                const imgData = {
-                    message: reader.result,
-                    sender_id: userId,
-                    sender_name: userName,
-                    type: 'image'
-                };
-
-                const savedImages = JSON.parse(localStorage.getItem('chatImages')) || [];
-                savedImages.push(imgData);
-                localStorage.setItem('chatImages', JSON.stringify(savedImages));
-
+            const formData = new FormData();
+            formData.append('image', file);
+            formData.append('sender_id', userId);
+            formData.append('sender_name', userName);
+    
+            axios.post(`http://localhost:8000/api/chat/${chatId}/upload_image/`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            })
+            .then(response => {
+                const newMessage = response.data;
+                // Aquí debes enviar la URL de la imagen a través del WebSocket
                 if (ws && ws.readyState === WebSocket.OPEN) {
-                    ws.send(JSON.stringify(imgData));
+                    ws.send(JSON.stringify({
+                        type: 'image',
+                        image: newMessage.image, // Asegúrate de que `newMessage.image` contenga la URL correcta
+                        sender_id: userId,
+                        sender_name: userName
+                    }));
                 }
-            };
-            reader.readAsDataURL(file);
+                // Actualiza el estado local con el nuevo mensaje
+                setMessages(prevMessages => [...prevMessages, newMessage]);
+            })
+            .catch(error => {
+                console.error('Error al enviar la imagen:', error);
+            });
         }
     };
+    
 
     const handleKeyPress = (e) => {
         if (e.key === 'Enter') {
@@ -113,26 +110,24 @@ const Chat = () => {
         }
     }, [messages]);
 
-    // Función para abrir la imagen en modo previsualización
     const openImagePreview = (image) => {
         setSelectedImage(image);
     };
 
-    // Función para cerrar la previsualización
     const closeImagePreview = () => {
         setSelectedImage(null);
     };
 
-    // Generar un enlace de Google Meet y enviarlo al chat
     const generateMeetLink = () => {
-        const meetLink = 'https://meet.google.com/new';
-        const linkMessage = `Únete a la reunión aquí: ${meetLink}`;
+        const roomName = `reunion-${Date.now()}`;
+        const jitsiLink = `https://meet.jit.si/${roomName}`;
+        const linkMessage = `Únete a la reunión aquí: ${jitsiLink}`;
         setMessage(linkMessage);
         sendMessage();
     };
 
-    // Convertir enlaces en el mensaje a enlaces clicables
     const formatMessageWithLinks = (msg) => {
+        if (!msg) return '';
         const urlRegex = /(https?:\/\/[^\s]+)/g;
         return msg.replace(urlRegex, (url) => `<a href="${url}" target="_blank">${url}</a>`);
     };
@@ -149,12 +144,12 @@ const Chat = () => {
                 {messages.map((msg, index) => (
                     <div key={index} className={msg.sender_id === userId ? 'my-message' : 'other-message'}>
                         <p><strong>{msg.sender_name}:</strong></p>
-                        {msg.type === 'image' ? (
+                        {msg.image ? (
                             <img 
-                                src={msg.message} 
+                                src={`http://localhost:8000${msg.image}`} 
                                 alt="Mensaje enviado" 
                                 style={{ maxWidth: '100%', height: 'auto', cursor: 'pointer' }} 
-                                onClick={() => openImagePreview(msg.message)}
+                                onClick={() => openImagePreview(`http://localhost:8000${msg.image}`)}
                             />
                         ) : (
                             <p dangerouslySetInnerHTML={{ __html: formatMessageWithLinks(msg.message) }}></p>

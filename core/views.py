@@ -23,6 +23,8 @@ from .models import ChatMessage
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
 
 # API para crear un nuevo médico
 @api_view(['POST'])
@@ -229,8 +231,32 @@ def get_chat_messages(request, chat_id):
         {
             'message': msg.message,
             'sender_id': msg.sender_id,
-            'sender_name': msg.sender_name  # Obtener el nombre del remitente
+            'sender_name': msg.sender_name,
+            'image': msg.image.url if msg.image else None  # Incluir la URL de la imagen si existe
         } 
         for msg in messages
     ]
     return JsonResponse(messages_data, safe=False)
+
+@csrf_exempt
+def upload_image(request, chat_id):
+    if request.method == 'POST':
+        sender_id = request.POST.get('sender_id')
+        sender_name = request.POST.get('sender_name')
+        image = request.FILES.get('image')
+
+        chat_message = ChatMessage.objects.create(
+            chat_id=chat_id,
+            sender_id=sender_id,
+            sender_name=sender_name,
+            image=image
+        )
+
+        message_data = {
+            'message': None,
+            'sender_id': chat_message.sender_id,
+            'sender_name': chat_message.sender_name,
+            'image': chat_message.image.url,
+        }
+        return JsonResponse(message_data)
+    return JsonResponse({'error': 'Método no permitido'}, status=405)

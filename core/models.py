@@ -48,8 +48,9 @@ class Perfil(models.Model):
 class ChatMessage(models.Model):
     chat_id = models.CharField(max_length=255)
     sender_id = models.IntegerField()
-    sender_name = models.CharField(max_length=255, null=True)  # Almacenar el nombre del remitente
-    message = models.TextField()
+    sender_name = models.CharField(max_length=255, null=True)
+    message = models.TextField(null=True, blank=True)  # Hacer que el mensaje sea opcional para admitir imágenes
+    image = models.ImageField(upload_to='profile_pictures/chat_images/', null=True, blank=True)  # Agregar campo de imagen
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

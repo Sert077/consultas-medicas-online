@@ -34,5 +34,6 @@ urlpatterns = [
     path('consultas/<int:consulta_id>/cancelar/', cancelar_consulta, name='cancelar_consulta'),
     path('consultas/medico/<int:user_id>/', consultas_medico, name='consultas_medico'),
     path('chat/<str:chat_id>/messages/', get_chat_messages, name='get_chat_messages'),
+    path('chat/<int:chat_id>/upload_image/', views.upload_image, name='upload_image'),
 
 ]
