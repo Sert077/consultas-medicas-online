@@ -232,11 +232,14 @@ def get_chat_messages(request, chat_id):
             'message': msg.message,
             'sender_id': msg.sender_id,
             'sender_name': msg.sender_name,
-            'image': msg.image.url if msg.image else None  # Incluir la URL de la imagen si existe
-        } 
+            'image': msg.image.url if msg.image else None  # Devolver la URL tal cual
+        }
         for msg in messages
     ]
+    
     return JsonResponse(messages_data, safe=False)
+
+
 
 @csrf_exempt
 def upload_image(request, chat_id):

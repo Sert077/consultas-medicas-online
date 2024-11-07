@@ -22,13 +22,15 @@ class ChatConsumer(AsyncWebsocketConsumer):
         sender_name = data['sender_name']
         message_type = data.get('type', 'text')
 
+        image_url = None
         if message_type == 'image':
-            image_data = data['message']  # La imagen en base64
-            image_file = ContentFile(base64.b64decode(image_data.split(',')[1]), name=f"{sender_id}_{self.chat_id}.png")
-            await self.save_message(self.chat_id, sender_id, sender_name, None, image_file)
+        # Usa la URL de la imagen que ya fue subida mediante HTTP
+            image_url = data['image']
+            await self.save_message(self.chat_id, sender_id, sender_name, None, image_url)
         else:
             await self.save_message(self.chat_id, sender_id, sender_name, message)
 
+    # Envía la notificación a todos los receptores en el grupo WebSocket
         await self.channel_layer.group_send(
             self.group_name,
             {
@@ -37,7 +39,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 'sender_id': sender_id,
                 'sender_name': sender_name,
                 'message_type': message_type,
-                'image': image_data if message_type == 'image' else None
+                'image': image_url if message_type == 'image' else None
             }
         )
 
@@ -51,5 +53,5 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'sender_id': event['sender_id'],
             'sender_name': event['sender_name'],
             'type': event['message_type'],
-            'image': event.get('image')  # Incluir la imagen en el mensaje
+            'image': event.get('image')  # Enviar URL de la imagen
         }))

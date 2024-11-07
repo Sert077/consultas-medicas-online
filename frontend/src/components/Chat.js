@@ -1,3 +1,5 @@
+
+
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
@@ -13,6 +15,7 @@ const Chat = () => {
     const [ws, setWs] = useState(null);
     const messagesEndRef = useRef(null);
     const [selectedImage, setSelectedImage] = useState(null);
+    const [isSendingImage, setIsSendingImage] = useState(false);
 
     useEffect(() => {
         const fetchMessages = async () => {
@@ -32,14 +35,10 @@ const Chat = () => {
         socket.onmessage = (event) => {
             const data = JSON.parse(event.data);
             console.log('Mensaje recibido:', data);
-
-            if (data.type === 'image') {
-                const imageUrl = data.image; // Asegúrate de que `data.image` contenga la URL correcta
-                setMessages(prevMessages => [...prevMessages, { ...data, image: imageUrl }]);
-            } else {
-                setMessages(prevMessages => [...prevMessages, data]);
-            }
+        
+            setMessages(prevMessages => [...prevMessages, data]);
         };
+             
 
         socket.onclose = () => console.log('WebSocket desconectado');
 
@@ -64,8 +63,12 @@ const Chat = () => {
     };
 
     const sendImage = (e) => {
+        if (isSendingImage) return; // Si ya se está enviando una imagen, salir de la función
+        
         const file = e.target.files[0];
         if (file) {
+            setIsSendingImage(true); // Activar bandera para bloquear envíos duplicados
+    
             const formData = new FormData();
             formData.append('image', file);
             formData.append('sender_id', userId);
@@ -78,25 +81,24 @@ const Chat = () => {
             })
             .then(response => {
                 const newMessage = response.data;
-                // Aquí debes enviar la URL de la imagen a través del WebSocket
-                if (ws && ws.readyState === WebSocket.OPEN) {
+                if (ws && ws.readyState === WebSocket.OPEN && !isSendingImage) { // Condición adicional
                     ws.send(JSON.stringify({
                         type: 'image',
-                        image: newMessage.image, // Asegúrate de que `newMessage.image` contenga la URL correcta
+                        image: newMessage.image, // URL de la imagen desde el servidor
                         sender_id: userId,
                         sender_name: userName
                     }));
                 }
-                // Actualiza el estado local con el nuevo mensaje
-                setMessages(prevMessages => [...prevMessages, newMessage]);
+                setIsSendingImage(false); // Restablecer bandera después de que se haya enviado la imagen
+                e.target.value = null; // Limpiar el archivo de entrada
             })
             .catch(error => {
                 console.error('Error al enviar la imagen:', error);
+                setIsSendingImage(false); // Restablecer bandera en caso de error
             });
         }
     };
     
-
     const handleKeyPress = (e) => {
         if (e.key === 'Enter') {
             e.preventDefault();
@@ -129,7 +131,7 @@ const Chat = () => {
     const formatMessageWithLinks = (msg) => {
         if (!msg) return '';
         const urlRegex = /(https?:\/\/[^\s]+)/g;
-        return msg.replace(urlRegex, (url) => `<a href="${url}" target="_blank">${url}</a>`);
+        return msg.replace(urlRegex, (url) => <a href="${url}" target="_blank">${url}</a>);
     };
 
     return (
