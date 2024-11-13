@@ -26,22 +26,21 @@ const Chat = () => {
                 console.error('Error al cargar mensajes anteriores:', error);
             }
         };
-
+    
         fetchMessages();
-
+    
         const socket = new WebSocket(`ws://localhost:8000/ws/chat/${chatId}/`);
         setWs(socket);
-        
+    
         socket.onmessage = (event) => {
             const data = JSON.parse(event.data);
-            console.log('Mensaje recibido:', data);
-        
-            setMessages(prevMessages => [...prevMessages, data]);
+            console.log('Mensaje recibido:', data); // Depuración
+            setMessages((prevMessages) => [...prevMessages, data]);
         };
-             
-
+        
+    
         socket.onclose = () => console.log('WebSocket desconectado');
-
+    
         return () => {
             socket.close();
         };
@@ -63,39 +62,47 @@ const Chat = () => {
     };
 
     const sendImage = (e) => {
-        if (isSendingImage) return; // Si ya se está enviando una imagen, salir de la función
-        
         const file = e.target.files[0];
         if (file) {
-            setIsSendingImage(true); // Activar bandera para bloquear envíos duplicados
-    
             const formData = new FormData();
             formData.append('image', file);
             formData.append('sender_id', userId);
             formData.append('sender_name', userName);
     
-            axios.post(`http://localhost:8000/api/chat/${chatId}/upload_image/`, formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            })
-            .then(response => {
-                const newMessage = response.data;
-                if (ws && ws.readyState === WebSocket.OPEN && !isSendingImage) { // Condición adicional
-                    ws.send(JSON.stringify({
-                        type: 'image',
-                        image: newMessage.image, // URL de la imagen desde el servidor
-                        sender_id: userId,
-                        sender_name: userName
-                    }));
-                }
-                setIsSendingImage(false); // Restablecer bandera después de que se haya enviado la imagen
-                e.target.value = null; // Limpiar el archivo de entrada
-            })
-            .catch(error => {
-                console.error('Error al enviar la imagen:', error);
-                setIsSendingImage(false); // Restablecer bandera en caso de error
-            });
+            axios
+                .post(`http://localhost:8000/api/chat/${chatId}/upload_image/`, formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                })
+                .then((response) => {
+                    const newMessage = response.data;
+    
+                    // Enviar notificación del nuevo mensaje a través del WebSocket
+                    if (ws && ws.readyState === WebSocket.OPEN) {
+                        ws.send(JSON.stringify({
+                            'type': 'image',
+                            'image': newMessage.image,
+                            'sender_id': userId,
+                            'sender_name': userName,
+                            'id': newMessage.id, // Asegurarse de incluir el ID
+                        }));
+                    }
+    
+                    // Actualizar mensajes localmente evitando duplicados
+                    setMessages((prevMessages) => {
+                        const isDuplicate = prevMessages.some((msg) => msg.id === newMessage.id);
+                        if (!isDuplicate) {
+                            return [...prevMessages, newMessage];
+                        }
+                        return prevMessages;
+                    });
+    
+                    e.target.value = null; // Limpiar el archivo
+                })
+                .catch((error) => {
+                    console.error('Error al enviar la imagen:', error);
+                });
         }
     };
     
@@ -124,15 +131,23 @@ const Chat = () => {
         const roomName = `reunion-${Date.now()}`;
         const jitsiLink = `https://meet.jit.si/${roomName}`;
         const linkMessage = `Únete a la reunión aquí: ${jitsiLink}`;
-        setMessage(linkMessage);
-        sendMessage();
+        setMessage(linkMessage);  // Aquí ya se está generando correctamente el mensaje
+        sendMessage();  // Enviar el mensaje
     };
+    
 
     const formatMessageWithLinks = (msg) => {
         if (!msg) return '';
         const urlRegex = /(https?:\/\/[^\s]+)/g;
-        return msg.replace(urlRegex, (url) => <a href="${url}" target="_blank">${url}</a>);
+        return msg.split(urlRegex).map((part, index) => 
+            urlRegex.test(part) ? (
+                <a key={index} href={part} target="_blank" rel="noopener noreferrer">{part}</a>
+            ) : (
+                part
+            )
+        );
     };
+    
 
     return (
         <div className="chat-container">
@@ -154,12 +169,13 @@ const Chat = () => {
                                 onClick={() => openImagePreview(`http://localhost:8000${msg.image}`)}
                             />
                         ) : (
-                            <p dangerouslySetInnerHTML={{ __html: formatMessageWithLinks(msg.message) }}></p>
+                            <p>{formatMessageWithLinks(msg.message)}</p>  // Aquí es donde se formatea el mensaje
                         )}
                     </div>
                 ))}
                 <div ref={messagesEndRef} />
             </div>
+
             <div className="chat-input">
                 <div style={{ display: 'flex', justifyContent: 'flex-start', width: '100%' }}>
                     <input
