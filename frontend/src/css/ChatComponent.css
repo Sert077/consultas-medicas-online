@@ -2,8 +2,8 @@
     position: relative;
     display: flex;
     flex-direction: column;
-    width: 100%;
-    max-width: 500px;
+    width: calc(100% - 20px); /* Asegura que el contenedor nunca exceda el ancho de la pantalla */
+    max-width: 500px; /* Mantiene el ancho máximo en pantallas grandes */
     margin: 20px auto;
     border: 1px solid #ddd;
     border-radius: 10px;
@@ -11,7 +11,17 @@
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     padding: 10px;
     font-family: Arial, sans-serif;
+    box-sizing: border-box; /* Incluye padding y bordes en el ancho total */
 }
+
+
+@media (max-width: 600px) {
+    .chat-container {
+        margin: 10px; /* Añade margen en pantallas pequeñas */
+        border-radius: 8px; /* Ajusta el redondeo para pantallas pequeñas */
+    }
+}
+
 .chat-container h2 {
     margin-bottom: 5px;
 }
@@ -202,7 +212,7 @@
 .download-icon,
 .close-icon {
     position: absolute;
-    top: 10px;
+    top: -18px;
     color: rgba(255, 255, 255, 0.8);
     font-size: 1.5rem;
     cursor: pointer;
