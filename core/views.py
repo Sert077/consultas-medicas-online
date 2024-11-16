@@ -19,12 +19,8 @@ from rest_framework.exceptions import ValidationError
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from .models import ChatMessage
-
-from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
-from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse
 
 # API para crear un nuevo médico
 @api_view(['POST'])
@@ -54,6 +50,7 @@ class DoctorListView(View):
             if doctor['profile_picture']:
                 doctor['profile_picture'] = request.build_absolute_uri(settings.MEDIA_URL + doctor['profile_picture'])
         return JsonResponse(list(doctors), safe=False)
+
 # Vista para ver detalles de un médico
 class DoctorDetailView(generics.RetrieveAPIView):
     queryset = Doctor.objects.all()
@@ -239,8 +236,6 @@ def get_chat_messages(request, chat_id):
     
     return JsonResponse(messages_data, safe=False)
 
-
-
 @csrf_exempt
 def upload_image(request, chat_id):
     if request.method == 'POST':
@@ -263,3 +258,40 @@ def upload_image(request, chat_id):
         }
         return JsonResponse(message_data)
     return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+@api_view(['GET'])
+def get_doctor_by_chat(request, chat_id):
+    try:
+        consulta = Consulta.objects.get(id=chat_id)  # Obtener la consulta usando el ID del chat
+        doctor = Doctor.objects.get(id=consulta.medico_id)  # Obtener el médico asociado
+        doctor_data = {
+            'first_name': doctor.first_name,
+            'last_name': doctor.last_name
+        }
+        return JsonResponse(doctor_data)
+    except Consulta.DoesNotExist:
+        return JsonResponse({'error': 'Consulta no encontrada'}, status=404)
+    except Doctor.DoesNotExist:
+        return JsonResponse({'error': 'Médico no encontrado'}, status=404)
+    
+@api_view(['GET'])
+def consulta_detail(request, chat_id):
+    try:
+        consulta = Consulta.objects.get(id=chat_id)
+        return Response({
+            'paciente_id': consulta.paciente.id
+        })
+    except Consulta.DoesNotExist:
+        return Response({'error': 'Consulta no encontrada'}, status=404)
+
+@api_view(['GET'])
+def user_detail(request, user_id):
+    try:
+        user = User.objects.get(id=user_id)
+        return Response({
+            'first_name': user.first_name,
+            'last_name': user.last_name
+        })
+    except User.DoesNotExist:
+        return Response({'error': 'Usuario no encontrado'}, status=404)
+

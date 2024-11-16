@@ -1,9 +1,7 @@
-
-
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
-import { FaImage, FaDownload, FaTimes, FaVideo } from 'react-icons/fa';
+import { FaImage, FaDownload, FaTimes, FaVideo, FaUser } from 'react-icons/fa';
 import '../css/ChatComponent.css';
 
 const Chat = () => {
@@ -15,7 +13,32 @@ const Chat = () => {
     const [ws, setWs] = useState(null);
     const messagesEndRef = useRef(null);
     const [selectedImage, setSelectedImage] = useState(null);
-    const [isSendingImage, setIsSendingImage] = useState(false);
+    const [connectedUsers, setConnectedUsers] = useState([]);
+    const [displayName, setDisplayName] = useState('');
+    const tipoUsuario = localStorage.getItem('tipo_usuario');
+
+    useEffect(() => {
+        const fetchDisplayName = async () => {
+            try {
+                if (tipoUsuario === 'paciente') {
+                    // Obtener el nombre del médico
+                    const response = await axios.get(`http://localhost:8000/api/chat/${chatId}/doctor/`);
+                    setDisplayName(`${response.data.first_name} ${response.data.last_name}`);
+                } else if (tipoUsuario === 'medico') {
+                    // Obtener el nombre del paciente desde la tabla de consultas
+                    const consultaResponse = await axios.get(`http://localhost:8000/api/chat/${chatId}/consulta/`);
+                    const pacienteId = consultaResponse.data.paciente_id;
+    
+                    const pacienteResponse = await axios.get(`http://localhost:8000/api/users/${pacienteId}/`);
+                    setDisplayName(`${pacienteResponse.data.first_name} ${pacienteResponse.data.last_name}`);
+                }
+            } catch (error) {
+                console.error('Error al obtener el nombre:', error);
+            }
+        };
+    
+        fetchDisplayName();
+    }, [chatId, tipoUsuario]);
 
     useEffect(() => {
         const fetchMessages = async () => {
@@ -34,10 +57,14 @@ const Chat = () => {
     
         socket.onmessage = (event) => {
             const data = JSON.parse(event.data);
-            console.log('Mensaje recibido:', data); // Depuración
-            setMessages((prevMessages) => [...prevMessages, data]);
+            
+            if (data.type === 'user_status') {
+                setConnectedUsers(data.connected_users); // Actualiza la lista de usuarios conectados
+            } else {
+                console.log('Mensaje recibido:', data);
+                setMessages((prevMessages) => [...prevMessages, data]);
+            }
         };
-        
     
         socket.onclose = () => console.log('WebSocket desconectado');
     
@@ -135,7 +162,6 @@ const Chat = () => {
         sendMessage();  // Enviar el mensaje
     };
     
-
     const formatMessageWithLinks = (msg) => {
         if (!msg) return '';
         const urlRegex = /(https?:\/\/[^\s]+)/g;
@@ -148,7 +174,6 @@ const Chat = () => {
         );
     };
     
-
     return (
         <div className="chat-container">
             <h2>Chat</h2>
@@ -157,6 +182,19 @@ const Chat = () => {
                     <FaVideo /> Meet
                 </button>
             </div>
+            <div className="doctor-info">
+                    <FaUser className="doctor-icon" />
+                    <span>{displayName}</span>
+             </div>
+            <div className="connected-users">
+                <p>Usuarios conectados:</p>
+                {connectedUsers.map((userId) => (
+                    <div key={userId} className="user-status">
+                        <span className="status-dot online"></span> Usuario {userId}
+                    </div>
+                ))}
+            </div>
+
             <div className="chat-messages">
                 {messages.map((msg, index) => (
                     <div key={index} className={msg.sender_id === userId ? 'my-message' : 'other-message'}>
