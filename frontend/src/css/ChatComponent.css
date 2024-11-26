@@ -279,22 +279,6 @@
     border-radius: 5px;
 }
 
-.user-status {
-    display: flex;
-    align-items: center;
-}
-
-.status-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    margin-right: 5px;
-}
-
-.status-dot.online {
-    background-color: green;
-}
-
 .doctor-info {
     display: flex;
     align-items: center;
@@ -306,4 +290,11 @@
     font-size: 1.2em;
     color: #4caf50; /* Ajusta el color según tu diseño */
 }
+
+.user-status {
+    font-size: 0.9rem;
+    color: green; /* O el color que prefieras */
+    margin-left: 8px;
+}
+
 

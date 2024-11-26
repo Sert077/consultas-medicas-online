@@ -52,12 +52,13 @@ const Chat = () => {
     
         fetchMessages();
     
-        const socket = new WebSocket(`ws://localhost:8000/ws/chat/${chatId}/`);
+        const token = localStorage.getItem('token'); // Obtén el token del localStorage
+        const socket = new WebSocket(`ws://localhost:8000/ws/chat/${chatId}/?token=${token}`);
         setWs(socket);
     
         socket.onmessage = (event) => {
             const data = JSON.parse(event.data);
-            
+    
             if (data.type === 'user_status') {
                 setConnectedUsers(data.connected_users); // Actualiza la lista de usuarios conectados
             } else {
@@ -72,6 +73,7 @@ const Chat = () => {
             socket.close();
         };
     }, [chatId]);
+    
 
     const sendMessage = () => {
         if (message.trim()) {
@@ -184,7 +186,9 @@ const Chat = () => {
             </div>
             <div className="doctor-info">
                     <FaUser className="doctor-icon" />
-                    <span>{displayName}</span>
+                    <span>
+                        {tipoUsuario === 'paciente' ? `Dr(a): ${displayName}` : displayName}
+                    </span>
              </div>
             <div className="connected-users">
                 <p>Usuarios conectados:</p>
