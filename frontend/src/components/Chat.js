@@ -175,25 +175,28 @@ const Chat = () => {
     return (
         <div className="chat-container">
             <h2>Chat</h2>
+            
+
+          <div className="doctor-info">
+            <FaUser className="doctor-icon" />
+            <span>
+                {tipoUsuario === 'paciente' ? `Dr(a): ${displayName}` : displayName}
+            </span>
+
+            {/* Aquí mostramos solo el estado sin el nombre del usuario */}
+            {statusMessages.length > 0 && (
+                <div className="status-container">
+                    <p>{statusMessages[statusMessages.length - 1].message}</p>
+                </div>
+            )}
+
+            {/* Botón Meet alineado con el nombre y estado */}
             <div className="meet-button-container">
                 <button onClick={generateMeetLink} className="meet-button">
                     <FaVideo /> Meet
                 </button>
             </div>
-
-            <div className="doctor-info">
-                <FaUser className="doctor-icon" />
-                <span>
-                    {tipoUsuario === 'paciente' ? `Dr(a): ${displayName}` : displayName}
-                </span>
-
-                {/* Aquí mostramos solo el estado sin el nombre del usuario */}
-                {statusMessages.length > 0 && (
-                    <div className="status-container">
-                        <p>{statusMessages[statusMessages.length - 1].message}</p>
-                    </div>
-                )}
-            </div>
+        </div> 
 
             <div className="chat-messages">
                 {messages.map((msg, index) => (
