@@ -21,14 +21,11 @@ const Chat = () => {
         const fetchDisplayName = async () => {
             try {
                 if (tipoUsuario === 'paciente') {
-                    // Obtener el nombre del médico
                     const response = await axios.get(`http://localhost:8000/api/chat/${chatId}/doctor/`);
                     setDisplayName(`${response.data.first_name} ${response.data.last_name}`);
                 } else if (tipoUsuario === 'medico') {
-                    // Obtener el nombre del paciente desde la tabla de consultas
                     const consultaResponse = await axios.get(`http://localhost:8000/api/chat/${chatId}/consulta/`);
                     const pacienteId = consultaResponse.data.paciente_id;
-    
                     const pacienteResponse = await axios.get(`http://localhost:8000/api/users/${pacienteId}/`);
                     setDisplayName(`${pacienteResponse.data.first_name} ${pacienteResponse.data.last_name}`);
                 }
@@ -36,7 +33,7 @@ const Chat = () => {
                 console.error('Error al obtener el nombre:', error);
             }
         };
-    
+
         fetchDisplayName();
     }, [chatId, tipoUsuario]);
 
@@ -49,31 +46,30 @@ const Chat = () => {
                 console.error('Error al cargar mensajes anteriores:', error);
             }
         };
-    
+
         fetchMessages();
-    
-        const token = localStorage.getItem('token'); // Obtén el token del localStorage
+
+        const token = localStorage.getItem('token');
         const socket = new WebSocket(`ws://localhost:8000/ws/chat/${chatId}/?token=${token}`);
         setWs(socket);
-    
+
         socket.onmessage = (event) => {
             const data = JSON.parse(event.data);
-    
+
             if (data.type === 'user_status') {
-                setConnectedUsers(data.connected_users); // Actualiza la lista de usuarios conectados
+                setConnectedUsers(data.connected_users);
             } else {
                 console.log('Mensaje recibido:', data);
                 setMessages((prevMessages) => [...prevMessages, data]);
             }
         };
-    
+
         socket.onclose = () => console.log('WebSocket desconectado');
-    
+
         return () => {
             socket.close();
         };
     }, [chatId]);
-    
 
     const sendMessage = () => {
         if (message.trim()) {
@@ -97,7 +93,7 @@ const Chat = () => {
             formData.append('image', file);
             formData.append('sender_id', userId);
             formData.append('sender_name', userName);
-    
+
             axios
                 .post(`http://localhost:8000/api/chat/${chatId}/upload_image/`, formData, {
                     headers: {
@@ -106,19 +102,16 @@ const Chat = () => {
                 })
                 .then((response) => {
                     const newMessage = response.data;
-    
-                    // Enviar notificación del nuevo mensaje a través del WebSocket
                     if (ws && ws.readyState === WebSocket.OPEN) {
                         ws.send(JSON.stringify({
                             'type': 'image',
                             'image': newMessage.image,
                             'sender_id': userId,
                             'sender_name': userName,
-                            'id': newMessage.id, // Asegurarse de incluir el ID
+                            'id': newMessage.id,
                         }));
                     }
-    
-                    // Actualizar mensajes localmente evitando duplicados
+
                     setMessages((prevMessages) => {
                         const isDuplicate = prevMessages.some((msg) => msg.id === newMessage.id);
                         if (!isDuplicate) {
@@ -126,15 +119,15 @@ const Chat = () => {
                         }
                         return prevMessages;
                     });
-    
-                    e.target.value = null; // Limpiar el archivo
+
+                    e.target.value = null;
                 })
                 .catch((error) => {
                     console.error('Error al enviar la imagen:', error);
                 });
         }
     };
-    
+
     const handleKeyPress = (e) => {
         if (e.key === 'Enter') {
             e.preventDefault();
@@ -160,14 +153,14 @@ const Chat = () => {
         const roomName = `reunion-${Date.now()}`;
         const jitsiLink = `https://meet.jit.si/${roomName}`;
         const linkMessage = `Únete a la reunión aquí: ${jitsiLink}`;
-        setMessage(linkMessage);  // Aquí ya se está generando correctamente el mensaje
-        sendMessage();  // Enviar el mensaje
+        setMessage(linkMessage);
+        sendMessage();
     };
-    
+
     const formatMessageWithLinks = (msg) => {
         if (!msg) return '';
         const urlRegex = /(https?:\/\/[^\s]+)/g;
-        return msg.split(urlRegex).map((part, index) => 
+        return msg.split(urlRegex).map((part, index) =>
             urlRegex.test(part) ? (
                 <a key={index} href={part} target="_blank" rel="noopener noreferrer">{part}</a>
             ) : (
@@ -175,7 +168,10 @@ const Chat = () => {
             )
         );
     };
-    
+
+    // Filtrar solo mensajes de tipo "status"
+    const statusMessages = messages.filter(msg => msg.type === 'status');
+
     return (
         <div className="chat-container">
             <h2>Chat</h2>
@@ -184,19 +180,19 @@ const Chat = () => {
                     <FaVideo /> Meet
                 </button>
             </div>
+
             <div className="doctor-info">
-                    <FaUser className="doctor-icon" />
-                    <span>
-                        {tipoUsuario === 'paciente' ? `Dr(a): ${displayName}` : displayName}
-                    </span>
-             </div>
-            <div className="connected-users">
-                <p>Usuarios conectados:</p>
-                {connectedUsers.map((userId) => (
-                    <div key={userId} className="user-status">
-                        <span className="status-dot online"></span> Usuario {userId}
+                <FaUser className="doctor-icon" />
+                <span>
+                    {tipoUsuario === 'paciente' ? `Dr(a): ${displayName}` : displayName}
+                </span>
+
+                {/* Aquí mostramos solo el estado sin el nombre del usuario */}
+                {statusMessages.length > 0 && (
+                    <div className="status-container">
+                        <p>{statusMessages[statusMessages.length - 1].message}</p>
                     </div>
-                ))}
+                )}
             </div>
 
             <div className="chat-messages">
@@ -211,7 +207,7 @@ const Chat = () => {
                                 onClick={() => openImagePreview(`http://localhost:8000${msg.image}`)}
                             />
                         ) : (
-                            <p>{formatMessageWithLinks(msg.message)}</p>  // Aquí es donde se formatea el mensaje
+                            <p>{formatMessageWithLinks(msg.message)}</p>
                         )}
                     </div>
                 ))}

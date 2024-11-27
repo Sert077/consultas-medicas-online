@@ -17,7 +17,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             self.group_name,
             {
                 'type': 'chat_message',
-                'message': f"{self.scope['user'].first_name} está en línea",
+                'message': f"Está en línea",
                 'sender_id': None,
                 'sender_name': self.scope['user'].first_name,
                 'message_type': 'status',
@@ -32,7 +32,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             self.group_name,
             {
                 'type': 'chat_message',
-                'message': f"{self.scope['user'].first_name} se desconectó",
+                'message': f"Se desconectó",
                 'sender_id': None,
                 'sender_name': self.scope['user'].first_name,
                 'message_type': 'status',
