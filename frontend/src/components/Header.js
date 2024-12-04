@@ -38,9 +38,13 @@ const Header = () => {
     return (
         <header className="header">
             <div className="logo">
-                <img src="/path/to/logo.png" alt="Logo" />
-                <span>Consultas Médicas Online</span>
+                <img src="/images/logo.png" alt="Logo" />
+                <div className="logo-text">
+                    <span className="main-title">MEDITEST</span>
+                    <span className="subtitle">Consultas médicas online</span>
+                </div>
             </div>
+
             <nav className="navigation">
                 <ul>
                     <li><Link to="/">Home</Link></li>

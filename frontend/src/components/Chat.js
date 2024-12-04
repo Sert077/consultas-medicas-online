@@ -177,8 +177,8 @@ const Chat = () => {
             <h2>Chat</h2>
             
 
-          <div className="doctor-info">
-            <FaUser className="doctor-icon" />
+          <div className="doctor-infochat">
+            <FaUser className="doctor-iconchat" />
             <span>
                 {tipoUsuario === 'paciente' ? `Dr(a): ${displayName}` : displayName}
             </span>

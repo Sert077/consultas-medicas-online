@@ -166,7 +166,7 @@ const DoctorDetail = () => {
                     <p>Dirección: {doctor.address}</p>
                     <div className="doctor-buttons">
                         <button className="consult-button" onClick={() => setShowModal(true)}>Reservar consulta médica</button>
-                        <button className="consult-button" onClick={() => navigate(`/chat/${id}`)}>
+                        <button className="consult-button" onClick={() => navigate(`/misreservas`)}>
                         Realizar consulta médica
                         </button>
                     </div>

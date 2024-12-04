@@ -18,9 +18,28 @@
     margin-right: 10px;
 }
 
+.logo-text {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    line-height: 1.2;
+}
+
+.logo-text .main-title {
+    font-size: 1.2em;
+    color: white;
+}
+
+.logo-text .subtitle {
+    font-size: 0.97em;
+    font-family: 'Dosis', sans-serif;
+    color: #83DDE0; /* Verde claro */
+}
+
+
 .logo span {
-    font-size: 1.5em;
-    font-weight: bold;
+    font-size: 1.2em;
+    font-weight: dosis;
 }
 
 .navigation ul {

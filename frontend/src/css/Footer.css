@@ -1,38 +1,32 @@
 .footer-container {
-    background-color: #6acf77; /* Color verde agradable */
-    padding: 20px;
+    background-color: #f5f5f5; /* Gris claro */
     display: flex;
     justify-content: space-between;
     align-items: center;
-    flex-wrap: wrap; /* Permite que los elementos se ajusten */
+    padding: 20px;
+    gap: 10px;
+    flex-wrap: wrap; /* Soporte para pantallas pequeñas */
 }
 
 .footer-left {
     flex: 1;
-    text-align: left;
-    color: white;
+    display: flex;
+    justify-content: flex-start;
 }
 
-.contact-button {
-    background-color: transparent; /* Fondo transparente */
-    color: white; /* Letras blancas */
-    padding: 10px 10px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
+.footer-logo {
+    width: 125px; /* Tamaño mayor del logo */
 }
 
-.contact-button:hover {
-    color: #f1f1f1; /* Cambia a un blanco más claro al pasar el mouse */
-    text-decoration: underline; /* Agrega un subrayado al pasar el mouse */
+.footer-center {
+    flex: 1;
+    display: flex;
+    justify-content: center;
 }
-
 
 .social-icons {
     display: flex;
-    justify-content: center;
     gap: 15px;
-    flex: 1;
 }
 
 .social-icons img {
@@ -48,6 +42,29 @@
 
 .footer-right {
     flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
     text-align: right;
-    color: white;
+}
+
+.footer-right p {
+    font-size: 0.7em;
+    color: #666;
+    margin: 2px 0;
+}
+
+.footer-links {
+    display: flex;
+    gap: 20px;
+}
+
+.footer-link {
+    font-size: 0.7em;
+    color: #666;
+    text-decoration: none;
+}
+
+.footer-link:hover {
+    text-decoration: underline;
 }

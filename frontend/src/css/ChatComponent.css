@@ -22,7 +22,7 @@
     }
 
     /* Asegura que el nombre, estado y botón Meet se ajusten correctamente */
-    .doctor-info {
+    .doctor-infochat {
         display: flex;
         flex-direction: column;
         align-items: flex-start; /* Alinea todo a la izquierda */
@@ -30,7 +30,7 @@
         padding-bottom: 10px;
     }
 
-    .doctor-info span {
+    .doctor-infochat span {
         word-wrap: break-word; /* Ajusta el texto largo */
         font-size: 16px; /* Ajuste en el tamaño del texto */
     }
@@ -320,7 +320,7 @@
     border-radius: 5px;
 }
 
-.doctor-info {
+.doctor-infochat {
     display: flex;
     align-items: center; /* Alinea verticalmente los elementos */
     gap: 10px; /* Añade un espacio entre el icono y el texto */
@@ -329,12 +329,12 @@
     margin-bottom: 5px;
 }
 
-.doctor-info span {
+.doctor-infochat span {
     display: inline-block; /* Asegura que el texto se mantenga en una sola línea */
     font-size: 16px; /* Ajusta el tamaño de la fuente si es necesario */
 }
 
-.doctor-icon {
+.doctor-iconchat {
     font-size: 20px; /* Ajusta el tamaño del icono */
     margin-left: 0; /* Elimina cualquier margen que pueda existir */
     flex-shrink: 0; /* Evita que el icono se achique */

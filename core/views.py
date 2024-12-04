@@ -130,20 +130,40 @@ def login_user(request):
     user = authenticate(username=username, password=password)
 
     if user is not None:
-        # Suponiendo que tienes un modelo Perfil relacionado con User
-        perfil = user.perfil  # Asegúrate de que esto es correcto según tu modelo
-
+        # Generar o recuperar el token del usuario
         token, created = Token.objects.get_or_create(user=user)
+
+        if user.is_superuser:
+            # Si es superuser, no necesitamos 'tipo_usuario'
+            return Response({
+                'token': token.key,
+                'username': user.username,
+                'id': user.id,
+                'is_superuser': user.is_superuser,
+                'first_name': user.first_name,
+                'last_name': user.last_name,
+                'email': user.email,
+            })
+
+        # Para usuarios normales, intentar obtener el perfil
+        try:
+            perfil = user.perfil  # Ajusta esto si el atributo tiene otro nombre
+            tipo_usuario = perfil.tipo_usuario
+        except AttributeError:
+            # En caso de que no tenga perfil
+            return Response({'error': 'El usuario no tiene un perfil asociado.'}, status=400)
+
         return Response({
             'token': token.key,
             'username': user.username,
-            'id': user.id,  # Devolver el ID del usuario para el frontend
-            'is_superuser': user.is_superuser,  # Devolver si es superuser
+            'id': user.id,
+            'is_superuser': user.is_superuser,
             'first_name': user.first_name,
             'last_name': user.last_name,
             'email': user.email,
-            'tipo_usuario': perfil.tipo_usuario,  # Devolver el tipo de usuario
+            'tipo_usuario': tipo_usuario,
         })
+
     return Response({'error': 'No se encontró el usuario o la contraseña es incorrecta'}, status=400)
 
 

@@ -26,8 +26,8 @@ const Home = () => {
                 </div>
                 <div className="feature">
                     <img src="/images/historialll.png" alt="Icono 3" className="feature-icon" />
-                    <h3 className="feature-title">Historial Médico</h3>
-                    <p className="feature-description">Consulta tu historial médico de manera segura y confidencial.</p>
+                    <h3 className="feature-title">Receta Médica</h3>
+                    <p className="feature-description">Consulta tus recetas médicas de manera segura y confidencial.</p>
                 </div>
             </div>
         </div>
