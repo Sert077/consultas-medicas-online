@@ -9,7 +9,7 @@
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.1); /* Sombra más suave */
 }
 
-h2 {
+.register-container h2 {
     color: #4CAF50; /* Verde */
     text-align: center;
     margin-bottom: 20px;
@@ -46,5 +46,36 @@ button {
 
 button:hover {
     background-color: #45a049;
+}
+
+.password-input {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-input input {
+    width: 100%;
+    padding-right: 40px; /* Espacio para el ícono */
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.show-password-icon {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #adadad; /* Púrpura */
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px;
+}
+
+.show-password-icon:hover {
+    color: #878887; /* Verde */
 }
 

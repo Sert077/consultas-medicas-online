@@ -13,6 +13,8 @@ const DoctorDetail = () => {
     const [showModal, setShowModal] = useState(false);
     const [fecha, setFecha] = useState(null);
     const [hora, setHora] = useState('');
+    const [tipoConsulta, setTipoConsulta] = useState(''); 
+    const [showConfirmationModal, setShowConfirmationModal] = useState(false); // Nuevo estado para la confirmación
 
     useEffect(() => {
         fetch(`http://localhost:8000/api/doctores/${id}/`)
@@ -73,7 +75,7 @@ const DoctorDetail = () => {
             return response.json();
         })
         .then((data) => {
-            alert('Consulta reservada correctamente');
+            setShowConfirmationModal(true); // Mostrar el modal de confirmación
             console.log('Consulta creada:', data);
             setConsultas([...consultas, data]);
             setShowModal(false);
@@ -165,7 +167,7 @@ const DoctorDetail = () => {
                     <p>Teléfono: {doctor.phone_number}</p>
                     <p>Dirección: {doctor.address}</p>
                     <div className="doctor-buttons">
-                        <button className="consult-button" onClick={() => setShowModal(true)}>Reservar consulta médica</button>
+                    <button className="consult-button" onClick={() => setShowModal(true)}>Reservar consulta médica</button>
                         <button className="consult-button" onClick={() => navigate(`/misreservas`)}>
                         Realizar consulta médica
                         </button>
@@ -198,7 +200,7 @@ const DoctorDetail = () => {
         <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <h3>Reservar Consulta Médica</h3>
             <form onSubmit={handleReserva} className="modal-form">
-                <label htmlFor="fecha" className="modal-label">Fecha:</label>
+                <label htmlFor="fecha" className="modal-label-calendary">Fecha:</label>
                 <DatePicker
                     selected={fecha}
                     onChange={(date) => setFecha(date)}
@@ -208,6 +210,31 @@ const DoctorDetail = () => {
                     inline
                     className="calendar-picker"
                 />
+                <label htmlFor="tipo-consulta" className="modal-label">Tipo de consulta:</label>
+                            <select
+                                id="tipo-consulta"
+                                value={tipoConsulta}
+                                onChange={(e) => setTipoConsulta(e.target.value)}
+                                required
+                                className="input-field"
+                            >
+                                <option value="">Selecciona el tipo de consulta</option>
+                                <option value="general">Consulta general (medicina interna)</option>
+                                <option value="especialidad">Consulta de especialidad</option>
+                                <option value="psicologica">Consulta psicológica o psiquiátrica</option>
+                                <option value="pediatrica">Consulta pediátrica</option>
+                                <option value="nutricion">Consulta de nutrición o dietética</option>
+                                <option value="seguimiento">Consulta de seguimiento</option>
+                                <option value="enfermedades_comunes">Consulta para enfermedades comunes</option>
+                                <option value="revision_laboratorio">Consulta de revisión de resultados de laboratorio</option>
+                                <option value="emergencias_no_graves">Consulta de emergencias no graves</option>
+                                <option value="control_postoperatorio">Consulta de control postoperatorio o rehabilitación</option>
+                                <option value="salud_sexual">Consulta de salud sexual y reproductiva</option>
+                                <option value="salud_mental">Consulta de salud mental y bienestar emocional</option>
+                                <option value="cuidados_paliativos">Consulta de orientación en cuidados paliativos</option>
+                                <option value="salud_ocular">Consulta sobre salud ocular</option>
+                            </select>
+                            
                 <label htmlFor="hora" className="modal-label">Hora:</label>
                 <select
                     id="hora"
@@ -229,6 +256,16 @@ const DoctorDetail = () => {
         </div>
     </div>
 )}
+ {/* Modal de confirmación */}
+ {showConfirmationModal && (
+                <div className="modal-overlay" onClick={() => setShowConfirmationModal(false)}>
+                    <div className="modal-content confirmation-modal" onClick={(e) => e.stopPropagation()}>
+                        <h3>¡Consulta Reservada Correctamente!</h3>
+                        <p>Tu consulta con el Dr(a). {doctor.first_name} {doctor.last_name} ha sido reservada para el {fecha?.toLocaleDateString()} a las {hora}.</p>
+                        <button className="button close-modal" onClick={() => setShowConfirmationModal(false)}>Cerrar</button>
+                    </div>
+                </div>
+            )}
 
         </div>
     );
