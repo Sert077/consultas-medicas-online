@@ -1,16 +1,16 @@
-/* Register.css */
+/* Personalización para el campo de foto de perfil */
 .register-container {
-    max-width: 500px; /* Aumentamos el ancho máximo para que el formulario se vea más amplio */
-    width: 100%; /* Aseguramos que se ajuste al ancho del contenedor */
+    max-width: 500px;
+    width: 100%;
     margin: 0 auto;
-    padding: 20px; /* Un poco más de espacio alrededor del formulario */
-    background-color: #f5f5f5; /* Fondo claro */
+    padding: 20px;
+    background-color: #f5f5f5;
     border-radius: 8px;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1); /* Sombra más suave */
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
 }
 
 .register-container h2 {
-    color: #4CAF50; /* Verde */
+    color: #4CAF50;
     text-align: center;
     margin-bottom: 20px;
 }
@@ -18,30 +18,30 @@
 form {
     display: flex;
     flex-direction: column;
-    gap: 20px; /* Mayor separación entre los campos */
+    gap: 20px;
 }
 
 label {
-    color: #6A1B9A; /* Púrpura */
+    color: #6A1B9A;
     margin-bottom: 5px;
 }
 
 input {
     width: 100%;
-    padding: 10px; /* Un poco más de espacio en los campos */
+    padding: 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
     box-sizing: border-box;
 }
 
 button {
-    background-color: #4CAF50; /* Verde */
+    background-color: #4CAF50;
     color: white;
-    padding: 10px 15px; /* Botón más grande para mayor visibilidad */
+    padding: 10px 15px;
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    transition: background-color 0.3s ease; /* Transición suave en el hover */
+    transition: background-color 0.3s ease;
 }
 
 button:hover {
@@ -56,7 +56,7 @@ button:hover {
 
 .password-input input {
     width: 100%;
-    padding-right: 40px; /* Espacio para el ícono */
+    padding-right: 40px;
     border: 1px solid #ccc;
     border-radius: 4px;
 }
@@ -67,7 +67,7 @@ button:hover {
     top: 50%;
     transform: translateY(-50%);
     cursor: pointer;
-    color: #adadad; /* Púrpura */
+    color: #adadad;
     font-size: 18px;
     display: flex;
     align-items: center;
@@ -76,6 +76,55 @@ button:hover {
 }
 
 .show-password-icon:hover {
-    color: #878887; /* Verde */
+    color: #878887;
 }
 
+.file-input {
+    display: flex;
+    align-items: center;
+    gap: 20px; /* Ajustado para que la imagen y el botón estén más separados */
+    position: relative;
+    justify-content: flex-start;
+}
+
+.file-input-field {
+    display: none; /* Ocultamos el input de tipo archivo */
+}
+
+.custom-file-label {
+    background-color: #f1f1f1;
+    color: #6A1B9A;
+    padding: 8px 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    border: 2px solid #ccc;
+    transition: background-color 0.3s;
+    font-size: 12px; /* Fuente más pequeña */
+}
+
+.custom-file-label:hover {
+    background-color: #e0e0e0;
+}
+
+.remove-picture-button {
+    background-color: #f1f1f1;
+    color: #b91c36;
+    padding: 8px 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    border: 2px solid #c4112f;
+    transition: background-color 0.3s;
+    font-size: 12px; /* Fuente más pequeña */
+}
+
+.remove-picture-button:hover {
+    background-color: #e0e0e0;
+}
+
+.preview-image {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    margin-top: 10px;
+    margin-left: 20px; /* Alineación de la imagen a la derecha */
+}

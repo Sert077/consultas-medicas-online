@@ -39,11 +39,11 @@ class UserSerializer(serializers.ModelSerializer):
 class PerfilSerializer(serializers.ModelSerializer):
     class Meta:
         model = Perfil
-        fields = ['tipo_usuario']
+        fields = ['tipo_usuario', 'birthdate', 'phone_number', 'id_card', 'user_picture']
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
     perfil = PerfilSerializer()
-    doctor = DoctorSerializer(required=False)  # Añadimos el doctor como opcional
+    doctor = DoctorSerializer(required=False)  # Seguimos manteniendo opcional el doctor
 
     class Meta:
         model = User
@@ -51,7 +51,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
-        # Extraemos los datos del perfil y del doctor si es que existen
+        # Extraemos los datos de perfil y doctor si existen
         perfil_data = validated_data.pop('perfil')
         doctor_data = validated_data.pop('doctor', None)
 
@@ -64,8 +64,15 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             email=validated_data.get('email', '')
         )
 
-        # Creamos el perfil asociado
-        Perfil.objects.create(user=user, tipo_usuario=perfil_data['tipo_usuario'])
+        # Creamos el perfil asociado al usuario
+        Perfil.objects.create(
+            user=user,
+            tipo_usuario=perfil_data['tipo_usuario'],
+            birthdate=perfil_data.get('birthdate'),
+            phone_number=perfil_data.get('phone_number'),
+            id_card=perfil_data.get('id_card'),
+            user_picture=perfil_data.get('user_picture')
+        )
 
         # Si el tipo de usuario es 'medico', creamos el registro de Doctor
         if perfil_data['tipo_usuario'] == 'medico' and doctor_data:

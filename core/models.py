@@ -41,6 +41,10 @@ class Perfil(models.Model):
 
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     tipo_usuario = models.CharField(max_length=10, choices=USUARIO_CHOICES)
+    birthdate = models.DateField(null=True, blank=True)  # Fecha de nacimiento
+    phone_number = models.CharField(max_length=25, null=True, blank=True)  # Número de teléfono
+    id_card = models.CharField(max_length=25, null=True, blank=True)  # Cédula de identidad
+    user_picture = models.ImageField(upload_to='profile_pictures/', null=True, blank=True)  # Foto de perfil
 
     def __str__(self):
         return f"{self.user.username} - {self.tipo_usuario}"
