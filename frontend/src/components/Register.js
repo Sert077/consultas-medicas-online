@@ -21,6 +21,8 @@ const Register = () => {
     const [lastNameError, setLastNameError] = useState('');
     const [phoneError, setPhoneError] = useState('');
     const [birthdateError, setBirthdateError] = useState('');
+    const [emailError, setEmailError] = useState('');
+    const [usernameError, setUsernameError] = useState('');
 
     const handlePictureChange = (e) => {
         const file = e.target.files[0];
@@ -119,6 +121,9 @@ const Register = () => {
     const handleRegister = async (e) => {
         e.preventDefault();
 
+        setEmailError('');
+        setUsernameError('');
+
         if (!validateBirthdate(birthdate)) {
             alert('Por favor, corrige la fecha de nacimiento antes de continuar.');
             return;
@@ -159,8 +164,8 @@ const Register = () => {
                 alert('Registro exitoso');
             } else {
                 const errorData = await response.json();
-                console.error('Error:', errorData);
-                alert('Error al registrarse');
+                if (errorData.email) setEmailError(errorData.email[0]);
+                if (errorData.username) setUsernameError(errorData.username[0]);
             }
         } catch (error) {
             console.error('Error de red:', error);
@@ -203,23 +208,23 @@ const Register = () => {
                     {lastNameError && <div style={{ color: 'red', fontSize: '12px' }}>{lastNameError}</div>}
                 </div>
                 <div>
-    <label>Fecha de nacimiento:</label>
-    <input
-        type="date"
-        value={birthdate}
-        onChange={handleBirthdateChange}
-        required
-        max={new Date().toISOString().split('T')[0]} // Fecha máxima: hoy
-        min={new Date(
-            new Date().setFullYear(new Date().getFullYear() - 125)
-        )
-            .toISOString()
-            .split('T')[0]} // Fecha mínima: hace 125 años
-    />
-    {birthdateError && (
-        <div style={{ color: 'red', fontSize: '12px' }}>{birthdateError}</div>
-    )}
-</div>
+                    <label>Fecha de nacimiento:</label>
+                    <input
+                        type="date"
+                        value={birthdate}
+                        onChange={handleBirthdateChange}
+                        required
+                        max={new Date().toISOString().split('T')[0]} // Fecha máxima: hoy
+                        min={new Date(
+                            new Date().setFullYear(new Date().getFullYear() - 125)
+                        )
+                            .toISOString()
+                            .split('T')[0]} // Fecha mínima: hace 125 años
+                    />
+                    {birthdateError && (
+                        <div style={{ color: 'red', fontSize: '12px' }}>{birthdateError}</div>
+                    )}
+                </div>
 
                 <div>
                     <label>Número telefónico:</label>
@@ -230,7 +235,7 @@ const Register = () => {
                         placeholder="Ingrese su número de teléfono"
                         required
                         pattern="^\d+$"
-                        maxLength="25"
+                        maxLength="9"
                         onInvalid={(e) => e.target.setCustomValidity('Solo se permiten caracteres numéricos')}
                         onInput={(e) => e.target.setCustomValidity('')}
                     />
@@ -244,7 +249,7 @@ const Register = () => {
                         onChange={(e) => setIdCard(e.target.value)}
                         placeholder="Ingrese su cédula de identidad"
                         required
-                        maxLength="30"
+                        maxLength="20"
                     />
                 </div>
                 <div>
@@ -257,6 +262,7 @@ const Register = () => {
                         required
                         maxLength="25"
                     />
+                    {usernameError && <div style={{ color: 'red', fontSize: '12px' }}>{usernameError}</div>}
                 </div>
                 <div>
                     <label htmlFor="profilePicture">Foto de perfil:</label>
@@ -303,6 +309,7 @@ const Register = () => {
                         required
                         maxLength="200"
                     />
+                    {emailError && <div style={{ color: 'red', fontSize: '12px' }}>{emailError}</div>}
                 </div>
                 <div>
                     <label>Contraseña:</label>

@@ -3,6 +3,7 @@ from .models import Doctor
 from .models import Consulta
 from django.contrib.auth.models import User
 from .models import Perfil
+from rest_framework.validators import UniqueValidator
 
 
 class DoctorSerializer(serializers.ModelSerializer):
@@ -45,10 +46,24 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     perfil = PerfilSerializer()
     doctor = DoctorSerializer(required=False)  # Seguimos manteniendo opcional el doctor
 
+    username = serializers.CharField(
+        validators=[
+            UniqueValidator(
+                queryset=User.objects.all(),
+                message="Este nombre de usuario ya está en uso. Por favor, elige otro."
+            )
+        ]
+    )
+
     class Meta:
         model = User
         fields = ('username', 'password', 'first_name', 'last_name', 'email', 'perfil', 'doctor')
         extra_kwargs = {'password': {'write_only': True}}
+
+    def validate_email(self, value):
+        if User.objects.filter(email=value).exists():
+            raise serializers.ValidationError("Este correo ya se encuentra registrado.")
+        return value
 
     def create(self, validated_data):
         # Extraemos los datos de perfil y doctor si existen

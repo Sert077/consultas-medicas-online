@@ -1,4 +1,4 @@
-/* Personalización para el campo de foto de perfil */
+/* Contenedor principal */
 .register-container {
     max-width: 500px;
     width: 100%;
@@ -7,6 +7,7 @@
     background-color: #f5f5f5;
     border-radius: 8px;
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
 }
 
 .register-container h2 {
@@ -48,6 +49,7 @@ button:hover {
     background-color: #45a049;
 }
 
+/* Campo de contraseña */
 .password-input {
     position: relative;
     display: flex;
@@ -79,46 +81,18 @@ button:hover {
     color: #878887;
 }
 
+/* Campo para foto de perfil */
 .file-input {
     display: flex;
     align-items: center;
-    gap: 20px; /* Ajustado para que la imagen y el botón estén más separados */
+    gap: 10px;
     position: relative;
     justify-content: flex-start;
+    flex-wrap: wrap;
 }
 
 .file-input-field {
     display: none; /* Ocultamos el input de tipo archivo */
-}
-
-.custom-file-label {
-    background-color: #f1f1f1;
-    color: #6A1B9A;
-    padding: 8px 12px;
-    border-radius: 10px;
-    cursor: pointer;
-    border: 2px solid #ccc;
-    transition: background-color 0.3s;
-    font-size: 12px; /* Fuente más pequeña */
-}
-
-.custom-file-label:hover {
-    background-color: #e0e0e0;
-}
-
-.remove-picture-button {
-    background-color: #f1f1f1;
-    color: #b91c36;
-    padding: 8px 12px;
-    border-radius: 10px;
-    cursor: pointer;
-    border: 2px solid #c4112f;
-    transition: background-color 0.3s;
-    font-size: 12px; /* Fuente más pequeña */
-}
-
-.remove-picture-button:hover {
-    background-color: #e0e0e0;
 }
 
 .preview-image {
@@ -126,5 +100,87 @@ button:hover {
     height: 100px;
     border-radius: 50%;
     margin-top: 10px;
-    margin-left: 20px; /* Alineación de la imagen a la derecha */
+}
+
+/* Etiquetas y botones personalizados */
+.custom-file-label,
+.remove-picture-button {
+    background-color: #f1f1f1;
+    color: #6A1B9A;
+    padding: 8px 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    border: 2px solid #ccc;
+    transition: background-color 0.3s;
+    font-size: 12px;
+}
+
+.custom-file-label:hover,
+.remove-picture-button:hover {
+    background-color: #e0e0e0;
+}
+
+.remove-picture-button {
+    color: #b91c36;
+    border-color: #c4112f;
+}
+
+/* Media Queries */
+@media (max-width: 768px) {
+    .register-container {
+        max-width: 90%; /* Reduce el ancho máximo al 90% de la pantalla */
+        margin: 20px auto; /* Asegura un margen para resaltar los bordes */
+        padding: 15px; /* Ajusta el relleno interno */
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Mantén una sombra más sutil */
+    }
+
+    form {
+        gap: 15px;
+    }
+
+    .file-input {
+        flex-direction: column; /* Cambia la dirección a columna */
+        align-items: center;   /* Centra los elementos */
+        gap: 10px;             /* Reduce la separación */
+    }
+
+    .remove-picture-button {
+        margin-top: 5px;       /* Asegura un pequeño margen si es necesario */
+    }
+
+    .preview-image {
+        width: 80px;
+        height: 80px;
+        margin: 10px auto;
+    }
+
+    .custom-file-label,
+    .remove-picture-button {
+        font-size: 10px;
+        padding: 6px 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .register-container {
+        max-width: 95%; /* Reduce aún más el ancho para celulares */
+        margin: 10px auto; /* Añade margen para que los bordes sean visibles */
+        padding: 10px; /* Reduce el relleno para mantener proporciones */
+        border: 1px solid #ccc; /* Añade un borde visible en dispositivos pequeños */
+    }
+
+    .preview-image {
+        width: 70px;
+        height: 70px;
+    }
+
+    button {
+        padding: 8px 10px;
+        font-size: 14px;
+    }
+
+    input {
+        font-size: 14px;
+        padding: 8px;
+    }
 }
