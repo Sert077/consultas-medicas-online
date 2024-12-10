@@ -4,7 +4,10 @@ from .models import Consulta
 from django.contrib.auth.models import User
 from .models import Perfil
 from rest_framework.validators import UniqueValidator
-
+import secrets
+from django.core.mail import send_mail
+from django.conf import settings
+from .models import EmailVerificationToken
 
 class DoctorSerializer(serializers.ModelSerializer):
     class Meta:
@@ -40,7 +43,7 @@ class UserSerializer(serializers.ModelSerializer):
 class PerfilSerializer(serializers.ModelSerializer):
     class Meta:
         model = Perfil
-        fields = ['tipo_usuario', 'birthdate', 'phone_number', 'id_card', 'user_picture']
+        fields = ['tipo_usuario', 'birthdate', 'phone_number', 'id_card', 'user_picture', 'verificado']
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
     perfil = PerfilSerializer()
@@ -89,8 +92,22 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             user_picture=perfil_data.get('user_picture')
         )
 
+        # Crear y guardar el token de verificación
+        token = secrets.token_urlsafe(32)
+        EmailVerificationToken.objects.create(user=user, token=token)
+
+        # Enviar correo de verificación
+        verification_link = f"http://localhost:3000/verify-email/{token}"
+        send_mail(
+            'Verifica tu correo electrónico',
+            f'Hola {user.first_name}, por favor verifica tu correo haciendo clic en el siguiente enlace: {verification_link}',
+            'servesa07@gmail.com',
+            [user.email],
+            fail_silently=False,
+        )
+
         # Si el tipo de usuario es 'medico', creamos el registro de Doctor
         if perfil_data['tipo_usuario'] == 'medico' and doctor_data:
             Doctor.objects.create(user=user, **doctor_data)
-
+        
         return user

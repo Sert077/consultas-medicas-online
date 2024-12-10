@@ -45,6 +45,7 @@ class Perfil(models.Model):
     phone_number = models.CharField(max_length=25, null=True, blank=True)  # Número de teléfono
     id_card = models.CharField(max_length=25, null=True, blank=True)  # Cédula de identidad
     user_picture = models.ImageField(upload_to='profile_pictures/', null=True, blank=True)  # Foto de perfil
+    verificado = models.BooleanField(default=False)  # Estado de verificación
 
     def __str__(self):
         return f"{self.user.username} - {self.tipo_usuario}"
@@ -60,23 +61,10 @@ class ChatMessage(models.Model):
     def __str__(self):
         return f'Message from {self.sender_id} in chat {self.chat_id}'
 
-class Chat(models.Model):
-    paciente = models.ForeignKey(User, on_delete=models.CASCADE)
-    medico = models.ForeignKey(Doctor, on_delete=models.CASCADE)
+
+class EmailVerificationToken(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='verification_token')
+    token = models.CharField(max_length=64, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
-class Message(models.Model):
-    chat = models.ForeignKey(Chat, related_name='messages', on_delete=models.CASCADE)
-    sender = models.ForeignKey(User, on_delete=models.CASCADE)  # User será paciente o médico
-    content = models.TextField()
-    timestamp = models.DateTimeField(auto_now_add=True)
-
-#@receiver(post_save, sender=User)
-#def crear_perfil(sender, instance, created, **kwargs):
-#    if created:
-#        Perfil.objects.create(user=instance)
-
-#@receiver(post_save, sender=User)
-#def guardar_perfil(sender, instance, **kwargs):
-#    instance.perfil.save()
 

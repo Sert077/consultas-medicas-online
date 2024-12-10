@@ -21,6 +21,9 @@ from django.core.mail import send_mail
 from .models import ChatMessage
 from django.views.decorators.csrf import csrf_exempt
 import json
+from .models import EmailVerificationToken
+from rest_framework.views import APIView
+from rest_framework import status
 
 # API para crear un nuevo médico
 @api_view(['POST'])
@@ -315,3 +318,14 @@ def user_detail(request, user_id):
     except User.DoesNotExist:
         return Response({'error': 'Usuario no encontrado'}, status=404)
 
+class VerifyEmailView(APIView):
+    def get(self, request, token):
+        try:
+            verification_token = EmailVerificationToken.objects.get(token=token)
+            user = verification_token.user
+            user.perfil.verificado = True
+            user.perfil.save()
+            verification_token.delete()  # Eliminar el token después de la verificación
+            return Response({"message": "Correo verificado exitosamente."}, status=status.HTTP_200_OK)
+        except EmailVerificationToken.DoesNotExist:
+            return Response({"error": "Token inválido o expirado."}, status=status.HTTP_400_BAD_REQUEST)
