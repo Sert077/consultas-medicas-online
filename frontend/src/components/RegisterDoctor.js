@@ -1,18 +1,52 @@
 import React, { useState } from 'react';
 
 const RegisterDoctor = () => {
+  
+  const specialties = [
+    'Alergología',
+    'Cardiología',
+    'Dermatología',
+    'Endocrinología',
+    'Fisioterapia',
+    'Gastroenterología',
+    'Geriatría',
+    'Ginecología',
+    'Hematología',
+    'Infectología',
+    'Medicina General',
+    'Medicina Interna',
+    'Neumología',
+    'Neurología',
+    'Nefrología',
+    'Nutrición',
+    'Oftalmología',
+    'Oncología',
+    'Otorrinolaringología',
+    'Pediatría',
+    'Podiatría',
+    'Psicología',
+    'Psiquiatría',
+    'Reumatología',
+    'Salud Mental Infantil',
+    'Sexología',
+    'Traumatología',
+    'Urología',
+    'Otros', // Opción para escribir si falta alguna especialidad
+  ];    
+  
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     email: '',
     specialty: '',
+    customSpecialty: '', // Para guardar el valor de la especialidad personalizada
     phoneNumber: '',
     address: '',
     profilePicture: null,
     biography: '',
     horarioAtencion: '',
-    username: '', // Campo para el nombre de usuario
-    password: '', // Campo para la contraseña
+    username: '',
+    password: '',
   });
 
   const handleChange = (e) => {
@@ -29,23 +63,40 @@ const RegisterDoctor = () => {
     });
   };
 
+  const handleSpecialtyChange = (e) => {
+    const value = e.target.value;
+    setFormData({
+      ...formData,
+      specialty: value,
+      customSpecialty: value === 'Otros' ? '' : value, // Si es "Otros", vaciar el campo personalizado
+    });
+  };
+
+  const handleCustomSpecialtyChange = (e) => {
+    setFormData({
+      ...formData,
+      customSpecialty: e.target.value,
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Paso 1: Crear el usuario en la tabla User junto con su perfil y doctor
+    // Determinar la especialidad final
+    const finalSpecialty = formData.specialty === 'Otros' ? formData.customSpecialty : formData.specialty;
+
     const formDataToSend = new FormData();
     formDataToSend.append('username', formData.username);
     formDataToSend.append('password', formData.password);
     formDataToSend.append('first_name', formData.firstName);
     formDataToSend.append('last_name', formData.lastName);
     formDataToSend.append('email', formData.email);
-    formDataToSend.append('perfil.tipo_usuario', 'medico');  // Tipo de usuario médico
+    formDataToSend.append('perfil.tipo_usuario', 'medico');
 
-    // Añadir los datos del doctor
     formDataToSend.append('doctor.first_name', formData.firstName);
     formDataToSend.append('doctor.last_name', formData.lastName);
     formDataToSend.append('doctor.email', formData.email);
-    formDataToSend.append('doctor.specialty', formData.specialty);
+    formDataToSend.append('doctor.specialty', finalSpecialty); // Enviar la especialidad final
     formDataToSend.append('doctor.phone_number', formData.phoneNumber);
     formDataToSend.append('doctor.address', formData.address);
     formDataToSend.append('doctor.biography', formData.biography);
@@ -53,7 +104,7 @@ const RegisterDoctor = () => {
     formDataToSend.append('doctor.profile_picture', formData.profilePicture);
 
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/register/', {
+      const response = await fetch('http://localhost:8000/api/register/', {
         method: 'POST',
         body: formDataToSend,
       });
@@ -68,7 +119,6 @@ const RegisterDoctor = () => {
       alert('Error en el registro');
     }
   };
-
 
   return (
     <div className="container">
@@ -112,15 +162,31 @@ const RegisterDoctor = () => {
         </div>
         <div className="form-group">
           <label htmlFor="specialty">Especialidad:</label>
-          <input
-            type="text"
+          <select
             id="specialty"
             name="specialty"
             value={formData.specialty}
-            onChange={handleChange}
-            placeholder="Introduzca una especialidad"
+            onChange={handleSpecialtyChange}
             required
-          />
+          >
+            <option value="">Seleccione una especialidad</option>
+            {specialties.map((specialty, index) => (
+              <option key={index} value={specialty}>
+                {specialty}
+              </option>
+            ))}
+          </select>
+          {formData.specialty === 'Otros' && (
+            <input
+              type="text"
+              id="customSpecialty"
+              name="customSpecialty"
+              value={formData.customSpecialty}
+              onChange={handleCustomSpecialtyChange}
+              placeholder="Introduzca la especialidad"
+              required
+            />
+          )}
         </div>
         <div className="form-group">
           <label htmlFor="phoneNumber">Número telefónico:</label>

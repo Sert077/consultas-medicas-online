@@ -35,9 +35,9 @@ const Login = () => {
             localStorage.setItem('tipo_usuario', data.tipo_usuario); // Guardar el tipo de usuario
             window.location.href = "/"; // Redirigir al home después de iniciar sesión
         } else {
-            setMessage(data.error);
+            setMessage(data.error); // Mostrar el mensaje de error de la API
         }
-    };
+    };    
     
     return (
         <div className="login-container">

@@ -152,6 +152,13 @@ def login_user(request):
         try:
             perfil = user.perfil  # Ajusta esto si el atributo tiene otro nombre
             tipo_usuario = perfil.tipo_usuario
+
+            # Verificar si es paciente y si está verificado
+            if tipo_usuario == 'paciente' and not perfil.verificado:
+                return Response(
+                    {'error': 'Por favor, verifica tu correo antes de iniciar sesión.'},
+                    status=403  # Forbidden
+                )
         except AttributeError:
             # En caso de que no tenga perfil
             return Response({'error': 'El usuario no tiene un perfil asociado.'}, status=400)

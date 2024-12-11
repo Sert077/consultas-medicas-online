@@ -161,7 +161,7 @@ const Register = () => {
             });
 
             if (response.ok) {
-                alert('Registro exitoso');
+                alert('Registro exitoso, Por favor revisa tu correo electrónico para verificar tu cuenta.');
             } else {
                 const errorData = await response.json();
                 if (errorData.email) setEmailError(errorData.email[0]);

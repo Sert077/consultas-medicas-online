@@ -9,44 +9,57 @@
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
     box-sizing: border-box;
     text-align: center;
+    font-family: 'Arial', sans-serif;
+
+    /* Centrar el contenedor */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: auto;
+    min-height: 00px; /* Altura mínima para mejor proporción */
 }
 
 .verify-email-container h2 {
-    color: #4CAF50;
+    color: #28ADA8;
     margin-bottom: 20px;
+    margin-top: 7px;
 }
 
 /* Estilos del mensaje */
 .message {
-    padding: 20px;
-    border-radius: 5px;
-    font-size: 16px;
-    margin-top: 20px;
+    font-size: 17px; /* Tamaño de fuente ligeramente mayor */
+    font-weight: bold;
+    margin-top: 5px;
 }
 
 .message.success {
-    background-color: #4CAF50;
-    color: white;
+    color: #4CAF50; /* Texto verde para éxito */
 }
 
 .message.error {
-    background-color: #f44336;
-    color: white;
+    color: #f44336; /* Texto rojo para error */
+    
 }
 
 /* Media Queries */
 @media (max-width: 768px) {
     .verify-email-container {
         max-width: 90%;
-        margin: 20px auto;
+        margin: 0;
         padding: 15px;
+        border: 1px solid #f5f5f5; /* Color del fondo para el borde */
     }
 }
 
 @media (max-width: 480px) {
     .verify-email-container {
         max-width: 95%;
-        margin: 10px auto;
+        margin: 0;
         padding: 10px;
+        border: 1px solid #f5f5f5; /* Color del fondo para el borde */
     }
 }
