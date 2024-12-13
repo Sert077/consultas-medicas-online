@@ -12,7 +12,7 @@ from .models import EmailVerificationToken
 class DoctorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Doctor
-        fields = ['id', 'first_name', 'last_name', 'email', 'specialty', 'phone_number', 'profile_picture', 'address', 'biography', 'created_at', 'updated_at', 'horario_atencion', 'user']
+        fields = ['id', 'first_name', 'last_name', 'email', 'specialty', 'phone_number', 'profile_picture', 'address', 'biography', 'created_at', 'updated_at', 'days', 'start_time', 'end_time', 'user']
 
 class ConsultaSerializer(serializers.ModelSerializer):
     class Meta:
