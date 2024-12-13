@@ -1,0 +1,160 @@
+/* Mantén el contenedor del formulario a 600px de ancho */
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 15px;
+    background-color: #f5f5f5;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  h2 {
+    text-align: center;
+    color: #4CAF50;
+  }
+  
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  
+  .form-group {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .form-group label {
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+  
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 12px;
+  }
+  
+  textarea {
+    resize: none;
+  }
+  
+  .btn-primary {
+    grid-column: span 2;
+    background-color: #4CAF50;
+    color: #fff;
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-align: center;
+  }
+  
+  .btn-primary:hover {
+    background-color: #45a049;
+  }
+  
+/* Estilos globales */
+.App {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.content-wrapper {
+    flex: 1;
+    display: flex;
+    justify-content: center; /* Centra el contenido horizontalmente */
+    align-items: center;    /* Centra el contenido verticalmente */
+}
+
+/* Ajusta el Footer para que esté siempre en la parte inferior */
+footer {
+    margin-top: auto;
+}
+
+.predefined-options {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .day-buttons-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+  
+  .day-button {
+    padding: 0.5rem 1rem;
+    border: 2px solid #4caf50;
+    border-radius: 8px;
+    background-color: #fff;
+    color: #4caf50;
+    font-size: 11px;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+  }
+  
+  .day-button:hover {
+    background-color: #4caf50;
+    color: #fff;
+  }
+  
+  .day-button.selected {
+    background-color: #4caf50;
+    color: #fff;
+  }
+  
+  
+  .custom-days {
+    margin-top: -0.2rem;
+  }
+  
+  .checkbox-group {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+  }
+  
+  .checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .checkbox-item label {
+    font-size: 14px;
+    color: #333;
+  }
+
+  .time-fields-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* Ajusta el espacio entre los elementos dentro del grupo */
+}
+
+.time-fields {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Espacio entre el label/input de horario inicio y el label/input de horario fin */
+}
+
+.time-fields label {
+    margin-right: 10px; /* Ajusta el margen derecho del label */
+}
+
+.time-fields input {
+    width: 100px; /* Asegura un tamaño uniforme para los inputs */
+    padding: 8px; /* Ajusta el espacio interno de los campos */
+    font-size: 14px;
+}
+
+
+
+
+  

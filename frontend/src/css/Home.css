@@ -1,0 +1,80 @@
+.home-container {
+    text-align: center;
+    color: #fff;
+}
+
+.hero-section {
+    background-color: #6E55E0; /* Púrpura */
+    padding: 50px 20px;
+}
+
+.hero-title {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+}
+
+.hero-subtitle {
+    font-size: 1.5rem;
+    margin-bottom: 30px;
+}
+
+.hero-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.hero-button {
+    background-color: #7bb86f; /* Verde */
+    color: #fff;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 1.2rem;
+    transition: background-color 0.3s;
+}
+
+.hero-button:hover {
+    background-color: #5e9d52; /* Verde oscuro */
+}
+
+.features-section {
+    display: flex;
+    justify-content: space-around;
+    background-color: #f4f4f4;
+    padding: 40px 20px;
+    color: #333;
+}
+
+.feature {
+    max-width: 300px;
+    text-align: center;
+}
+
+.feature-icon1 {
+    width: 240px;
+    height: 170px;
+    margin-bottom: 1px;
+}
+
+.feature-icon2 {
+    width: 190px;
+    height: 170px;
+    margin-bottom: 1px;
+}
+
+.feature-icon {
+    width: 170px;
+    height: 170px;
+    margin-bottom: 1px;
+}
+
+.feature-title {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+}
+
+.feature-description {
+    font-size: 1rem;
+    color: #666;
+}

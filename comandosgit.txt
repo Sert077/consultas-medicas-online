@@ -1,0 +1,20 @@
+git remote add origin https://github.com/Sert077/Tienda-de-Laptops.git
+git add .
+git branch
+git switch -c ""
+git commit -m ""
+git push origin nombre rama  --force
+git checkout
+git remote show origin
+
+
+
+New repository
+
+echo "# prueba" >> README.md
+git init
+git add README.md
+git commit -m "first commit"
+git branch -M main
+git remote add origin https://github.com/Sert077/prueba.git
+git push -u origin main

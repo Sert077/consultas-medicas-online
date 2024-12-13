@@ -1,0 +1,358 @@
+.chat-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: calc(100% - 20px); /* Asegura que el contenedor nunca exceda el ancho de la pantalla */
+    max-width: 500px; /* Mantiene el ancho máximo en pantallas grandes */
+    margin: 20px auto;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 10px;
+    font-family: Arial, sans-serif;
+    box-sizing: border-box; /* Incluye padding y bordes en el ancho total */
+}
+
+
+@media (max-width: 600px) {
+    .chat-container {
+        margin: 10px; /* Añade margen en pantallas pequeñas */
+        border-radius: 8px; /* Ajusta el redondeo para pantallas pequeñas */
+    }
+
+    /* Asegura que el nombre, estado y botón Meet se ajusten correctamente */
+    .doctor-infochat {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start; /* Alinea todo a la izquierda */
+        width: 100%; /* Asegura que ocupe todo el ancho disponible */
+        padding-bottom: 10px;
+    }
+
+    .doctor-infochat span {
+        word-wrap: break-word; /* Ajusta el texto largo */
+        font-size: 16px; /* Ajuste en el tamaño del texto */
+    }
+
+    .meet-button {
+         /* Asegura que el botón Meet ocupe todo el ancho disponible */
+        padding: 10px;
+        font-size: 16px; /* Ajuste en el tamaño del texto del botón */
+    }
+}
+
+.chat-container h2 {
+    margin-bottom: 5px;
+}
+
+.chat-messages {
+    border: 1px solid #ddd;
+    padding: 10px;
+    height: 400px;
+    overflow-y: scroll;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+
+.my-message {
+    background-color: #dcf8c6; /* Verde claro de WhatsApp */
+    margin-bottom: 10px;
+    padding: 10px 15px;
+    border-radius: 10px 0 10px 10px; /* Esquina superior derecha sin borde redondeado */
+    max-width: 59%;
+    margin-left: auto;
+    position: relative;
+    word-wrap: break-word;
+    text-align: left; /* Alineación a la izquierda para mayor legibilidad */
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08); /* Sombra suave para darle un toque ligero */
+    font-size: 14px;
+    color: #333; /* Color de texto gris oscuro para contraste */
+}
+
+.my-message:before {
+    content: '';
+    position: absolute;
+    top: 1px;
+    right: -10px; /* Mueve la flecha más hacia afuera */
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 10px 0 10px 12px;
+    border-color: transparent transparent transparent #dcf8c6; /* Ajustamos el color al verde claro */
+}
+
+.other-message {
+    background-color: #e7e7e7dd; /* Un tono rosa pastel suave */
+    border: 1px solid #f1eeee88; /* Bordes rosa suave */
+    margin-bottom: 10px;
+    padding: 10px 15px;
+    border-radius: 18px 18px 18px 0px; /* Bordes redondeados */
+    max-width: 59%;
+    align-self: flex-start;
+    position: relative;
+    word-wrap: break-word;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08); /* Sombra ligera */
+    font-size: 14px;
+    color: #333; /* Color de texto gris oscuro */
+}
+
+.other-message:before {
+    content: '';
+    position: absolute;
+    top: 10px;
+    left: -12px;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 10px 12px 10px 0;
+    border-color: transparent #e7e7e7dd transparent transparent; /* Ajustamos el color al fondo rosa pastel */
+}
+
+/* Ajustamos también los efectos hover para hacerlo más sutil */
+.my-message:hover,
+.other-message:hover {
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Sombra un poco más intensa al pasar el mouse */
+}
+
+.my-message .sender-name,
+.other-message .sender-name {
+    font-weight: bold;
+    font-size: 12px;
+    margin-bottom: 4px;
+    color: #555;
+}
+
+.my-message .message-text,
+.other-message .message-text {
+    font-size: 14px;
+    margin: 0;
+    white-space: pre-wrap;
+}
+
+.chat-input {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start; /* Cambiar a flex-start para que los elementos se alineen a la izquierda */
+    margin-top: 10px;
+    border-top: 1px solid #ddd;
+    padding-top: 10px;
+    flex-wrap: wrap; /* Permite que los elementos se muevan a la siguiente línea si no hay espacio */
+}
+
+.chat-input .custom-file-upload {
+    display: flex;
+    align-items: center; /* Centra el icono verticalmente */
+    justify-content: center; /* Centra el icono horizontalmente */
+    padding: 0; /* Elimina el padding extra */
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    margin-right: 5px;
+    width: 38px; /* Define el ancho fijo para que coincida con la altura */
+    height: 38px; /* Asegura que la altura sea consistente */
+    transition: background-color 0.2s;
+}
+
+.chat-input .custom-file-upload:hover {
+    background-color: #45a049;
+}
+
+.chat-input button {
+    padding: 10px;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    height: 38px; /* Asegura que tenga la misma altura */
+    transition: background-color 0.2s;
+}
+
+.chat-input input {
+    flex: 1; /* Permite que el input crezca para ocupar el espacio disponible */
+    min-width: 0; /* Previene que el input exceda el tamaño del contenedor */
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    outline: none;
+    font-size: 14px;
+    margin-right: 10px;
+    height: 38px; /* Asegura que la altura del input coincida con los botones */
+}
+
+.chat-input button:hover {
+    background-color: #45a049;
+}
+
+.chat-input input:focus {
+    border-color: #4caf50;
+}
+
+.image-preview-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.image-preview-content {
+    position: relative;
+    max-width: 90%;
+    max-height: 90%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px; /* Espacio alrededor de la imagen */
+    background: #333; /* Fondo oscuro para resaltar la imagen */
+    border-radius: 10px;
+}
+
+.image-preview-content img {
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: 100%;
+    min-width: 200px; /* Tamaño mínimo para imágenes pequeñas */
+    min-height: 200px; /* Altura mínima para imágenes pequeñas */
+    object-fit: contain; /* Escala la imagen manteniendo su relación de aspecto */
+    border-radius: 10px;
+}
+
+/* Estilo para los íconos de descarga y cierre para evitar que se solapen */
+.download-icon,
+.close-icon {
+    position: absolute;
+    top: -18px;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: color 0.3s;
+    z-index: 2;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 12px;
+    border-radius: 50%;
+    width: 38px;
+    height: 38px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-sizing: border-box;
+}
+
+.download-icon {
+    right: 65px;
+}
+
+.close-icon {
+    right: 15px;
+}
+
+
+.download-icon:hover,
+.close-icon:hover {
+    color: white;
+    background-color: rgba(0, 0, 0, 0.5);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+.download-icon:hover,
+.close-icon:hover {
+    color: white; /* Color blanco al hacer hover */
+    background-color: rgba(0, 0, 0, 0.5); /* Fondo sutil al hacer hover */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Sombra más fuerte al hacer hover */
+}
+
+.meet-button-container {
+    display: flex;
+    justify-content: flex-end;  /* Alinea el contenido a la derecha */
+    align-items: center;
+    height: 38px;  /* Altura consistente */
+    width: auto;   /* Asegura que el botón tome el tamaño adecuado */
+    margin-left: 10px;  /* Separación opcional entre el estado y el botón */
+}
+
+.meet-button-container {
+    display: flex;
+    justify-content: flex-end;  /* Alinea el contenido a la derecha */
+    align-items: center;
+    width: 100%;   /* Asegura que el contenedor ocupe todo el ancho disponible */
+    margin-left: 0; /* Elimina cualquier margen izquierdo */
+    padding-right: 0px; /* Opcional: Añade un pequeño espacio a la derecha */
+}
+
+.meet-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding: 10px 10px;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    gap: 10px;
+}
+
+.meet-button:hover {
+    background-color: #45a049;
+}
+
+.meet-button:hover {
+    background-color: #45a049;
+}
+
+.connected-users {
+    margin-bottom: 10px;
+    padding: 10px;
+    background-color: #f0f0f0;
+    border-radius: 5px;
+}
+
+.doctor-infochat {
+    display: flex;
+    align-items: center; /* Alinea verticalmente los elementos */
+    gap: 10px; /* Añade un espacio entre el icono y el texto */
+    flex-wrap: nowrap; /* Asegura que los elementos no se muevan a una nueva línea */
+    white-space: nowrap; /* Evita que el nombre se divida en dos líneas */
+    margin-bottom: 5px;
+}
+
+.doctor-infochat span {
+    display: inline-block; /* Asegura que el texto se mantenga en una sola línea */
+    font-size: 16px; /* Ajusta el tamaño de la fuente si es necesario */
+}
+
+.doctor-iconchat {
+    font-size: 20px; /* Ajusta el tamaño del icono */
+    margin-left: 0; /* Elimina cualquier margen que pueda existir */
+    flex-shrink: 0; /* Evita que el icono se achique */
+}
+
+.user-status {
+    font-size: 0.9rem;
+    color: green; /* O el color que prefieras */
+    margin-left: 8px;
+}
+
+.status-container {
+    background-color: #f4f4f4;
+    padding: 0px 10px;
+    border-radius: 5px;
+    font-size: 12px;
+    color: #333;
+    display: inline-block;
+    white-space: nowrap; /* Evita que el texto se divida en varias líneas */
+}
+

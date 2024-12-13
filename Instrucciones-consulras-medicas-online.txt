@@ -1,0 +1,123 @@
+comandos usados:
+pip install django djangorestframework
+django-admin startproject consultorio_medico
+cd consultorio_medico
+python manage.py startapp core
+pip install mysqlclient
+python manage.py createsuperuser
+
+para iconos:
+npm install react-icons
+
+
+npx create-react-app frontend
+cd frontend
+pip install djangorestframework
+pip install django-cors-headers
+
+para login de usuarios con token
+
+El error `AttributeError: type object 'Token' has no attribute 'objects'` indica que Django no está encontrando correctamente el modelo `Token`. Esto suele ocurrir cuando la aplicación no está configurada para usar `TokenAuthentication`.
+
+### Solución:
+
+1. **Verifica que `rest_framework.authtoken` esté instalado**:
+   - Asegúrate de que `rest_framework.authtoken` esté agregado en tu archivo `INSTALLED_APPS` dentro de `settings.py`:
+
+     ```python
+     INSTALLED_APPS = [
+         ...
+         'rest_framework',
+         'rest_framework.authtoken',  # Asegúrate de tener esto
+         ...
+     ]
+     ```
+
+2. **Aplica las migraciones necesarias**:
+   Si acabas de agregar `rest_framework.authtoken`, necesitarás ejecutar las migraciones para crear el modelo de tokens.
+
+   Ejecuta los siguientes comandos en la terminal:
+
+   ```bash
+   python manage.py migrate
+   ```
+
+3. **Importa el modelo `Token` correctamente**:
+   Asegúrate de que en tu `views.py` estés importando el modelo `Token` de la manera correcta:
+
+   ```python
+   from rest_framework.authtoken.models import Token
+   ```
+
+4. **Verifica el código de la vista `login_user`**:
+   Aquí tienes el código para la vista de inicio de sesión con la autenticación de tokens:
+
+   ```python
+   from django.contrib.auth import authenticate
+   from rest_framework.authtoken.models import Token
+   from rest_framework.decorators import api_view
+   from rest_framework.response import Response
+
+   @api_view(['POST'])
+   def login_user(request):
+       username = request.data.get('username')
+       password = request.data.get('password')
+       user = authenticate(username=username, password=password)
+
+       if user is not None:
+           # Generar o recuperar el token de autenticación
+           token, created = Token.objects.get_or_create(user=user)
+           return Response({
+               'token': token.key,
+               'username': user.username
+           })
+       return Response({'error': 'Invalid Credentials'}, status=400)
+   ```
+
+5. **Verifica que `TokenAuthentication` esté configurado**:
+   En tu archivo `settings.py`, asegúrate de que `TokenAuthentication` esté configurado como método de autenticación predeterminado en `REST_FRAMEWORK`:
+
+   ```python
+   REST_FRAMEWORK = {
+       'DEFAULT_AUTHENTICATION_CLASSES': [
+           'rest_framework.authentication.TokenAuthentication',
+       ],
+   }
+   ```
+
+6. **Verifica que hayas creado tokens**:
+   Si ya tenías usuarios registrados antes de habilitar los tokens, tendrás que generar tokens para esos usuarios manualmente. Puedes hacerlo en el `shell` de Django:
+
+   ```bash
+   python manage.py shell
+   ```
+
+   Dentro del shell:
+
+   ```python
+   from django.contrib.auth.models import User
+   from rest_framework.authtoken.models import Token
+
+   for user in User.objects.all():
+       Token.objects.get_or_create(user=user)
+   ```
+
+Esto debería resolver el problema y permitir que el token sea generado correctamente cuando un usuario inicie sesión.
+
+
+para chat websockets:
+
+Instalar redis-server windows https://github.com/microsoftarchive/redis/releases
+
+pip install channels
+pip install channels channels_redis
+pip install daphne
+pip install uvicorn
+pip install python-dotenv
+
+en front
+npm install axios
+
+
+
+

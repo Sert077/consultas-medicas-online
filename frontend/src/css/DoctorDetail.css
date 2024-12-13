@@ -1,0 +1,276 @@
+.doctor-detail-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+}
+
+.doctor-info-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    max-width: 700px;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    padding: 20px;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+.doctor-image {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    margin-right: 20px;
+}
+
+.doctor-details {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.doctor-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.consult-button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.consult-button:hover {
+    background-color: #45a049;
+}
+.consult-button:last-child {
+    background-color: #6c63ff; /* Púrpura */
+}
+.consult-button:last-child:hover {
+    background-color: #4e4ab7;
+}
+
+.doctor-biography-container {
+    text-align: left;
+    width: 100%;
+    max-width: 700px;
+    border: 1px solid #ddd;
+    padding: 20px;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+.consultas-container {
+    text-align: left; /* Alinea el contenido a la izquierda */
+    width: 100%;
+    max-width: 700px;
+    border: 1px solid #ddd;
+    padding: 20px;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+h3{
+    text-align: center;
+}
+.consultas-container ul {
+    list-style-position: inside; /* Asegura que el punto de la lista esté dentro */
+    padding-left: 0; /* Elimina el margen por defecto */
+}
+
+.consultas-container li {
+    margin-bottom: 10px; /* Añade espacio entre las consultas */
+    font-size: 1.1rem; /* Ajusta el tamaño del texto */
+    color: #333; /* Color de texto para mayor contraste */
+}
+
+/* Estilos para el modal */
+/* Fondo semitransparente para el modal */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+/* Animación del modal */
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Contenido del modal */
+.modal-content {
+    background-color: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    animation: slideDown 0.3s ease; /* Aplicar animación */
+}
+
+/* Formulario del modal */
+.modal-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.modal-content h3 {
+    margin-top: 0;
+    font-size: 1.4rem;
+    color: #4CAF50;
+}
+
+/* Etiquetas del formulario */
+.modal-label-calendary {
+    color: #301466;
+    margin-bottom: -5px;
+    text-align: left;
+    width: 100%;
+}
+
+/* Tipo de consulta */
+.modal-label {
+    color: #301466;
+    margin-bottom: -5px;
+    text-align: left;
+    width: 100%;
+}
+
+/* Calendario */
+.calendar-picker {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 8px; /* Reducido el margen inferior */
+}
+
+/* Separación entre tipo de consulta y hora */
+.input-field {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 3px; /* Reducido el margen inferior */
+}
+/* Ajustar el espacio entre el tipo de consulta y la hora */
+.modal-form > .modal-label {
+    margin-bottom: -5px; /* Reducido el espacio entre etiquetas */
+}
+
+/* Ajustar el espacio entre el campo de hora y tipo de consulta */
+.modal-label-calendary {
+    margin-bottom: -5px; /* Separación entre calendario y tipo consulta */
+}
+
+/* Ajustar la separación entre el campo de hora y tipo de consulta */
+.calendar-picker {
+    margin-bottom: 8px; /* Añadir un pequeño espacio entre el calendario y el select */
+}
+
+.input-field:focus {
+    outline: none;
+    border-color: #6c63ff;
+}
+
+/* Botones en el modal */
+.modal-buttons-container {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+.button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    color: white;
+    cursor: pointer;
+    width: 48%;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+    box-sizing: border-box;
+}
+
+.button.reservar {
+    background-color: #6c63ff;
+}
+
+.button.close-modal {
+    background-color: #f44336;
+}
+
+.button:hover {
+    background-color: #4e4ab7;
+}
+
+.close-modal:hover {
+    background-color: #c0392b;
+}
+
+
+
+/* Estilo del modal de confirmación */
+.confirmation-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.confirmation-modal-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.confirmation-modal-content h3 {
+    margin-bottom: 20px;
+}
+
+.confirmation-modal-content button {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    border: none;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.confirmation-modal-content button:hover {
+    background-color: #45a049;
+}
+
