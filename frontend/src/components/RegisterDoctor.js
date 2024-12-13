@@ -220,7 +220,7 @@ const RegisterDoctor = () => {
             id="specialty"
             name="specialty"
             value={formData.specialty}
-            onChange={handleChange}
+            onChange={handleSpecialtyChange}
             required
           >
             <option value="">Seleccione una especialidad</option>
@@ -230,6 +230,17 @@ const RegisterDoctor = () => {
               </option>
             ))}
           </select>
+          {formData.specialty === 'Otros' && (
+            <input
+              type="text"
+              id="customSpecialty"
+              name="customSpecialty"
+              value={formData.customSpecialty}
+              onChange={handleCustomSpecialtyChange}
+              placeholder="Introduzca la especialidad"
+              required
+            />
+          )}
         </div>
 
         <div className="form-group">
