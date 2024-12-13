@@ -124,10 +124,9 @@ const RegisterDoctor = () => {
   };
 
   const handleDayButtonClick = (day) => {
-    const daysArray = formData.days.split(",");
-    const updatedDays = daysArray.includes(day)
-      ? daysArray.filter((d) => d !== day).join(",")
-      : [...daysArray, day].join(",");
+    const updatedDays = formData.days.includes(day)
+      ? formData.days.filter((d) => d !== day)  // Si el día ya está seleccionado, lo eliminamos
+      : [...formData.days, day];  // Si no está seleccionado, lo añadimos al array
   
     setFormData({ ...formData, days: updatedDays });
   };
