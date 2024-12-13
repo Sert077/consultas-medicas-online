@@ -123,19 +123,11 @@ const RegisterDoctor = () => {
     }
   };
 
-  const handleDaysChange = (e) => {
-    const selectedOptions = Array.from(e.target.selectedOptions).map((option) => option.value);
-    setFormData({
-      ...formData,
-      days: selectedOptions.join(', '), // Convertimos a formato "L, M, X, J, V"
-    });
-  };
-  
-  const handleCustomDaysChange = (e) => {
-    const selectedDay = e.target.value;
-    const updatedDays = formData.days.includes(selectedDay)
-      ? formData.days.replace(selectedDay, "").replace(/,,/g, ",").replace(/^,|,$/g, "")
-      : [...formData.days.split(","), selectedDay].join(",");
+  const handleDayButtonClick = (day) => {
+    const daysArray = formData.days.split(",");
+    const updatedDays = daysArray.includes(day)
+      ? daysArray.filter((d) => d !== day).join(",")
+      : [...daysArray, day].join(",");
   
     setFormData({ ...formData, days: updatedDays });
   };
@@ -156,7 +148,7 @@ const RegisterDoctor = () => {
   return (
     <div className="container">
       <h2>Registrar Doctor</h2>
-      <form onSubmit={handleSubmit} encType="multipart/form-data">
+      <form onSubmit={handleSubmit} className="form-grid">
         <div className="form-group">
           <label htmlFor="firstName">Nombre:</label>
           <input
@@ -165,10 +157,11 @@ const RegisterDoctor = () => {
             name="firstName"
             value={formData.firstName}
             onChange={handleChange}
-            placeholder="Introduzca el nombre del médico"
+            placeholder="Introduzca el nombre"
             required
           />
         </div>
+
         <div className="form-group">
           <label htmlFor="lastName">Apellidos:</label>
           <input
@@ -177,17 +170,57 @@ const RegisterDoctor = () => {
             name="lastName"
             value={formData.lastName}
             onChange={handleChange}
-            placeholder="Introduzca los apellidos del médico"
+            placeholder="Introduzca los apellidos"
             required
           />
         </div>
+
+        <div className="form-group">
+          <label htmlFor="email">Email:</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            placeholder="Escriba un email válido"
+            required
+          />
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="phoneNumber">Teléfono:</label>
+          <input
+            type="text"
+            id="phoneNumber"
+            name="phoneNumber"
+            value={formData.phoneNumber}
+            onChange={handleChange}
+            placeholder="Número telefónico"
+            required
+          />
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="address">Dirección:</label>
+          <input
+            type="text"
+            id="address"
+            name="address"
+            value={formData.address}
+            onChange={handleChange}
+            placeholder="Dirección del consultorio"
+            required
+          />
+        </div>
+
         <div className="form-group">
           <label htmlFor="specialty">Especialidad:</label>
           <select
             id="specialty"
             name="specialty"
             value={formData.specialty}
-            onChange={handleSpecialtyChange}
+            onChange={handleChange}
             required
           >
             <option value="">Seleccione una especialidad</option>
@@ -197,42 +230,8 @@ const RegisterDoctor = () => {
               </option>
             ))}
           </select>
-          {formData.specialty === 'Otros' && (
-            <input
-              type="text"
-              id="customSpecialty"
-              name="customSpecialty"
-              value={formData.customSpecialty}
-              onChange={handleCustomSpecialtyChange}
-              placeholder="Introduzca la especialidad"
-              required
-            />
-          )}
         </div>
-        <div className="form-group">
-          <label htmlFor="phoneNumber">Número telefónico:</label>
-          <input
-            type="text"
-            id="phoneNumber"
-            name="phoneNumber"
-            value={formData.phoneNumber}
-            onChange={handleChange}
-            placeholder="Introduzca un número válido"
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="address">Dirección:</label>
-          <input
-            type="text"
-            id="address"
-            name="address"
-            value={formData.address}
-            onChange={handleChange}
-            placeholder="Introduzca la dirección del consultorio médico"
-            required
-          />
-        </div>
+
         <div className="form-group">
           <label htmlFor="profilePicture">Foto de perfil:</label>
           <input
@@ -242,6 +241,19 @@ const RegisterDoctor = () => {
             onChange={handleFileChange}
           />
         </div>
+
+        <div className="form-group">
+          <label htmlFor="biography">Biografía:</label>
+          <textarea
+            id="biography"
+            name="biography"
+            value={formData.biography}
+            onChange={handleChange}
+            placeholder="Breve descripción"
+            rows="3"
+          />
+        </div>
+
         <div className="form-group">
           <label>Días de Atención:</label>
           <div className="predefined-options">
@@ -263,81 +275,60 @@ const RegisterDoctor = () => {
 
           <div className="custom-days">
             <label>Días personalizados:</label>
-            <div className="checkbox-group">
+            <div className="day-buttons-group">
               {["L", "M", "X", "J", "V", "S", "D"].map((day, index) => (
-                <div key={index} className="checkbox-item">
-                  <input
-                    type="checkbox"
-                    id={`day-${day}`}
-                    value={day}
-                    checked={formData.days.includes(day)}
-                    onChange={(e) => handleCustomDaysChange(e)}
-                  />
-                  <label htmlFor={`day-${day}`}>{getDayName(day)}</label>
-                </div>
+                <button
+                  key={index}
+                  type="button"
+                  className={`day-button ${formData.days.includes(day) ? "selected" : ""}`}
+                  onClick={() => handleDayButtonClick(day)}
+                >
+                  {getDayName(day)}
+                </button>
               ))}
             </div>
           </div>
         </div>
 
+        <div className="form-group time-fields-wrapper">
+  <label htmlFor="horarioInicio">De (Hrs):</label>
+  <input
+    type="time"
+    id="horarioInicio"
+    name="horarioInicio"
+    value={formData.horarioInicio}
+    onChange={handleChange}
+    required
+  />
+  
+  <label htmlFor="horarioFin">A (Hrs):</label>
+  <input
+    type="time"
+    id="horarioFin"
+    name="horarioFin"
+    value={formData.horarioFin}
+    onChange={handleChange}
+    required
+  />
+</div>
+
+
+
+
+
         <div className="form-group">
-          <label htmlFor="horarioInicio">De (Hrs):</label>
-          <input
-            type="time"
-            id="horarioInicio"
-            name="horarioInicio"
-            value={formData.horarioInicio}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="horarioFin">A (Hrs):</label>
-          <input
-            type="time"
-            id="horarioFin"
-            name="horarioFin"
-            value={formData.horarioFin}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="biography">Biografía:</label>
-          <input
-            type="text"
-            id="biography"
-            name="biography"
-            value={formData.biography}
-            onChange={handleChange}
-            placeholder="Describa los servicios y/o atenciones médicas del médico"
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="username">Nombre de Usuario:</label>
+          <label htmlFor="username">Usuario:</label>
           <input
             type="text"
             id="username"
             name="username"
             value={formData.username}
             onChange={handleChange}
-            placeholder="Cree un nombre de usuario"
+            placeholder="Nombre de usuario"
             required
           />
         </div>
-        <div className="form-group">
-          <label htmlFor="email">e-mail:</label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            placeholder="Escriba un email válido"
-            required
-          />
-        </div>
+
         <div className="form-group">
           <label htmlFor="password">Contraseña:</label>
           <input
@@ -350,7 +341,10 @@ const RegisterDoctor = () => {
             required
           />
         </div>
-        <button type="submit" className="btn btn-primary">Registrar</button>
+
+        <button type="submit" className="btn btn-primary">
+          Registrar
+        </button>
       </form>
     </div>
   );
