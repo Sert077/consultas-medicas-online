@@ -33,6 +33,7 @@ const Login = () => {
             localStorage.setItem('last_name', data.last_name); // Guardar el apellido en localStorage
             localStorage.setItem('email', data.email); // Guardar el email en localStorage
             localStorage.setItem('tipo_usuario', data.tipo_usuario); // Guardar el tipo de usuario
+            localStorage.setItem('birthdate', data.birthdate); // Guardar la fecha de nacimiento del usuario
             window.location.href = "/"; // Redirigir al home después de iniciar sesión
         } else {
             setMessage(data.error); // Mostrar el mensaje de error de la API

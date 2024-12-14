@@ -124,12 +124,15 @@ const RegisterDoctor = () => {
   };
 
   const handleDayButtonClick = (day) => {
-    const updatedDays = formData.days.includes(day)
-      ? formData.days.filter((d) => d !== day)  // Si el día ya está seleccionado, lo eliminamos
-      : [...formData.days, day];  // Si no está seleccionado, lo añadimos al array
+    // Asegurarte de que siempre sea un arreglo
+    const currentDays = Array.isArray(formData.days) ? formData.days : [];
+    
+    const updatedDays = currentDays.includes(day)
+      ? currentDays.filter((d) => d !== day) // Quitar el día si ya está seleccionado
+      : [...currentDays, day]; // Agregar el día si no está
   
     setFormData({ ...formData, days: updatedDays });
-  };
+  };  
   
   const getDayName = (day) => {
     const days = {
@@ -269,63 +272,70 @@ const RegisterDoctor = () => {
           <div className="predefined-options">
             <button
               type="button"
-              className={`day-button ${formData.days === "L,M,X,J,V" ? "selected" : ""}`}
-              onClick={() => setFormData({ ...formData, days: "L,M,X,J,V" })}
+              className={`day-button ${formData.days.length === 5 && formData.days.every(day => ["L", "M", "X", "J", "V"].includes(day)) ? "selected" : ""}`}
+              onClick={() =>
+                setFormData({
+                  ...formData,
+                  days: formData.days.length === 5 && formData.days.every(day => ["L", "M", "X", "J", "V"].includes(day))
+                    ? [] // Deselecciona
+                    : ["L", "M", "X", "J", "V"], // Selecciona "Lunes a Viernes"
+                })
+              }
             >
               Lunes a Viernes
             </button>
             <button
               type="button"
-              className={`day-button ${formData.days === "L,M,X,J,V,S,D" ? "selected" : ""}`}
-              onClick={() => setFormData({ ...formData, days: "L,M,X,J,V,S,D" })}
+              className={`day-button ${formData.days.length === 7 ? "selected" : ""}`}
+              onClick={() =>
+                setFormData({
+                  ...formData,
+                  days: formData.days.length === 7
+                    ? [] // Deselecciona
+                    : ["L", "M", "X", "J", "V", "S", "D"], // Selecciona "Todos los días"
+                })
+              }
             >
               Todos los días
             </button>
           </div>
-
+          
           <div className="custom-days">
             <label>Días personalizados:</label>
             <div className="day-buttons-group">
-              {["L", "M", "X", "J", "V", "S", "D"].map((day, index) => (
-                <button
-                  key={index}
-                  type="button"
-                  className={`day-button ${formData.days.includes(day) ? "selected" : ""}`}
-                  onClick={() => handleDayButtonClick(day)}
-                >
-                  {getDayName(day)}
-                </button>
-              ))}
+            {["L", "M", "X", "J", "V", "S", "D"].map((day, index) => (
+              <button
+                key={index}
+                type="button"
+                className={`day-button ${Array.isArray(formData.days) && formData.days.includes(day) ? "selected" : ""}`}
+                onClick={() => handleDayButtonClick(day)}
+              >
+                {getDayName(day)}
+              </button>
+            ))}
             </div>
           </div>
         </div>
 
-        <div className="form-group time-fields-wrapper">
-  <label htmlFor="horarioInicio">De (Hrs):</label>
-  <input
-    type="time"
-    id="horarioInicio"
-    name="horarioInicio"
-    value={formData.horarioInicio}
-    onChange={handleChange}
-    required
-  />
-  
-  <label htmlFor="horarioFin">A (Hrs):</label>
-  <input
-    type="time"
-    id="horarioFin"
-    name="horarioFin"
-    value={formData.horarioFin}
-    onChange={handleChange}
-    required
-  />
-</div>
-
-
-
-
-
+        <div className="form-group time-fields-wrapper"> 
+          <div className="time-fields"> 
+            <label htmlFor="horarioInicio">De (Hrs):</label> 
+            <input type="time" 
+            id="horarioInicio" 
+            name="horarioInicio" 
+            value={formData.horarioInicio} 
+            onChange={handleChange} 
+            required /> <label 
+            htmlFor="horarioFin">A (Hrs):
+            </label> 
+            <input type="time" 
+            id="horarioFin" 
+            name="horarioFin" 
+            value={formData.horarioFin} 
+            onChange={handleChange} 
+            required /> 
+          </div> 
+        </div>
         <div className="form-group">
           <label htmlFor="username">Usuario:</label>
           <input

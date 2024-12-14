@@ -1,3 +1,4 @@
+from datetime import date
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
@@ -31,6 +32,19 @@ class Consulta(models.Model):
     fecha = models.DateField(null=True, blank=True)  # Permite valores nulos y en blanco
     hora = models.TimeField(null=True, blank=True)  # Permite valores nulos y en blanco
     estado = models.CharField(max_length=20, choices=[('pendiente', 'Pendiente'), ('realizada', 'Realizada'), ('cancelada', 'Cancelada')], default='pendiente')
+    motivo_consulta = models.TextField(null=True, blank=True)  # Campo para el motivo de la consulta
+    genero = models.CharField(
+        max_length=10, 
+        null=True, 
+        blank=True
+    )  # Género del paciente
+    tipo_sangre = models.CharField(
+        max_length=3,
+        null=True, 
+        blank=True
+    )  # Tipo de sangre del paciente
+    alergias = models.TextField(null=True, blank=True)  # Alergias del paciente
+    edad = models.IntegerField(null=True, blank=True)  # Edad del paciente
 
     def __str__(self):
         return f"Consulta con {self.medico} el {self.fecha} a las {self.hora}"

@@ -1,3 +1,4 @@
+from datetime import date
 from rest_framework import serializers
 from .models import Doctor
 from .models import Consulta
@@ -17,9 +18,21 @@ class DoctorSerializer(serializers.ModelSerializer):
 class ConsultaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Consulta
-        fields = ['id', 'paciente', 'medico', 'fecha', 'hora', 'estado']  # Asegúrate de incluir 'paciente' en los campos
+        fields = ['id', 'paciente', 'medico', 'fecha', 'hora', 'estado', 'motivo_consulta', 'genero', 'tipo_sangre', 'alergias', 'edad']
 
     def create(self, validated_data):
+        paciente = validated_data.get('paciente')
+
+        if paciente:
+            perfil = getattr(paciente, 'perfil', None)
+            if perfil and perfil.birthdate:
+                today = date.today()
+                validated_data['edad'] = today.year - perfil.birthdate.year - (
+                    (today.month, today.day) < (perfil.birthdate.month, perfil.birthdate.day)
+                )
+            else:
+                validated_data['edad'] = None  # O algún valor por defecto
+
         return Consulta.objects.create(**validated_data)
 
 

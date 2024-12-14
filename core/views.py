@@ -152,6 +152,7 @@ def login_user(request):
         try:
             perfil = user.perfil  # Ajusta esto si el atributo tiene otro nombre
             tipo_usuario = perfil.tipo_usuario
+            birthdate = perfil.birthdate
 
             # Verificar si es paciente y si está verificado
             if tipo_usuario == 'paciente' and not perfil.verificado:
@@ -172,6 +173,7 @@ def login_user(request):
             'last_name': user.last_name,
             'email': user.email,
             'tipo_usuario': tipo_usuario,
+            'birthdate': birthdate,
         })
 
     return Response({'error': 'No se encontró el usuario o la contraseña es incorrecta'}, status=400)
