@@ -123,7 +123,7 @@ h3{
     border-radius: 12px;
     padding: 20px;
     width: 90%;
-    max-width: 550px;
+    max-width: 590px;
     box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
     text-align: center;
     animation: slideDown 0.3s ease; /* Aplicar animación */
@@ -236,7 +236,7 @@ h3{
     font-size: 1rem;
     transition: background-color 0.3s ease;
     box-sizing: border-box;
-    min-width: 170px;
+    min-width: 150px;
 }
 
 /* Contenedor para los botones fuera de las columnas */
@@ -271,12 +271,12 @@ h3{
     display: flex;
     gap: 5px; /* Reducir el espacio entre las opciones */
     justify-content: start; /* Alinear a la izquierda */
-    max-width: 250px;
+    width: 94%;
 }
 
 .alergias-textarea {
-    width: 100%; /* Reducir el ancho */
-    max-width: 254px; /* Establecer un tamaño máximo */
+    width: 95.5%; /* Reducir el ancho */
+    
     height: 60px; /* Ajustar la altura */
     padding: 6px; /* Reducir el padding interno */
     border: 1px solid #ddd; /* Mantener el estilo */
@@ -333,3 +333,41 @@ h3{
         max-width: 100%; /* Asegurar que el textarea no se salga del contenedor */
     }
 }
+
+/* Ajustes generales para que los estilos sean responsivos */
+@media (max-width: 768px) {
+    .doctor-info-container {
+        flex-direction: column; /* Cambiar a disposición vertical */
+        align-items: center; /* Asegurar que los elementos estén centrados */
+    }
+
+    .doctor-image {
+        margin-right: 0; /* Eliminar el margen derecho en pantallas pequeñas */
+        margin-bottom: 15px; /* Añadir margen inferior para espacio */
+    }
+
+    .doctor-buttons {
+        flex-direction: column; /* Botones en una sola columna */
+        gap: 15px; /* Más espacio entre botones */
+        width: 100%; /* Asegurar que ocupen el ancho completo */
+    }
+
+    .doctor-biography-container,
+    .consultas-container {
+        max-width: 90%; /* Reducir el ancho en pantallas pequeñas */
+    }
+}
+
+
+/* Confirmación modal responsivo */
+@media (max-width: 600px) {
+    .confirmation-modal-content {
+        padding: 15px; /* Ajustar padding */
+    }
+
+    .confirmation-modal-content button {
+        width: 100%; /* Botón ocupa todo el ancho */
+        font-size: 14px; /* Reducir tamaño del texto */
+    }
+}
+
