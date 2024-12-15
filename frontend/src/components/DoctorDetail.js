@@ -203,8 +203,8 @@ const DoctorDetail = () => {
                 )}
             </div>
 
-            {/* Modal para reserva de consulta */}
-            {showModal && (
+           {/* Modal para reserva de consulta */}
+           {showModal && (
     <div className="modal-overlay" onClick={() => setShowModal(false)}>
         <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <h3>Reservar Consulta Médica</h3>
@@ -276,69 +276,71 @@ const DoctorDetail = () => {
                 </div>
 
                 <div>
-                    <label htmlFor="tiene-alergias" className="modal-label-alergias">¿Tiene alergias?</label>
-                    <div className="input-field">
-                        <label>
-                            <input
-                                type="radio"
-                                name="tiene-alergias"
-                                value="Sí"
-                                checked={tieneAlergias === true}
-                                onChange={() => setTieneAlergias(true)}
-                            />
-                            Sí
-                        </label>
-                        <label>
-                            <input
-                                type="radio"
-                                name="tiene-alergias"
-                                value="No"
-                                checked={tieneAlergias === false}
-                                onChange={() => {
-                                    setTieneAlergias(false);
-                                    setDescripcionAlergia(''); // Limpiar el campo si selecciona "No"
-                                }}
-                            />
-                            No
-                        </label>
-                    </div>
+    <label htmlFor="tiene-alergias" className="modal-label-alergias">¿Tiene alergias?</label>
+    <div className="input-field alergias-input-field">
+        <label>
+            <input
+                type="radio"
+                name="tiene-alergias"
+                value="Sí"
+                checked={tieneAlergias === true}
+                onChange={() => setTieneAlergias(true)}
+                className="radio-alergias"
+            />
+            Sí
+        </label>
+        <label>
+            <input
+                type="radio"
+                name="tiene-alergias"
+                value="No"
+                checked={tieneAlergias === false}
+                onChange={() => {
+                    setTieneAlergias(false);
+                    setDescripcionAlergia('');
+                }}
+                className="radio-alergias"
+            />
+            No
+        </label>
+    </div>
 
-                    {tieneAlergias && (
-                        <div>
-                            <label htmlFor="descripcion-alergia" className="modal-label-alergias">Describa sus alergias:</label>
-                            <textarea
-                                id="descripcion-alergia"
-                                value={descripcionAlergia}
-                                onChange={(e) => setDescripcionAlergia(e.target.value)}
-                                className="input-field"
-                                placeholder="Escriba detalles sobre sus alergias"
-                                required
-                            ></textarea>
-                        </div>
-                    )}
-                </div>
+    {tieneAlergias && (
+        <div>
+            <label htmlFor="descripcion-alergia" className="modal-label-alergias">Describa sus alergias:</label>
+            <textarea
+                id="descripcion-alergia"
+                value={descripcionAlergia}
+                onChange={(e) => setDescripcionAlergia(e.target.value)}
+                className="input-field alergias-textarea"
+                placeholder="Describa sus alergias"
+                required
+            ></textarea>
+        </div>
+    )}
+</div>
 
                 <div>
-                    <label htmlFor="motivo-consulta" className="modal-label">Motivo de consulta:</label>
+                    <label htmlFor="motivo-consulta" className="modal-label-motivo">Motivo de consulta:</label>
                     <input
                         id="motivo-consulta"
                         value={motivoConsulta}
                         onChange={(e) => setMotivoConsulta(e.target.value)}
                         required
-                        className="input-field"
+                        className="input-field-motivo"
                         placeholder="Escriba el motivo de la consulta"
                     />
                 </div>
 
-                <div className="modal-buttons-container">
-                    <button type="submit" className="button reservar">Reservar</button>
-                    <button type="button" className="button close-modal" onClick={() => setShowModal(false)}>Cerrar</button>
-                </div>
+                {/* Contenedor para los botones */}
+    <div className="modal-buttons-container-outside">
+        <button type="submit" className="button reservar">Reservar</button>
+        <button type="button" className="button close-modal" onClick={() => setShowModal(false)}>Cerrar</button>
+    </div>
             </form>
         </div>
     </div>
 )}
-
 
  {/* Modal de confirmación */}
  {showConfirmationModal && (
