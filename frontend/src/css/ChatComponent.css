@@ -182,6 +182,7 @@
     font-size: 14px;
     margin-right: 10px;
     height: 38px; /* Asegura que la altura del input coincida con los botones */
+    margin-top: 0px;
 }
 
 .chat-input button:hover {

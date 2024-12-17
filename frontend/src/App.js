@@ -37,6 +37,7 @@ import './css/style.css';
 import MisReservas from './components/MisReservas';
 import Chat from './components/Chat';
 import VerifyEmail from './components/VerifyEmail';
+import EditPatient from './components/EditPatient';
 function App() {
     return (
         <div className="App">
@@ -53,6 +54,7 @@ function App() {
                     {/*<Route path="/chat/:consultaId" element={<ChatComponent />} />*/}
                     <Route path="/misreservas" element={<MisReservas />} />
                     <Route path="/chat/:chatId" element={<Chat />} />  {/* Nueva ruta para el chat */}
+                    <Route path="/edit-patient" element={<EditPatient />} />
                     <Route path="/verify-email/:token" element={<VerifyEmail />} />
                 </Routes>
                 <Footer />

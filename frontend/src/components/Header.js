@@ -96,9 +96,7 @@ const Header = () => {
                             {showDropdown && (
                                 <ul className="dropdown">
                                     <li>
-                                        <button to="/config">
-                                            Configuración de la cuenta
-                                        </button>
+                                    <button onClick={() => navigate('/edit-patient')}>Configuración de la cuenta</button>
                                     </li>
                                     <li>
                                         <button onClick={handleLogout}>
