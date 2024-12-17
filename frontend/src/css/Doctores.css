@@ -36,6 +36,7 @@
     height: 200px;
     object-fit: cover;
     border-radius: 8px;
+    margin-left: 10px;
 }
 
 .doctor-info {
@@ -162,6 +163,11 @@
 
 .filter-select {
     width: 250px;
+}
+
+.filter-select:focus {
+    outline: none;
+    border-color: #6c63ff;
 }
 
 /* Añadir estilos responsivos */

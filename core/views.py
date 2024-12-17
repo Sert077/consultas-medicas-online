@@ -18,12 +18,15 @@ from rest_framework.permissions import AllowAny
 from rest_framework.exceptions import ValidationError
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
-from .models import ChatMessage
+from .models import ChatMessage, Perfil
 from django.views.decorators.csrf import csrf_exempt
 import json
 from .models import EmailVerificationToken
 from rest_framework.views import APIView
 from rest_framework import status
+from .serializers import UserSerializer, PerfilSerializer
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 
 # API para crear un nuevo médico
 @api_view(['POST'])
@@ -338,3 +341,25 @@ class VerifyEmailView(APIView):
             return Response({"message": "Correo verificado exitosamente."}, status=status.HTTP_200_OK)
         except EmailVerificationToken.DoesNotExist:
             return Response({"error": "Token inválido o expirado."}, status=status.HTTP_400_BAD_REQUEST)
+        
+@api_view(['GET', 'PUT'])
+@permission_classes([IsAuthenticated])
+def patient_profile(request):
+    if request.method == 'GET':
+        # Serializar al usuario con los datos de perfil
+        user_serializer = UserSerializer(request.user)
+        return Response(user_serializer.data)
+
+    elif request.method == 'PUT':
+        # Serializar al usuario para actualizar datos del perfil
+        user_serializer = UserSerializer(request.user, data=request.data, partial=True)
+        perfil_serializer = PerfilSerializer(request.user.perfil, data=request.data, partial=True)  # Actualizamos el perfil
+
+        if user_serializer.is_valid() and perfil_serializer.is_valid():
+            user_serializer.save()
+            perfil_serializer.save()  # Guardamos los cambios en el perfil
+            return Response({"message": "Datos actualizados con éxito"})
+        
+        # Si no es válido, respondemos con el error
+        return Response(user_serializer.errors, status=400)
+

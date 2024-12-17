@@ -34,12 +34,30 @@ class ConsultaSerializer(serializers.ModelSerializer):
                 validated_data['edad'] = None  # O algún valor por defecto
 
         return Consulta.objects.create(**validated_data)
+    
+    
+class PerfilSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Perfil
+        fields = ['tipo_usuario', 'birthdate', 'phone_number', 'id_card', 'user_picture', 'verificado']
+    
+    def update(self, instance, validated_data):
+        # Si hay una nueva imagen de usuario, actualizamos el campo
+        if 'user_picture' in validated_data:
+            instance.user_picture = validated_data['user_picture']
+
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        return instance
 
 
 class UserSerializer(serializers.ModelSerializer):
+    perfil = PerfilSerializer(read_only=True)  # Relación al Perfil 
+
     class Meta:
         model = User
-        fields = ('username', 'password', 'first_name', 'last_name', 'email', 'is_superuser')  # Incluye is_superuser
+        fields = ('username', 'password', 'first_name', 'last_name', 'email', 'is_superuser', 'perfil')  # Incluye is_superuser
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
@@ -52,11 +70,6 @@ class UserSerializer(serializers.ModelSerializer):
         )
         return user
 
-
-class PerfilSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Perfil
-        fields = ['tipo_usuario', 'birthdate', 'phone_number', 'id_card', 'user_picture', 'verificado']
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
     perfil = PerfilSerializer()

@@ -21,6 +21,7 @@ const Doctores = () => {
         fetch('http://localhost:8000/api/doctores/')
             .then(response => response.json())
             .then(data => {
+                console.log(data);
                 setDoctors(data);
                 setFilteredDoctors(data);
             })
@@ -71,18 +72,18 @@ const Doctores = () => {
                 </select>
     
                 <div className="filter-search-container">
-    <input
-        type="text"
-        className="filter-search"
-        placeholder="Buscar por nombre..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-    />
-    <span className="search-icon">
-    <i className="fas fa-search"></i>
-</span>
+                    <input
+                        type="text"
+                        className="filter-search"
+                        placeholder="Buscar por nombre..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                    <span className="search-icon">
+                        <i className="fas fa-search"></i>
+                    </span>
 
-</div>
+                </div>
 
             </div>
     
