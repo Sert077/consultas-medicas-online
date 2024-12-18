@@ -372,6 +372,11 @@ class GenerarRecetaView(APIView):
             # Obtener la consulta relacionada
             consulta = Consulta.objects.get(id=data['id_consulta'])
 
+            # Verificar si ya existe una receta con el mismo diagnóstico y consulta
+            if Receta.objects.filter(consulta=consulta, diagnostico=data['diagnostico']).exists():
+                return Response({"error": "Ya existe una receta con este diagnóstico para esta consulta"},
+                                status=status.HTTP_400_BAD_REQUEST)
+
             # Crear la receta
             receta = Receta.objects.create(
                 consulta=consulta,

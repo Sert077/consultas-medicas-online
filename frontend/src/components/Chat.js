@@ -16,7 +16,6 @@ const Chat = () => {
     const [connectedUsers, setConnectedUsers] = useState([]);
     const [displayName, setDisplayName] = useState('');
     const tipoUsuario = localStorage.getItem('tipo_usuario');
-
     const [showRecipeForm, setShowRecipeForm] = useState(false);
     const [recipeData, setRecipeData] = useState({
         nombre_paciente: '',
@@ -39,6 +38,18 @@ const Chat = () => {
     };
 
     const handleRecipeSubmit = async () => {
+        // Validar campos requeridos
+        if (
+            !recipeData.nombre_paciente.trim() ||
+            !recipeData.peso.trim() ||
+            !recipeData.talla.trim() ||
+            !recipeData.diagnostico.trim() ||
+            !recipeData.tratamiento.trim()
+        ) {
+            alert('Por favor, completa todos los campos obligatorios antes de guardar la receta.');
+            return;
+        }
+    
         try {
             const response = await axios.post(`http://localhost:8000/api/recetas/`, {
                 id_consulta: chatId, // Este es el único ID necesario para vincular la receta a la consulta
@@ -52,11 +63,27 @@ const Chat = () => {
             });
             alert('Receta generada exitosamente');
             setShowRecipeForm(false);
+            setRecipeData({
+                nombre_paciente: '',
+                peso: '',
+                talla: '',
+                diagnostico: '',
+                tratamiento: '',
+                indicaciones: '',
+                notas: '',
+            });
         } catch (error) {
-            console.error('Error al generar receta:', error);
-            alert('Ocurrió un error al generar la receta.');
+            if (error.response && error.response.data && error.response.data.error) {
+                // Mostrar el mensaje de error específico enviado por el backend
+                alert(`Error: ${error.response.data.error}`);
+            } else {
+                // Manejar otros errores no relacionados con la respuesta de la API
+                console.error('Error al generar receta:', error);
+                alert('Ocurrió un error inesperado al generar la receta.');
+            }
         }
     };
+    
     
     useEffect(() => {
         const fetchDisplayName = async () => {
@@ -298,69 +325,111 @@ const Chat = () => {
             </div>
 
             {/* Formulario de receta */}
-            {showRecipeForm && (
-                <div className="recipe-form-container">
-                    <h3>Generar Receta</h3>
-                    <form>
-                        <input
-                            type="text"
-                            name="nombre_paciente"
-                            placeholder="Nombre del paciente"
-                            value={recipeData.nombre_paciente}
-                            onChange={handleRecipeChange}
-                            required
-                        />
-                        <input
-                            type="number"
-                            name="peso"
-                            placeholder="Peso (kg)"
-                            value={recipeData.peso}
-                            onChange={handleRecipeChange}
-                            required
-                        />
-                        <input
-                            type="number"
-                            name="talla"
-                            placeholder="Talla (cm)"
-                            value={recipeData.talla}
-                            onChange={handleRecipeChange}
-                            required
-                        />
-                        <textarea
-                            name="diagnostico"
-                            placeholder="Diagnóstico"
-                            value={recipeData.diagnostico}
-                            onChange={handleRecipeChange}
-                            required
-                        />
-                        <textarea
-                            name="tratamiento"
-                            placeholder="Tratamiento"
-                            value={recipeData.tratamiento}
-                            onChange={handleRecipeChange}
-                            required
-                        />
-                        <textarea
-                            name="indicaciones"
-                            placeholder="Otras indicaciones (opcional)"
-                            value={recipeData.indicaciones}
-                            onChange={handleRecipeChange}
-                        />
-                        <textarea
-                            name="notas"
-                            placeholder="Notas (opcional)"
-                            value={recipeData.notas}
-                            onChange={handleRecipeChange}
-                        />
-                        <button type="button" onClick={handleRecipeSubmit}>
-                            Guardar Receta
-                        </button>
-                        <button type="button" onClick={toggleRecipeForm}>
-                            Cancelar
-                        </button>
-                    </form>
-                </div>
-            )}
+{showRecipeForm && (
+    <div className="recipe-form-container">
+        <h3>Generar Receta</h3>
+        <form>
+            <div className="form-group-receta">
+                <label htmlFor="nombre_paciente">
+                    Nombre del paciente: <span style={{ color: 'red' }}>*</span>
+                </label>
+                <input
+                    type="text"
+                    id="nombre_paciente"
+                    name="nombre_paciente"
+                    placeholder="Nombre del paciente"
+                    value={recipeData.nombre_paciente}
+                    onChange={handleRecipeChange}
+                    required
+                />
+            </div>
+            <div className="form-group-receta">
+                <label htmlFor="peso">
+                    Peso (kg): <span style={{ color: 'red' }}>*</span>
+                </label>
+                <input
+                    type="number"
+                    id="peso"
+                    name="peso"
+                    placeholder="Peso (kg)"
+                    value={recipeData.peso}
+                    onChange={handleRecipeChange}
+                    required
+                />
+            </div>
+            <div className="form-group-receta">
+                <label htmlFor="talla">
+                    Talla (cm): <span style={{ color: 'red' }}>*</span>
+                </label>
+                <input
+                    type="number"
+                    id="talla"
+                    name="talla"
+                    placeholder="Talla (cm)"
+                    value={recipeData.talla}
+                    onChange={handleRecipeChange}
+                    required
+                />
+            </div>
+            <div className="form-group-receta">
+                <label htmlFor="diagnostico">
+                    Diagnóstico: <span style={{ color: 'red' }}>*</span>
+                </label><br></br>
+                <textarea
+                    id="diagnostico"
+                    name="diagnostico"
+                    placeholder="Diagnóstico"
+                    value={recipeData.diagnostico}
+                    onChange={handleRecipeChange}
+                    required
+                />
+            </div>
+            <div className="form-group-receta">
+                <label htmlFor="tratamiento">
+                    Tratamiento: <span style={{ color: 'red' }}>*</span>
+                </label><br></br>
+                <textarea
+                    id="tratamiento"
+                    name="tratamiento"
+                    placeholder="Tratamiento"
+                    value={recipeData.tratamiento}
+                    onChange={handleRecipeChange}
+                    required
+                />
+            </div>
+            <div className="form-group-receta">
+                <label htmlFor="indicaciones">Otras indicaciones:</label>
+                
+                <textarea
+                    id="indicaciones"
+                    name="indicaciones"
+                    placeholder="Otras indicaciones (opcional)"
+                    value={recipeData.indicaciones}
+                    onChange={handleRecipeChange}
+                />
+            </div>
+            <div className="form-group-receta">
+                <label htmlFor="notas">Notas:</label><br></br>
+                <textarea
+                    id="notas"
+                    name="notas"
+                    placeholder="Notas (opcional)"
+                    value={recipeData.notas}
+                    onChange={handleRecipeChange}
+                />
+            </div>
+            <div className="form-buttons">
+                <button type="button" onClick={handleRecipeSubmit}>
+                    Guardar Receta
+                </button>
+                <button type="button" onClick={toggleRecipeForm}>
+                    Cancelar
+                </button>
+            </div>
+        </form>
+    </div>
+)}
+
         </div>
     );
 };

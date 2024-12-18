@@ -389,3 +389,26 @@
 .recipe-form-container button {
     margin-bottom: 10px;
 }
+
+.form-group-receta label {
+    font-weight: normal;
+    margin-bottom: 5px;
+    font-size: 14px;
+  }
+
+  .form-group-receta input {
+    font-weight: normal;
+    margin-bottom: 5px;
+    margin-top: 5px;
+    font-size: 14px;
+  }
+  
+  .form-group-receta textarea {
+    font-weight: normal;
+    margin-bottom: 5px;
+    font-size: 14px;
+    margin-top: 5px;
+    width: 294px;
+    border-color: #cac6c6;
+    border-radius: 5%;
+  }
