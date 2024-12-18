@@ -17,6 +17,47 @@ const Chat = () => {
     const [displayName, setDisplayName] = useState('');
     const tipoUsuario = localStorage.getItem('tipo_usuario');
 
+    const [showRecipeForm, setShowRecipeForm] = useState(false);
+    const [recipeData, setRecipeData] = useState({
+        nombre_paciente: '',
+        peso: '',
+        talla: '',
+        diagnostico: '',
+        tratamiento: '',
+        indicaciones: '',
+        notas: '',
+    });
+
+    const toggleRecipeForm = () => setShowRecipeForm(!showRecipeForm);
+
+    const handleRecipeChange = (e) => {
+        const { name, value } = e.target;
+        setRecipeData((prevData) => ({
+            ...prevData,
+            [name]: value,
+        }));
+    };
+
+    const handleRecipeSubmit = async () => {
+        try {
+            const response = await axios.post(`http://localhost:8000/api/recetas/`, {
+                id_consulta: chatId, // Este es el único ID necesario para vincular la receta a la consulta
+                nombre_paciente: recipeData.nombre_paciente,
+                peso: recipeData.peso,
+                talla: recipeData.talla,
+                diagnostico: recipeData.diagnostico,
+                tratamiento: recipeData.tratamiento,
+                indicaciones: recipeData.indicaciones,
+                notas: recipeData.notas,
+            });
+            alert('Receta generada exitosamente');
+            setShowRecipeForm(false);
+        } catch (error) {
+            console.error('Error al generar receta:', error);
+            alert('Ocurrió un error al generar la receta.');
+        }
+    };
+    
     useEffect(() => {
         const fetchDisplayName = async () => {
             try {
@@ -245,6 +286,79 @@ const Chat = () => {
                             <FaTimes />
                         </button>
                     </div>
+                </div>
+            )}
+
+<div className="recipe-button-container">
+                {tipoUsuario === 'medico' && (
+                    <button onClick={toggleRecipeForm} className="recipe-button">
+                        Generar Receta
+                    </button>
+                )}
+            </div>
+
+            {/* Formulario de receta */}
+            {showRecipeForm && (
+                <div className="recipe-form-container">
+                    <h3>Generar Receta</h3>
+                    <form>
+                        <input
+                            type="text"
+                            name="nombre_paciente"
+                            placeholder="Nombre del paciente"
+                            value={recipeData.nombre_paciente}
+                            onChange={handleRecipeChange}
+                            required
+                        />
+                        <input
+                            type="number"
+                            name="peso"
+                            placeholder="Peso (kg)"
+                            value={recipeData.peso}
+                            onChange={handleRecipeChange}
+                            required
+                        />
+                        <input
+                            type="number"
+                            name="talla"
+                            placeholder="Talla (cm)"
+                            value={recipeData.talla}
+                            onChange={handleRecipeChange}
+                            required
+                        />
+                        <textarea
+                            name="diagnostico"
+                            placeholder="Diagnóstico"
+                            value={recipeData.diagnostico}
+                            onChange={handleRecipeChange}
+                            required
+                        />
+                        <textarea
+                            name="tratamiento"
+                            placeholder="Tratamiento"
+                            value={recipeData.tratamiento}
+                            onChange={handleRecipeChange}
+                            required
+                        />
+                        <textarea
+                            name="indicaciones"
+                            placeholder="Otras indicaciones (opcional)"
+                            value={recipeData.indicaciones}
+                            onChange={handleRecipeChange}
+                        />
+                        <textarea
+                            name="notas"
+                            placeholder="Notas (opcional)"
+                            value={recipeData.notas}
+                            onChange={handleRecipeChange}
+                        />
+                        <button type="button" onClick={handleRecipeSubmit}>
+                            Guardar Receta
+                        </button>
+                        <button type="button" onClick={toggleRecipeForm}>
+                            Cancelar
+                        </button>
+                    </form>
                 </div>
             )}
         </div>

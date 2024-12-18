@@ -11,7 +11,7 @@ from django.views import View
 from django.urls import reverse
 from django.conf import settings
 from .models import Consulta
-from .serializers import ConsultaSerializer
+from .serializers import ConsultaSerializer, RecetaSerializer
 from .serializers import UserRegistrationSerializer
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import AllowAny
@@ -21,7 +21,7 @@ from django.core.mail import send_mail
 from .models import ChatMessage, Perfil
 from django.views.decorators.csrf import csrf_exempt
 import json
-from .models import EmailVerificationToken
+from .models import EmailVerificationToken, Receta
 from rest_framework.views import APIView
 from rest_framework import status
 from .serializers import UserSerializer, PerfilSerializer
@@ -342,6 +342,7 @@ class VerifyEmailView(APIView):
         except EmailVerificationToken.DoesNotExist:
             return Response({"error": "Token inválido o expirado."}, status=status.HTTP_400_BAD_REQUEST)
         
+
 @api_view(['GET', 'PUT'])
 @permission_classes([IsAuthenticated])
 def patient_profile(request):
@@ -362,4 +363,41 @@ def patient_profile(request):
         
         # Si no es válido, respondemos con el error
         return Response(user_serializer.errors, status=400)
+    
+
+class GenerarRecetaView(APIView):
+    def post(self, request):
+        data = request.data
+        try:
+            # Obtener la consulta relacionada
+            consulta = Consulta.objects.get(id=data['id_consulta'])
+
+            # Crear la receta
+            receta = Receta.objects.create(
+                consulta=consulta,
+                paciente=consulta.paciente,  # Relación con el paciente
+                medico=consulta.medico,  # Relación con el médico
+                nombre_paciente=data['nombre_paciente'],
+                id_card=consulta.paciente.perfil.id_card,  # Cedula del paciente
+                genero=consulta.genero,  # Género del paciente
+                tipo_sangre=consulta.tipo_sangre,  # Tipo de sangre
+                alergias=consulta.alergias,  # Alergias (opcional)
+                edad=consulta.edad,  # Edad del paciente
+                peso=data['peso'],
+                talla=data['talla'],
+                diagnostico=data['diagnostico'],
+                tratamiento=data['tratamiento'],
+                indicaciones=data.get('indicaciones', ''),
+                notas=data.get('notas', '')
+            )
+
+            # Serializar y responder con la receta creada
+            serializer = RecetaSerializer(receta)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        except Consulta.DoesNotExist:
+            return Response({"error": "Consulta no encontrada"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
 

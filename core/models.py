@@ -84,3 +84,28 @@ class EmailVerificationToken(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
 
+class Receta(models.Model):
+    consulta = models.ForeignKey('Consulta', on_delete=models.CASCADE, related_name='recetas')  # Relación con la consulta
+    paciente = models.ForeignKey(User, on_delete=models.CASCADE, related_name='recetas')  # Relación con el paciente
+    medico = models.ForeignKey('Doctor', on_delete=models.CASCADE, related_name='recetas')  # Relación con el médico
+
+    # Datos relacionados con el paciente
+    nombre_paciente = models.CharField(max_length=255)  # Nombre completo del paciente
+    id_card = models.CharField(max_length=25)  # Cédula de identidad del paciente
+    genero = models.CharField(max_length=10)  # Género del paciente
+    tipo_sangre = models.CharField(max_length=3)  # Tipo de sangre
+    alergias = models.TextField(null=True, blank=True)  # Alergias
+    edad = models.IntegerField(null=True, blank=True)  # Edad del paciente
+
+    # Datos adicionales de la receta
+    peso = models.DecimalField(max_digits=5, decimal_places=2)  # Peso en kg
+    talla = models.DecimalField(max_digits=5, decimal_places=2)  # Talla en cm o m
+    diagnostico = models.TextField(null=True, blank=True)  # Diagnóstico médico
+    tratamiento = models.TextField(null=True, blank=True)  # Medicamentos y tratamiento
+    indicaciones = models.TextField(null=True, blank=True)  # Otras indicaciones (opcional)
+    notas = models.TextField(null=True, blank=True)  # Notas adicionales (opcional)
+
+    fecha_creacion = models.DateTimeField(auto_now_add=True)  # Fecha y hora de creación de la receta
+
+    def __str__(self):
+        return f"Receta de {self.nombre_paciente} - {self.consulta}"

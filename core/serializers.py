@@ -1,7 +1,7 @@
 from datetime import date
 from rest_framework import serializers
 from .models import Doctor
-from .models import Consulta
+from .models import Consulta, Receta
 from django.contrib.auth.models import User
 from .models import Perfil
 from rest_framework.validators import UniqueValidator
@@ -137,3 +137,9 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             Doctor.objects.create(user=user, **doctor_data)
         
         return user
+    
+
+class RecetaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Receta
+        fields = '__all__'
