@@ -264,7 +264,7 @@ const Chat = () => {
                     <FaVideo /> Meet
                 </button>
             </div>
-        </div> 
+          </div> 
 
             <div className="chat-messages">
                 {messages.map((msg, index) => (
@@ -315,120 +315,123 @@ const Chat = () => {
                     </div>
                 </div>
             )}
-
-<div className="recipe-button-container">
-                {tipoUsuario === 'medico' && (
-                    <button onClick={toggleRecipeForm} className="recipe-button">
-                        Generar Receta
-                    </button>
-                )}
-            </div>
-
+                <div
+                    className={`recipe-button-container ${
+                        selectedImage ? 'hidden' : ''
+                    }`}
+                >
+                    {tipoUsuario === 'medico' && (
+                        <button onClick={toggleRecipeForm} className="generate-recipe-button">
+                            Generar Receta
+                        </button>
+                    )}
+                </div>
             {/* Formulario de receta */}
-{showRecipeForm && (
-    <div className="recipe-form-container">
-        <h3>Generar Receta</h3>
-        <form>
-            <div className="form-group-receta">
-                <label htmlFor="nombre_paciente">
-                    Nombre del paciente: <span style={{ color: 'red' }}>*</span>
-                </label>
-                <input
-                    type="text"
-                    id="nombre_paciente"
-                    name="nombre_paciente"
-                    placeholder="Nombre del paciente"
-                    value={recipeData.nombre_paciente}
-                    onChange={handleRecipeChange}
-                    required
-                />
-            </div>
-            <div className="form-group-receta">
-                <label htmlFor="peso">
-                    Peso (kg): <span style={{ color: 'red' }}>*</span>
-                </label>
-                <input
-                    type="number"
-                    id="peso"
-                    name="peso"
-                    placeholder="Peso (kg)"
-                    value={recipeData.peso}
-                    onChange={handleRecipeChange}
-                    required
-                />
-            </div>
-            <div className="form-group-receta">
-                <label htmlFor="talla">
-                    Talla (cm): <span style={{ color: 'red' }}>*</span>
-                </label>
-                <input
-                    type="number"
-                    id="talla"
-                    name="talla"
-                    placeholder="Talla (cm)"
-                    value={recipeData.talla}
-                    onChange={handleRecipeChange}
-                    required
-                />
-            </div>
-            <div className="form-group-receta">
-                <label htmlFor="diagnostico">
-                    Diagnóstico: <span style={{ color: 'red' }}>*</span>
-                </label><br></br>
-                <textarea
-                    id="diagnostico"
-                    name="diagnostico"
-                    placeholder="Diagnóstico"
-                    value={recipeData.diagnostico}
-                    onChange={handleRecipeChange}
-                    required
-                />
-            </div>
-            <div className="form-group-receta">
-                <label htmlFor="tratamiento">
-                    Tratamiento: <span style={{ color: 'red' }}>*</span>
-                </label><br></br>
-                <textarea
-                    id="tratamiento"
-                    name="tratamiento"
-                    placeholder="Tratamiento"
-                    value={recipeData.tratamiento}
-                    onChange={handleRecipeChange}
-                    required
-                />
-            </div>
-            <div className="form-group-receta">
-                <label htmlFor="indicaciones">Otras indicaciones:</label>
-                
-                <textarea
-                    id="indicaciones"
-                    name="indicaciones"
-                    placeholder="Otras indicaciones (opcional)"
-                    value={recipeData.indicaciones}
-                    onChange={handleRecipeChange}
-                />
-            </div>
-            <div className="form-group-receta">
-                <label htmlFor="notas">Notas:</label><br></br>
-                <textarea
-                    id="notas"
-                    name="notas"
-                    placeholder="Notas (opcional)"
-                    value={recipeData.notas}
-                    onChange={handleRecipeChange}
-                />
-            </div>
-            <div className="form-buttons">
-                <button type="button" onClick={handleRecipeSubmit}>
-                    Guardar Receta
-                </button>
-                <button type="button" onClick={toggleRecipeForm}>
-                    Cancelar
-                </button>
-            </div>
-        </form>
-    </div>
-)}
+                {showRecipeForm && (
+                    <div className="recipe-form-container">
+                        <h3>Generar Receta</h3>
+                        <form>
+                            <div className="form-group-receta">
+                                <label htmlFor="nombre_paciente">
+                                    Nombre del paciente: <span style={{ color: 'red' }}>*</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    id="nombre_paciente"
+                                    name="nombre_paciente"
+                                    placeholder="Nombre del paciente"
+                                    value={recipeData.nombre_paciente}
+                                    onChange={handleRecipeChange}
+                                    required
+                                />
+                            </div>
+                            <div className="form-group-receta">
+                                <label htmlFor="peso">
+                                    Peso (kg): <span style={{ color: 'red' }}>*</span>
+                                </label>
+                                <input
+                                    type="number"
+                                    id="peso"
+                                    name="peso"
+                                    placeholder="Peso (kg)"
+                                    value={recipeData.peso}
+                                    onChange={handleRecipeChange}
+                                    required
+                                />
+                            </div>
+                            <div className="form-group-receta">
+                                <label htmlFor="talla">
+                                    Talla (cm): <span style={{ color: 'red' }}>*</span>
+                                </label>
+                                <input
+                                    type="number"
+                                    id="talla"
+                                    name="talla"
+                                    placeholder="Talla (cm)"
+                                    value={recipeData.talla}
+                                    onChange={handleRecipeChange}
+                                    required
+                                />
+                            </div>
+                            <div className="form-group-receta">
+                                <label htmlFor="diagnostico">
+                                    Diagnóstico: <span style={{ color: 'red' }}>*</span>
+                                </label><br></br>
+                                <textarea
+                                    id="diagnostico"
+                                    name="diagnostico"
+                                    placeholder="Diagnóstico"
+                                    value={recipeData.diagnostico}
+                                    onChange={handleRecipeChange}
+                                    required
+                                />
+                            </div>
+                            <div className="form-group-receta">
+                                <label htmlFor="tratamiento">
+                                    Tratamiento: <span style={{ color: 'red' }}>*</span>
+                                </label><br></br>
+                                <textarea
+                                    id="tratamiento"
+                                    name="tratamiento"
+                                    placeholder="Tratamiento"
+                                    value={recipeData.tratamiento}
+                                    onChange={handleRecipeChange}
+                                    required
+                                />
+                            </div>
+                            <div className="form-group-receta">
+                                <label htmlFor="indicaciones">Otras indicaciones:</label>
+                                
+                                <textarea
+                                    id="indicaciones"
+                                    name="indicaciones"
+                                    placeholder="Otras indicaciones (opcional)"
+                                    value={recipeData.indicaciones}
+                                    onChange={handleRecipeChange}
+                                />
+                            </div>
+                            <div className="form-group-receta">
+                                <label htmlFor="notas">Notas:</label><br></br>
+                                <textarea
+                                    id="notas"
+                                    name="notas"
+                                    placeholder="Notas (opcional)"
+                                    value={recipeData.notas}
+                                    onChange={handleRecipeChange}
+                                />
+                            </div>
+                            <div className="form-buttons">
+                                <button className="send-recipe" type="button" onClick={handleRecipeSubmit}>
+                                    Mandar Receta
+                                </button>
+                                <button className="cancel-button" type="button" onClick={toggleRecipeForm}>
+                                    Cancelar
+                                </button>
+                            </div>
+
+                        </form>
+                    </div>
+                )}
 
         </div>
     );

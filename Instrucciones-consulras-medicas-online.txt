@@ -115,6 +115,12 @@ pip install daphne
 pip install uvicorn
 pip install python-dotenv
 
+libreria pdf:
+pip install reportlab
+pip install qrcode[pil]
+pip install pillow
+
+
 en front
 npm install axios
 

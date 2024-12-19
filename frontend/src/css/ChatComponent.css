@@ -14,7 +14,6 @@
     box-sizing: border-box; /* Incluye padding y bordes en el ancho total */
 }
 
-
 @media (max-width: 600px) {
     .chat-container {
         margin: 10px; /* Añade margen en pantallas pequeñas */
@@ -360,7 +359,37 @@
 .recipe-button-container {
     position: absolute;
     top: 20px;
-    right: 20px;
+    right: -60px; /* Ajusta este valor según sea necesario */
+}
+
+.generate-recipe-button {
+    position: relative; /* Cambiado de fixed a relative */
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: #4caf50;
+    color: #fff;
+    border: none;
+    border-radius: 0 10px 10px 0;
+    padding: 12px 8px;
+    font-size: 14px;
+    writing-mode: vertical-lr;
+    text-align: center;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s, box-shadow 0.3s;
+    z-index: 1000;
+    margin-top: 150px;
+    margin-right: 27px;
+}
+
+.generate-recipe-button:hover {
+    background-color: #45a049;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+.hidden {
+    display: none; /* Oculta completamente el elemento */
 }
 
 .recipe-form-container {
@@ -376,6 +405,7 @@
 }
 
 .recipe-form-container h3 {
+    color: #571a7c;
     margin-top: 0;
 }
 
@@ -391,7 +421,7 @@
 }
 
 .form-group-receta label {
-    font-weight: normal;
+    font-weight: bold;
     margin-bottom: 5px;
     font-size: 14px;
   }
@@ -412,3 +442,41 @@
     border-color: #cac6c6;
     border-radius: 5%;
   }
+
+  .form-buttons {
+    display: flex;
+    flex-direction: column; /* Coloca los botones en columna */
+    align-items: center;    /* Centra los botones horizontalmente */
+    gap: 0px;              /* Espaciado entre los botones */
+}
+
+.form-buttons button {
+    width: 200px;           /* Asegura un tamaño uniforme */
+    padding: 10px;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.2s, transform 0.2s;
+}
+
+.send-recipe {
+    background-color: #4caf50; /* Verde */
+}
+
+.send-recipe:hover {
+    background-color: #45a049;
+    transform: scale(1.05); /* Pequeño efecto al pasar el cursor */
+}
+
+.cancel-button {
+    background-color: #df3d32; /* Rojo */
+}
+
+.cancel-button:hover {
+    background-color: #d32f2f;
+    transform: scale(1.05); /* Pequeño efecto al pasar el cursor */
+}
+
+

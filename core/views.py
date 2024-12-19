@@ -27,6 +27,13 @@ from rest_framework import status
 from .serializers import UserSerializer, PerfilSerializer
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+from io import BytesIO
+import qrcode
+from django.core.files.base import ContentFile
+import os
+from PIL import Image
 
 # API para crear un nuevo médico
 @api_view(['POST'])
@@ -380,14 +387,14 @@ class GenerarRecetaView(APIView):
             # Crear la receta
             receta = Receta.objects.create(
                 consulta=consulta,
-                paciente=consulta.paciente,  # Relación con el paciente
-                medico=consulta.medico,  # Relación con el médico
+                paciente=consulta.paciente,
+                medico=consulta.medico,
                 nombre_paciente=data['nombre_paciente'],
-                id_card=consulta.paciente.perfil.id_card,  # Cedula del paciente
-                genero=consulta.genero,  # Género del paciente
-                tipo_sangre=consulta.tipo_sangre,  # Tipo de sangre
-                alergias=consulta.alergias,  # Alergias (opcional)
-                edad=consulta.edad,  # Edad del paciente
+                id_card=consulta.paciente.perfil.id_card,
+                genero=consulta.genero,
+                tipo_sangre=consulta.tipo_sangre,
+                alergias=consulta.alergias,
+                edad=consulta.edad,
                 peso=data['peso'],
                 talla=data['talla'],
                 diagnostico=data['diagnostico'],
@@ -395,6 +402,71 @@ class GenerarRecetaView(APIView):
                 indicaciones=data.get('indicaciones', ''),
                 notas=data.get('notas', '')
             )
+
+            # Generar el PDF
+            buffer = BytesIO()
+            pdf = canvas.Canvas(buffer, pagesize=letter)
+            pdf.setFont("Helvetica", 12)
+
+            # Encabezado
+            pdf.drawString(450, 750, receta.fecha_creacion.strftime("%d/%m/%Y"))
+
+            # Datos del médico
+            medico = receta.medico
+            pdf.drawString(50, 700, f"Nombre del médico: {medico.first_name} {medico.last_name}")
+            pdf.drawString(50, 680, f"Especialidad: {medico.specialty}")
+            pdf.drawString(50, 660, f"Email: {medico.email}")
+            pdf.drawString(50, 640, f"Teléfono: {medico.phone_number}")
+            pdf.drawString(50, 620, f"Dirección: {medico.address or 'N/A'}")
+
+            # Foto del médico
+            if medico.profile_picture:
+                pdf.drawImage(medico.profile_picture.path, 400, 600, width=100, height=100)
+
+            # Datos del paciente
+            pdf.drawString(50, 580, f"Paciente: {receta.nombre_paciente}")
+            pdf.drawString(50, 560, f"CI: {receta.id_card}")
+            pdf.drawString(50, 540, f"Edad: {receta.edad}")
+            pdf.drawString(50, 520, f"Género: {receta.genero}")
+            pdf.drawString(50, 500, f"Alergias: {receta.alergias or 'Ninguna'}")
+            pdf.drawString(200, 500, f"Peso: {receta.peso} kg")
+            pdf.drawString(350, 500, f"Talla: {receta.talla} cm")
+
+            # Diagnóstico
+            pdf.drawString(50, 460, "Diagnóstico:")
+            pdf.drawString(50, 440, receta.diagnostico)
+
+            # Tratamiento
+            pdf.drawString(50, 400, "Tratamiento:")
+            pdf.drawString(50, 380, receta.tratamiento)
+
+            # Indicaciones
+            if receta.indicaciones:
+                pdf.drawString(50, 340, "Otras indicaciones:")
+                pdf.drawString(50, 320, receta.indicaciones)
+
+            # Firma y QR
+            pdf.drawString(50, 260, f"Firmado digitalmente por Dr(a): {medico.first_name} {medico.last_name}")
+            qr = qrcode.make(f"Firmado por: {medico.first_name} {medico.last_name}")
+
+            # Convertir el QR a un objeto que ReportLab pueda usar
+            qr_buffer = BytesIO()
+            qr.save(qr_buffer, format="PNG")
+            qr_buffer.seek(0)  # Asegurarse de que el puntero esté al inicio
+            qr_image = Image.open(qr_buffer)
+            pdf.drawInlineImage(qr_image, 400, 200, width=100, height=100)
+
+            # Notas
+            if receta.notas:
+                pdf.drawString(50, 160, "Notas:")
+                pdf.drawString(50, 140, receta.notas)
+
+            pdf.save()
+
+            # Guardar el PDF en el modelo
+            pdf_file = ContentFile(buffer.getvalue())
+            filename = f"receta_{receta.id}.pdf"
+            receta.doc_receta.save(filename, pdf_file)
 
             # Serializar y responder con la receta creada
             serializer = RecetaSerializer(receta)

@@ -104,6 +104,7 @@ class Receta(models.Model):
     tratamiento = models.TextField(null=True, blank=True)  # Medicamentos y tratamiento
     indicaciones = models.TextField(null=True, blank=True)  # Otras indicaciones (opcional)
     notas = models.TextField(null=True, blank=True)  # Notas adicionales (opcional)
+    doc_receta = models.FileField(upload_to='profile_pictures/recetas/', null=True, blank=True)
 
     fecha_creacion = models.DateTimeField(auto_now_add=True)  # Fecha y hora de creación de la receta
 
