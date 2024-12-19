@@ -7,6 +7,9 @@ git push origin nombre rama  --force
 git checkout
 git remote show origin
 
+error push behind branch
+git push -f -u origin estilo-mejorado-receta
+
 
 
 New repository
