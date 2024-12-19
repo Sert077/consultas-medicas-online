@@ -14,7 +14,6 @@
     box-sizing: border-box; /* Incluye padding y bordes en el ancho total */
 }
 
-
 @media (max-width: 600px) {
     .chat-container {
         margin: 10px; /* Añade margen en pantallas pequeñas */
@@ -182,6 +181,7 @@
     font-size: 14px;
     margin-right: 10px;
     height: 38px; /* Asegura que la altura del input coincida con los botones */
+    margin-top: 0px;
 }
 
 .chat-input button:hover {
@@ -356,3 +356,84 @@
     white-space: nowrap; /* Evita que el texto se divida en varias líneas */
 }
 
+.recipe-button-container {
+    position: absolute;
+    top: 20px;
+    right: -60px; /* Ajusta este valor según sea necesario */
+}
+
+.generate-recipe-button {
+    position: relative; /* Cambiado de fixed a relative */
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: #4caf50;
+    color: #fff;
+    border: none;
+    border-radius: 0 10px 10px 0;
+    padding: 12px 8px;
+    font-size: 14px;
+    writing-mode: vertical-lr;
+    text-align: center;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s, box-shadow 0.3s;
+    z-index: 1000;
+    margin-top: 150px;
+    margin-right: 27px;
+}
+
+.generate-recipe-button:hover {
+    background-color: #45a049;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+.recipe-form-container {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 300px;
+    height: 100%;
+    background: #fff;
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.recipe-form-container h3 {
+    margin-top: 0;
+}
+
+.recipe-form-container form {
+    display: flex;
+    flex-direction: column;
+}
+
+.recipe-form-container input,
+.recipe-form-container textarea,
+.recipe-form-container button {
+    margin-bottom: 10px;
+}
+
+.form-group-receta label {
+    font-weight: bold;
+    margin-bottom: 5px;
+    font-size: 14px;
+  }
+
+  .form-group-receta input {
+    font-weight: normal;
+    margin-bottom: 5px;
+    margin-top: 5px;
+    font-size: 14px;
+  }
+  
+  .form-group-receta textarea {
+    font-weight: normal;
+    margin-bottom: 5px;
+    font-size: 14px;
+    margin-top: 5px;
+    width: 294px;
+    border-color: #cac6c6;
+    border-radius: 5%;
+  }

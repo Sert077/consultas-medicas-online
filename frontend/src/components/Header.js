@@ -20,12 +20,32 @@ const Header = () => {
             setUsername(user);
             setIsSuperUser(superUser === "true");
         }
+
+        const updateHeader = () => {
+            const user = localStorage.getItem("username");
+            setUsername(user);
+        };
+    
+        // Escuchar cambios
+        window.addEventListener('userUpdate', updateHeader);
+    
+        return () => {
+            window.removeEventListener('userUpdate', updateHeader);
+        };
+
+
     }, [isLoggedIn]);
 
     const handleLogout = () => {
         localStorage.removeItem("token");
         localStorage.removeItem("username");
         localStorage.removeItem("is_superuser");
+        localStorage.removeItem("birthdate");
+        localStorage.removeItem("email");
+        localStorage.removeItem("first_name");
+        localStorage.removeItem("last_name");
+        localStorage.removeItem("paciente_id");
+        localStorage.removeItem("tipo_usuario");
 
         setIsLoggedIn(false);
         setIsSuperUser(false);
@@ -96,9 +116,7 @@ const Header = () => {
                             {showDropdown && (
                                 <ul className="dropdown">
                                     <li>
-                                        <button to="/config">
-                                            Configuración de la cuenta
-                                        </button>
+                                    <button onClick={() => navigate('/edit-patient')}>Configuración de la cuenta</button>
                                     </li>
                                     <li>
                                         <button onClick={handleLogout}>

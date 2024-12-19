@@ -123,7 +123,7 @@ h3{
     border-radius: 12px;
     padding: 20px;
     width: 90%;
-    max-width: 400px;
+    max-width: 590px;
     box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
     text-align: center;
     animation: slideDown 0.3s ease; /* Aplicar animación */
@@ -131,9 +131,11 @@ h3{
 
 /* Formulario del modal */
 .modal-form {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* Dos columnas iguales */
+    gap: 15px; /* Espaciado entre los campos */
+    align-items: center; /* Centra los elementos en el eje transversal */
+    width: 100%;
 }
 
 .modal-content h3 {
@@ -143,19 +145,31 @@ h3{
 }
 
 /* Etiquetas del formulario */
-.modal-label-calendary {
+/* Etiquetas del formulario */
+.modal-label,
+.modal-label-calendary,
+.modal-label-alergias {
     color: #301466;
-    margin-bottom: -5px;
-    text-align: left;
-    width: 100%;
+    margin-bottom: 5px; /* Separación entre la etiqueta y el campo */
+    text-align: left; /* Alinear texto a la izquierda */
+    width: 100%; /* Asegurar que ocupe todo el ancho del contenedor */
+    display: block; /* Evita comportamiento inline para un alineado correcto */
 }
 
-/* Tipo de consulta */
-.modal-label {
+.modal-label-motivo{
     color: #301466;
-    margin-bottom: -5px;
-    text-align: left;
-    width: 100%;
+    margin-bottom: -5px; /* Separación entre la etiqueta y el campo */
+    text-align: left; /* Alinear texto a la izquierda */
+    width: 100%; /* Asegurar que ocupe todo el ancho del contenedor */
+    display: block; /* Evita comportamiento inline para un alineado correcto */
+}
+
+.input-field-motivo{
+    color: #301466;
+    margin-bottom: 5px; /* Separación entre la etiqueta y el campo */
+    text-align: left; /* Alinear texto a la izquierda */
+    width: 100%; /* Asegurar que ocupe todo el ancho del contenedor */
+    height: 70px;
 }
 
 /* Calendario */
@@ -164,25 +178,32 @@ h3{
     padding: 8px;
     border: 1px solid #ddd;
     border-radius: 8px;
-    margin-bottom: 8px; /* Reducido el margen inferior */
+    margin-bottom: 8px;
 }
-
 /* Separación entre tipo de consulta y hora */
 .input-field {
     width: 100%;
     padding: 8px;
     border: 1px solid #ddd;
     border-radius: 8px;
-    margin-bottom: 3px; /* Reducido el margen inferior */
+    margin-bottom: 8px;
 }
 /* Ajustar el espacio entre el tipo de consulta y la hora */
-.modal-form > .modal-label {
-    margin-bottom: -5px; /* Reducido el espacio entre etiquetas */
+.modal-form > .modal-label,
+.modal-form > .input-field {
+    margin-bottom: 8px; /* Un poco más de separación */
+}
+
+/* Para los campos de radio */
+.modal-form .input-field {
+    display: flex;
+    gap: 10px; /* Separación entre los botones de radio */
+    align-items: center;
 }
 
 /* Ajustar el espacio entre el campo de hora y tipo de consulta */
 .modal-label-calendary {
-    margin-bottom: -5px; /* Separación entre calendario y tipo consulta */
+    margin-bottom: 5px; /* Separación entre calendario y tipo consulta */
 }
 
 /* Ajustar la separación entre el campo de hora y tipo de consulta */
@@ -198,23 +219,36 @@ h3{
 /* Botones en el modal */
 .modal-buttons-container {
     display: flex;
-    justify-content: center;
-    width: 100%;
-    gap: 10px;
+    justify-content: center; /* Centra los botones horizontalmente */
+    align-items: center; /* Centra los botones verticalmente */
+    width: 100%; /* Asegura que ocupe todo el ancho disponible */
+    gap: 10px; /* Espacio entre los botones */
     margin-top: 16px;
 }
 
 .button {
-    padding: 10px 20px;
+    padding: 8px 16px;
     border: none;
     border-radius: 6px;
     color: white;
     cursor: pointer;
-    width: 48%;
+    width: auto; 
     font-size: 1rem;
     transition: background-color 0.3s ease;
     box-sizing: border-box;
+    min-width: 150px;
 }
+
+/* Contenedor para los botones fuera de las columnas */
+.modal-buttons-container-outside {
+    grid-column: span 2; /* Ocupar ambas columnas del grid */
+    display: flex;
+    justify-content: center; /* Centrar horizontalmente */
+    align-items: center; /* Centrar verticalmente */
+    gap: 10px; /* Espacio entre los botones */
+    margin-top: 20px; /* Separación superior */
+}
+
 
 .button.reservar {
     background-color: #6c63ff;
@@ -232,6 +266,26 @@ h3{
     background-color: #c0392b;
 }
 
+/* Ajustar tamaño de los campos relacionados con alergias */
+.alergias-input-field {
+    display: flex;
+    gap: 5px; /* Reducir el espacio entre las opciones */
+    justify-content: start; /* Alinear a la izquierda */
+    width: 94%;
+}
+
+.alergias-textarea {
+    width: 95.5%; /* Reducir el ancho */
+    
+    height: 60px; /* Ajustar la altura */
+    padding: 6px; /* Reducir el padding interno */
+    border: 1px solid #ddd; /* Mantener el estilo */
+    border-radius: 8px;
+}
+
+.radio-alergias {
+    margin-right: 5px; /* Espaciado pequeño entre el radio y el texto */
+}
 
 
 /* Estilo del modal de confirmación */
@@ -272,5 +326,48 @@ h3{
 
 .confirmation-modal-content button:hover {
     background-color: #45a049;
+}
+
+@media (max-width: 600px) {
+    .alergias-textarea {
+        max-width: 100%; /* Asegurar que el textarea no se salga del contenedor */
+    }
+}
+
+/* Ajustes generales para que los estilos sean responsivos */
+@media (max-width: 768px) {
+    .doctor-info-container {
+        flex-direction: column; /* Cambiar a disposición vertical */
+        align-items: center; /* Asegurar que los elementos estén centrados */
+    }
+
+    .doctor-image {
+        margin-right: 0; /* Eliminar el margen derecho en pantallas pequeñas */
+        margin-bottom: 15px; /* Añadir margen inferior para espacio */
+    }
+
+    .doctor-buttons {
+        flex-direction: column; /* Botones en una sola columna */
+        gap: 15px; /* Más espacio entre botones */
+        width: 100%; /* Asegurar que ocupen el ancho completo */
+    }
+
+    .doctor-biography-container,
+    .consultas-container {
+        max-width: 90%; /* Reducir el ancho en pantallas pequeñas */
+    }
+}
+
+
+/* Confirmación modal responsivo */
+@media (max-width: 600px) {
+    .confirmation-modal-content {
+        padding: 15px; /* Ajustar padding */
+    }
+
+    .confirmation-modal-content button {
+        width: 100%; /* Botón ocupa todo el ancho */
+        font-size: 14px; /* Reducir tamaño del texto */
+    }
 }
 
