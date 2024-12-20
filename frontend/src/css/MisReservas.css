@@ -92,3 +92,66 @@
     background-color: #ddd;
     margin: 10px 0;
 }
+
+.fila-superior {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.consulta-id {
+    display: flex;
+    align-items: center;
+    font-size: 17px;
+    font-weight: normal;
+}
+
+.icono-id {
+    margin-right: 5px;
+    color: #21318d; /* Verde consistente con los colores del diseño */
+    font-size: 18px;
+    margin-left: 5px;
+}
+
+.estado-consulta {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.estado-label {
+    font-weight: bold;
+    font-size: 14px;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+.estado-label.pendiente {
+    color: #FFA500; /* Naranja */
+    background-color: #FFF5E5; /* Fondo suave */
+}
+
+.estado-label.realizada {
+    color: #008000; /* Verde */
+    background-color: #E5FFE5; /* Fondo suave */
+}
+
+.descarga-receta {
+    margin-top: 10px;
+    text-align: right;
+}
+
+.descarga-receta a {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    text-decoration: none;
+    color: #4CAF50; /* Verde acorde a tu estilo */
+    font-weight: bold;
+}
+
+.icono-descarga {
+    margin-right: 5px;
+}
+
+

@@ -7,7 +7,7 @@ from .models import Doctor
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .serializers import DoctorSerializer
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.views import View
 from django.urls import reverse
 from django.conf import settings
@@ -42,6 +42,13 @@ from reportlab.lib.styles import ParagraphStyle
 from reportlab.platypus import Image
 from reportlab.platypus import HRFlowable
 from django.core.mail import EmailMessage
+from django.core.paginator import Paginator
+from django.db.models import Count
+from datetime import datetime
+from fpdf import FPDF
+import matplotlib.pyplot as plt
+import io
+import base64
 
 
 # API para crear un nuevo médico
@@ -230,20 +237,22 @@ def send_email(request):
 
 @api_view(['GET'])
 def consultas_paciente(request, paciente_id):
-    consultas = Consulta.objects.filter(paciente_id=paciente_id).select_related('medico')
+    consultas = Consulta.objects.filter(paciente_id=paciente_id).select_related('medico').prefetch_related('recetas')
     
-    # Agregar los datos del médico a la respuesta
     data = []
     for consulta in consultas:
+        receta = consulta.recetas.first()  # Suponemos una receta por consulta
         data.append({
             'id': consulta.id,
             'fecha': consulta.fecha,
             'hora': consulta.hora,
             'estado': consulta.estado,
-            'medico_name': f'{consulta.medico.first_name} {consulta.medico.last_name}'  # Nombre completo del médico
+            'medico_name': f'{consulta.medico.first_name} {consulta.medico.last_name}',
+            'doc_receta': receta.doc_receta.url if receta and receta.doc_receta else None,  # URL del documento
         })
     
     return Response(data)
+
 
 @api_view(['POST'])
 def cancelar_consulta(request, consulta_id):
@@ -257,18 +266,26 @@ def consultas_medico(request, user_id):
         # Verificar si el usuario es un médico
         doctor = Doctor.objects.get(user_id=user_id)  # Buscar el doctor por su user_id
         consultas = Consulta.objects.filter(medico_id=doctor.id)  # Filtrar las consultas por el medico_id
-        
+
         # Preparar los datos para la respuesta
-        consultas_data = [
-            {
+        consultas_data = []
+        for consulta in consultas:
+            # Buscar la receta asociada a la consulta
+            receta = Receta.objects.filter(consulta=consulta.id).first()
+            doc_receta_url = f"{settings.MEDIA_URL}{receta.doc_receta}" if receta and receta.doc_receta else None
+
+            # Crear el diccionario de datos
+            consultas_data.append({
                 "id": consulta.id,
                 "paciente_name": f"{consulta.paciente.first_name} {consulta.paciente.last_name}",
                 "fecha": consulta.fecha,
                 "hora": consulta.hora,
-            } for consulta in consultas
-        ]
+                "estado": consulta.estado,  # Incluir el estado de la consulta
+                "doc_receta": doc_receta_url,  # Incluir la URL de la receta si existe
+            })
+
         return JsonResponse(consultas_data, safe=False)
-    
+
     except Doctor.DoesNotExist:
         return JsonResponse({"error": "Este usuario no es un médico"}, status=404)
     
@@ -411,6 +428,10 @@ class GenerarRecetaView(APIView):
                 indicaciones=data.get('indicaciones', ''),
                 notas=data.get('notas', '')
             )
+
+            # Actualizar el estado de la consulta a "realizada"
+            consulta.estado = "realizada"
+            consulta.save()
 
             # Generar PDF
             buffer = BytesIO()
@@ -597,5 +618,147 @@ class GenerarRecetaView(APIView):
             return Response({"error": "Consulta no encontrada"}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
+# Vista para obtener todas las consultas y recetas con filtros
+def historial_consultas(request):
+    consultas = Consulta.objects.all()
+    recetas = Receta.objects.all()
+
+    # Filtros por fecha, consultas, recetas y búsqueda por palabra
+    fecha_inicio = request.GET.get('fecha_inicio')
+    fecha_fin = request.GET.get('fecha_fin')
+    
+    if fecha_inicio and fecha_fin:
+        try:
+            fecha_inicio = datetime.strptime(fecha_inicio, '%Y-%m-%d')
+            fecha_fin = datetime.strptime(fecha_fin, '%Y-%m-%d')
+            consultas = consultas.filter(fecha__range=[fecha_inicio, fecha_fin])
+        except ValueError:
+            return JsonResponse({'error': 'Formato de fecha inválido'}, status=400)
+
+    if 'consulta_estado' in request.GET:
+        consultas = consultas.filter(estado=request.GET['consulta_estado'])
+
+    if 'busqueda' in request.GET:
+        busqueda = request.GET['busqueda']
+        consultas = consultas.filter(motivo_consulta__icontains=busqueda)
+
+    # Paginación de resultados
+    paginator = Paginator(consultas, 10)  # 10 consultas por página
+    page = request.GET.get('page')
+    consultas_paginadas = paginator.get_page(page)
+
+    # Usamos list() para convertir el queryset a una lista de diccionarios
+    consultas_data = list(consultas_paginadas.object_list.values(
+        'id', 'fecha', 'hora', 'estado', 'motivo_consulta', 'medico__first_name', 'medico__last_name'
+    ))
+    recetas_data = list(recetas.values(
+        'id', 'nombre_paciente', 'diagnostico', 'fecha_creacion', 'medico__first_name', 'medico__last_name'
+    ))
+
+    data = {
+        'consultas': consultas_data,
+        'recetas': recetas_data,
+        'total_consultas': consultas.count(),
+        'total_recetas': recetas.count()
+    }
+
+    return JsonResponse(data)
 
 
+def generar_reporte(request):
+    # Especialidades predefinidas
+    especialidades = [
+        'Alergología', 'Cardiología', 'Dermatología', 'Endocrinología', 'Fisioterapia',
+        'Gastroenterología', 'Geriatría', 'Ginecología', 'Hematología', 'Infectología',
+        'Medicina General', 'Medicina Interna', 'Neumología', 'Neurología', 'Nefrología',
+        'Nutrición', 'Oftalmología', 'Oncología', 'Otorrinolaringología', 'Pediatría', 
+        'Podiatría', 'Psicología', 'Psiquiatría', 'Reumatología', 'Salud Mental Infantil',
+        'Sexología', 'Traumatología', 'Urología', 'Otros'
+    ]
+
+    # Recuperamos el tipo de reporte desde la URL
+    reporte_tipo = request.GET.get('tipo', '')
+
+    # Crear los gráficos basados en el tipo de reporte
+    if reporte_tipo == 'estado':
+        consultas_por_estado = Consulta.objects.values('estado').annotate(count=Count('estado'))
+        chart_data = consultas_por_estado
+        title = 'Consultas por estado'
+        xlabel = 'Estado'
+        ylabel = 'Cantidad'
+    elif reporte_tipo == 'genero':
+        consultas_por_genero = Consulta.objects.values('genero').annotate(count=Count('genero'))
+        chart_data = consultas_por_genero
+        title = 'Consultas por género'
+        xlabel = 'Género'
+        ylabel = 'Cantidad'
+    elif reporte_tipo == 'especialidad':
+        consultas_por_especialidad = Consulta.objects.filter(medico__specialty__in=especialidades) \
+            .values('medico__specialty').annotate(count=Count('medico__specialty'))
+        chart_data = consultas_por_especialidad
+        title = 'Consultas por especialidad'
+        xlabel = 'Especialidad'
+        ylabel = 'Cantidad'
+    else:
+        chart_data = []
+        title = 'Reporte no disponible'
+        xlabel = ''
+        ylabel = ''
+
+    def create_bar_chart(data, title, xlabel, ylabel):
+        labels = []
+        if data:
+            # Se verifica si la clave 'genero' está en los datos
+            if 'genero' in data[0]:
+                labels = [item['genero'] if 'genero' in item else 'Desconocido' for item in data]
+            # Se verifica si la clave 'estado' está en los datos
+            elif 'estado' in data[0]:
+                labels = [item['estado'] if 'estado' in item else 'Desconocido' for item in data]
+            # Se verifica si la clave 'medico__specialty' está en los datos
+            elif 'medico__specialty' in data[0]:
+                labels = [item['medico__specialty'] if 'medico__specialty' in item else 'Desconocido' for item in data]
+            else:
+                # Si ninguno de los campos esperados está presente, devolver 'Desconocido'
+                labels = ['Desconocido' for _ in data]
+
+            counts = [item['count'] for item in data]
+
+            # Filtrar las etiquetas y cuentas
+            filtered_labels = [label if label is not None else 'Desconocido' for label in labels]
+            filtered_counts = [count if count is not None else 0 for count in counts]
+
+            # Crear gráfico de barras
+            plt.bar(filtered_labels, filtered_counts)
+            plt.title(title)
+            plt.xlabel(xlabel)
+            plt.ylabel(ylabel)
+
+            with tempfile.NamedTemporaryFile(delete=False, suffix='.png') as tmpfile:
+                plt.savefig(tmpfile, format='png')
+                tmpfile.close()
+                return tmpfile.name
+        else:
+            # Si no hay datos, retornar un archivo vacío o algún valor por defecto
+            return None
+
+    # Generamos el gráfico solo con los datos relevantes
+    chart = create_bar_chart(chart_data, title, xlabel, ylabel)
+
+    # Crear el PDF con el gráfico correspondiente
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font('Arial', 'B', 16)
+    pdf.cell(200, 10, 'Reporte de Consultas', ln=True, align='C')
+
+    pdf.set_font('Arial', '', 12)
+    pdf.ln(10)
+    pdf.cell(200, 10, title, ln=True, align='C')
+    if chart:
+        pdf.image(chart, x=10, y=30, w=180)
+
+    pdf_output = pdf.output(dest='S').encode('latin1')
+    response = HttpResponse(pdf_output, content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="reporte_consultas.pdf"'
+    return response

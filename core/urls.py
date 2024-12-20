@@ -43,5 +43,7 @@ urlpatterns = [
     path('verify-email/<str:token>/', VerifyEmailView.as_view(), name='verify-email'),
     path('patient/profile/', patient_profile, name='patient-profile'),
     path('recetas/', GenerarRecetaView.as_view(), name='generar_receta'),
+    path('historial-consultas/', views.historial_consultas, name='historial_consultas'),
+    path('generar-reporte/', views.generar_reporte, name='generar_reporte'),
 
 ]

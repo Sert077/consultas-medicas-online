@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { FaCalendarAlt, FaClock, FaUserMd } from 'react-icons/fa';
+import { FaCalendarAlt, FaClock, FaUserMd, FaHashtag } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+import { FaFileDownload } from 'react-icons/fa';
 import '../css/MisReservas.css';
 
 const MisReservas = () => {
@@ -15,21 +16,28 @@ const MisReservas = () => {
             navigate('/login'); // Redirigir si no hay token
             return;
         }
-
+    
         // Hacer la llamada API dependiendo del tipo de usuario
         if (tipoUsuario === 'medico') {
             fetch(`http://localhost:8000/api/consultas/medico/${localStorage.getItem('paciente_id')}/`)
                 .then(response => response.json())
-                .then(data => setReservas(data))
+                .then(data => {
+                    console.log('Datos de la API (medico):', data); // Agregar console.log aquí
+                    setReservas(data);
+                })
                 .catch(error => console.error('Error fetching reservas:', error));
         } else {
             // Obtener las consultas del paciente
             fetch(`http://localhost:8000/api/consultas/paciente/${userId}/`)
                 .then(response => response.json())
-                .then(data => setReservas(data))
+                .then(data => {
+                    console.log('Datos de la API (paciente):', data); // Agregar console.log aquí
+                    setReservas(data);
+                })
                 .catch(error => console.error('Error fetching reservas:', error));
         }
     }, [token, navigate, tipoUsuario, userId]);
+    
 
     const handleRealizarConsulta = (consultaId) => {
         navigate(`/chat/${consultaId}`);
@@ -60,13 +68,33 @@ const MisReservas = () => {
 
     return (
         <div className="reservas-container">
-            <h2>Mis Reservas</h2>
+            <h2>Consultas</h2>
             {reservas.length === 0 ? (
                 <p>No tienes consultas reservadas.</p>
             ) : (
                 <ul className="reservas-list">
                     {reservas.map(consulta => (
                         <li key={consulta.id}>
+                            <div className="fila-superior">
+                            <div className="consulta-id">
+                                <FaHashtag className="icono-id" />
+                                <span><strong>Consulta:</strong> {consulta.id}</span>
+                            </div>
+                            <div className="estado-consulta">
+                                <span className={`estado-label ${consulta.estado.toLowerCase()}`}>
+                                    {consulta.estado}
+                                </span>
+                            </div>
+                            {consulta.estado.toLowerCase() === 'realizada' && consulta.doc_receta && (
+                            <div className="descarga-receta">
+                                <a href={`http://localhost:8000${consulta.doc_receta}`} download target="_blank" rel="noopener noreferrer">
+                                    <FaFileDownload className="icono-descarga" /> Ver receta
+                                </a>
+                            </div>
+                        )}
+
+
+                        </div>
                             <div className="reserva-info">
                                 <FaUserMd className="icono-doctor" />
                                 <p><strong>{tipoUsuario === 'medico' ? 'Paciente:' : 'Doctor:'}</strong> {tipoUsuario === 'medico' ? consulta.paciente_name : consulta.medico_name}</p>

@@ -88,7 +88,7 @@ const Header = () => {
 
                     {isLoggedIn && (
                         <li>
-                            <Link to="/misreservas">Mis Reservas</Link>
+                            <Link to="/misreservas">Mis Consultas</Link>
                         </li>
                     )}
 
