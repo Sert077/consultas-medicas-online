@@ -96,7 +96,9 @@ const HistorialConsultas = () => {
             <tr>
               <th>Fecha</th>
               <th>Hora</th>
-              <th>Motivo</th>
+              <th>Genero</th>
+              <th>Edad</th>
+              <th>Tipo de sangre</th>
               <th>Estado</th>
               <th>Médico</th>
             </tr>
@@ -106,7 +108,9 @@ const HistorialConsultas = () => {
               <tr key={consulta.id}>
                 <td>{consulta.fecha}</td>
                 <td>{consulta.hora}</td>
-                <td>{consulta.motivo_consulta}</td>
+                <td>{consulta.genero}</td>
+                <td>{consulta.edad}</td>
+                <td>{consulta.tipo_sangre}</td>
                 <td>{consulta.estado}</td>
                 <td>{consulta.medico__first_name} {consulta.medico__last_name}</td>
               </tr>

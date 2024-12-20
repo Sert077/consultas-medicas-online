@@ -651,7 +651,7 @@ def historial_consultas(request):
 
     # Usamos list() para convertir el queryset a una lista de diccionarios
     consultas_data = list(consultas_paginadas.object_list.values(
-        'id', 'fecha', 'hora', 'estado', 'motivo_consulta', 'medico__first_name', 'medico__last_name'
+        'id', 'fecha', 'hora', 'estado', 'motivo_consulta', 'genero', 'tipo_sangre', 'edad', 'medico__first_name', 'medico__last_name'
     ))
     recetas_data = list(recetas.values(
         'id', 'nombre_paciente', 'diagnostico', 'fecha_creacion', 'medico__first_name', 'medico__last_name'
