@@ -1,3 +1,4 @@
+import tempfile
 from django.shortcuts import render
 from rest_framework import generics
 from django.contrib.auth import authenticate
@@ -28,12 +29,20 @@ from .serializers import UserSerializer, PerfilSerializer
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from reportlab.lib.pagesizes import letter
-from reportlab.pdfgen import canvas
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image, Table, TableStyle
+from reportlab.lib.styles import ParagraphStyle
 from io import BytesIO
-import qrcode
-from django.core.files.base import ContentFile
 import os
+import qrcode
+import tempfile
+from django.core.files.base import ContentFile
 from PIL import Image
+from reportlab.lib.units import inch
+from reportlab.lib.styles import ParagraphStyle
+from reportlab.platypus import Image
+from reportlab.platypus import HRFlowable
+from django.core.mail import EmailMessage
+
 
 # API para crear un nuevo médico
 @api_view(['POST'])
@@ -403,78 +412,190 @@ class GenerarRecetaView(APIView):
                 notas=data.get('notas', '')
             )
 
-            # Generar el PDF
+            # Generar PDF
             buffer = BytesIO()
-            pdf = canvas.Canvas(buffer, pagesize=letter)
-            pdf.setFont("Helvetica", 12)
+            doc = SimpleDocTemplate(buffer, pagesize=letter)
+            elements = []
 
-            # Encabezado
-            pdf.drawString(450, 750, receta.fecha_creacion.strftime("%d/%m/%Y"))
+            # Estilos
+            normal_style = ParagraphStyle(name='Normal', fontSize=10, leading=12)
+            medico_style = ParagraphStyle(name='Normal', fontSize=14, leading=16)
+            header_style = ParagraphStyle(name='Header', fontSize=14, leading=16, spaceAfter=12)
+            bold_style = ParagraphStyle(name='Bold', fontSize=12, leading=14, spaceAfter=12, fontName="Helvetica-Bold")
+            bold_style_small = ParagraphStyle(name='Bold', fontSize=8, leading=10, spaceAfter=5, fontName="Helvetica-Bold")
+            small_style = ParagraphStyle(name='Small', fontSize=8, leading=10)
+            right_align_style = ParagraphStyle(name='RightAlign', fontSize=10, alignment=2)  # Alineación a la derecha
 
-            # Datos del médico
+            # Fecha (alineada a la derecha)
+            elements.append(Paragraph(receta.fecha_creacion.strftime("%B %d, %Y"), right_align_style))
+
+            # Información del médico (con imagen a la izquierda)
             medico = receta.medico
-            pdf.drawString(50, 700, f"Nombre del médico: {medico.first_name} {medico.last_name}")
-            pdf.drawString(50, 680, f"Especialidad: {medico.specialty}")
-            pdf.drawString(50, 660, f"Email: {medico.email}")
-            pdf.drawString(50, 640, f"Teléfono: {medico.phone_number}")
-            pdf.drawString(50, 620, f"Dirección: {medico.address or 'N/A'}")
+            medico_image_path = medico.profile_picture.path if medico.profile_picture else None
 
-            # Foto del médico
-            if medico.profile_picture:
-                pdf.drawImage(medico.profile_picture.path, 400, 600, width=100, height=100)
+            # Si el médico tiene una foto de perfil, agregamos la imagen
+            medico_image = None
+            if medico_image_path and os.path.exists(medico_image_path):
+                medico_image = Image(medico_image_path, width=100, height=100)
 
-            # Datos del paciente
-            pdf.drawString(50, 580, f"Paciente: {receta.nombre_paciente}")
-            pdf.drawString(50, 560, f"CI: {receta.id_card}")
-            pdf.drawString(50, 540, f"Edad: {receta.edad}")
-            pdf.drawString(50, 520, f"Género: {receta.genero}")
-            pdf.drawString(50, 500, f"Alergias: {receta.alergias or 'Ninguna'}")
-            pdf.drawString(200, 500, f"Peso: {receta.peso} kg")
-            pdf.drawString(350, 500, f"Talla: {receta.talla} cm")
+            # Crear la tabla para colocar la imagen y los datos del médico
+            medico_data = f"""
+                Dr(a): {medico.first_name} {medico.last_name}<br/>
+                Especialidad: {medico.specialty}<br/>
+                Dirección: {medico.address or 'N/A'}<br/>
+                Teléfono: {medico.phone_number}<br/>
+                Correo electrónico: {medico.email}
+            """
+            # Modificar estilo de negrita solo en los datos específicos
+            medico_data = medico_data.replace("Dr(a):", "<b>Dr(a):</b>").replace("Especialidad:", "<b>Especialidad:</b>").replace("Dirección:", "<b>Dirección:</b>").replace("Teléfono:", "<b>Teléfono:</b>").replace("Correo electrónico:", "<b>Correo electrónico:</b>")
+
+            medico_table = [[medico_image, Paragraph(medico_data, medico_style)]]
+            table = Table(medico_table, colWidths=[100, 400])  # Ajusta el ancho de las columnas
+            table.setStyle(TableStyle([
+                ('ALIGN', (0, 0), (0, 0), 'CENTER'),  # Centrado de la imagen
+                ('VALIGN', (0, 0), (0, 0), 'MIDDLE'),  # Centrado vertical de la imagen
+                ('ALIGN', (1, 0), (1, 0), 'LEFT'),  # Alineación izquierda del texto
+                ('TEXTCOLOR', (0, 0), (-1, -1), (0, 0, 0)),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+                ('LEFTPADDING', (0, 0), (-1, -1), 35),  # Añadir padding a la izquierda
+            ]))
+            elements.append(table)
+            elements.append(Spacer(1, 12))
+
+            # Agregar una línea horizontal después de la sección de información del médico
+            elements.append(HRFlowable())
+            elements.append(Paragraph("<b>PACIENTE</b>", header_style))
+            # Información del paciente (solo las palabras específicas en negrita)
+            paciente_data = f"""
+                Nombre: {receta.nombre_paciente}<br/>
+                CI: {receta.id_card}<br/>
+                Edad: {receta.edad}<br/>
+                Género: {receta.genero}<br/>
+                <b></b>
+                Alergias: {receta.alergias or 'Ninguna'}<br/>
+                Grupo Sanguineo: {receta.tipo_sangre} Peso: {receta.peso} kg, Talla: {receta.talla} cm
+            """
+            # Modificar estilo de negrita solo en los datos específicos
+            paciente_data = paciente_data.replace("Nombre:", "<b>Nombre:</b>").replace("CI:", "<b>CI:</b>").replace("Edad:", "<b>Edad:</b>").replace("Género:", "<b>Género:</b>").replace("Alergias:", "<b>Alergias:</b>").replace("Grupo Sanguineo:", "<b>Grupo Sanguineo:</b>").replace("Peso:", "<b>Peso:</b>").replace("Talla:", "<b>Talla:</b>")
+
+            elements.append(Paragraph(paciente_data, normal_style))
+            elements.append(Spacer(1, 12))
+
+            # Agregar una línea horizontal después de la sección de información del paciente
+            elements.append(HRFlowable())
 
             # Diagnóstico
-            pdf.drawString(50, 460, "Diagnóstico:")
-            pdf.drawString(50, 440, receta.diagnostico)
+            elements.append(Paragraph("<b>DIAGNÓSTICO</b>", header_style))
+            elements.append(Paragraph(receta.diagnostico, normal_style))
+            elements.append(Spacer(1, 12))
+
+            # Agregar una línea horizontal después del diagnóstico
+            elements.append(HRFlowable())
 
             # Tratamiento
-            pdf.drawString(50, 400, "Tratamiento:")
-            pdf.drawString(50, 380, receta.tratamiento)
+            elements.append(Paragraph("<b>TRATAMIENTO</b>", header_style))
+            elements.append(Paragraph(receta.tratamiento, normal_style))
+            elements.append(Spacer(1, 12))
 
-            # Indicaciones
+            # Otras indicaciones
             if receta.indicaciones:
-                pdf.drawString(50, 340, "Otras indicaciones:")
-                pdf.drawString(50, 320, receta.indicaciones)
+                elements.append(Paragraph("<b>Otras indicaciones</b>", bold_style))
+                elements.append(Paragraph(receta.indicaciones, normal_style))
+                elements.append(Spacer(1, 12))
 
-            # Firma y QR
-            pdf.drawString(50, 260, f"Firmado digitalmente por Dr(a): {medico.first_name} {medico.last_name}")
-            qr = qrcode.make(f"Firmado por: {medico.first_name} {medico.last_name}")
+            # Firma
+            firma_texto = f"Firmado digitalmente por Dr(a): {medico.first_name} {medico.last_name}"
+            firma_paragraph = Paragraph(firma_texto, ParagraphStyle(name='Justify', fontSize=10, alignment=4))  # Justificado
 
-            # Convertir el QR a un objeto que ReportLab pueda usar
+            # Generar QR
+            qr = qrcode.make(firma_texto)
             qr_buffer = BytesIO()
             qr.save(qr_buffer, format="PNG")
-            qr_buffer.seek(0)  # Asegurarse de que el puntero esté al inicio
-            qr_image = Image.open(qr_buffer)
-            pdf.drawInlineImage(qr_image, 400, 200, width=100, height=100)
+            qr_buffer.seek(0)
 
+            # Convertir el buffer a un archivo temporal para reportlab
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as tmp_qr_file:
+                tmp_qr_file.write(qr_buffer.getvalue())
+                tmp_qr_path = tmp_qr_file.name
+
+            # Agregar el QR y el texto justificado en una tabla
+            qr_image = Image(tmp_qr_path, width=1 * inch, height=1 * inch)
+            qr_table = Table([[firma_paragraph, qr_image]], colWidths=[400, 100])
+            qr_table.setStyle(TableStyle([
+                ('ALIGN', (0, 0), (0, 0), 'LEFT'),  # Alineación izquierda para el texto
+                ('ALIGN', (1, 0), (1, 0), 'CENTER'),  # Centrado del QR
+                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),  # Centrado vertical
+                ('LEFTPADDING', (0, 0), (-1, -1), 21),  # Añadir padding
+            ]))
+
+            elements.append(qr_table)
+            elements.append(Spacer(1, 12))  # Espacio después del QR
             # Notas
             if receta.notas:
-                pdf.drawString(50, 160, "Notas:")
-                pdf.drawString(50, 140, receta.notas)
+                elements.append(Spacer(1, 24))
+                elements.append(Paragraph("<b>Notas:</b>", bold_style_small))
+                elements.append(Paragraph(receta.notas, small_style))
 
-            pdf.save()
+            # Construir PDF
+            doc.build(elements)
+
+            # Eliminar el archivo temporal después de generar el PDF
+            os.unlink(tmp_qr_path)
 
             # Guardar el PDF en el modelo
             pdf_file = ContentFile(buffer.getvalue())
             filename = f"receta_{receta.id}.pdf"
             receta.doc_receta.save(filename, pdf_file)
 
-            # Serializar y responder con la receta creada
-            serializer = RecetaSerializer(receta)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        
+             # Preparar el correo electrónico
+            paciente_email = consulta.paciente.email
+            asunto = f"Consulta Nº {consulta.id} 📋 Receta Médica de MEDITEST"
+            mensaje = f"""
+                            Estimado {consulta.paciente.first_name},
+
+                            Esperamos que este mensaje le encuentre bien.
+
+                            Nos complace informarle que su receta médica está lista. Puede encontrar su receta adjunta a este correo electrónico en formato PDF. A continuación, encontrará los detalles de su consulta:
+
+                            Detalles de la Consulta:
+                            Paciente: {consulta.paciente.first_name} {consulta.paciente.last_name}
+                            Consulta Nº: {consulta.id}
+                            Médico: {consulta.medico.first_name} {consulta.medico.last_name}
+
+                            Adjunto:
+                            Receta Médica: {receta.doc_receta.url}
+
+                            Instrucciones Importantes:
+                            - Revise detenidamente su receta para asegurarse de que toda la información es correcta.
+                            - Siga las indicaciones del tratamiento y las dosis recomendadas por su médico.
+                            - Si tiene alguna pregunta o necesita aclaraciones, no dude en contactarnos.
+
+                            Contacto:
+                            Correo Electrónico: servesa07@gmail.com
+                            Teléfono: +591 68449128
+
+                            Agradecemos su confianza en MEDITEST. Trabajamos constantemente para brindar el mejor servicio de salud para usted y su familia.
+
+                            Saludos cordiales,
+                            El Equipo de MEDITEST.
+                                        """
+
+            # Enviar el correo con el PDF adjunto
+            email = EmailMessage(
+                subject=asunto,
+                body=mensaje,
+                from_email='servesa07@gmail.com',
+                to=[paciente_email],
+            )
+            email.attach(f"receta_{receta.id}.pdf", buffer.getvalue(), "application/pdf")
+            email.send(fail_silently=False)
+
+            return Response({"message": "Receta generada y enviada al paciente exitosamente."}, status=status.HTTP_201_CREATED)
 
         except Consulta.DoesNotExist:
             return Response({"error": "Consulta no encontrada"}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
