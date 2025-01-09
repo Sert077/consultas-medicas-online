@@ -388,6 +388,10 @@
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
 }
 
+.hidden {
+    display: none; /* Oculta completamente el elemento */
+}
+
 .recipe-form-container {
     position: fixed;
     top: 0;
@@ -401,6 +405,7 @@
 }
 
 .recipe-form-container h3 {
+    color: #28ada8;
     margin-top: 0;
 }
 
@@ -437,3 +442,41 @@
     border-color: #cac6c6;
     border-radius: 5%;
   }
+
+  .form-buttons {
+    display: flex;
+    flex-direction: column; /* Coloca los botones en columna */
+    align-items: center;    /* Centra los botones horizontalmente */
+    gap: 0px;              /* Espaciado entre los botones */
+}
+
+.form-buttons button {
+    width: 200px;           /* Asegura un tamaño uniforme */
+    padding: 10px;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.2s, transform 0.2s;
+}
+
+.send-recipe {
+    background-color: #4caf50; /* Verde */
+}
+
+.send-recipe:hover {
+    background-color: #45a049;
+    transform: scale(1.05); /* Pequeño efecto al pasar el cursor */
+}
+
+.cancel-button {
+    background-color: #df3d32; /* Rojo */
+}
+
+.cancel-button:hover {
+    background-color: #d32f2f;
+    transform: scale(1.05); /* Pequeño efecto al pasar el cursor */
+}
+
+

@@ -38,6 +38,8 @@ import MisReservas from './components/MisReservas';
 import Chat from './components/Chat';
 import VerifyEmail from './components/VerifyEmail';
 import EditPatient from './components/EditPatient';
+import HistorialConsultas from './components/HistorialConsultas';
+
 function App() {
     return (
         <div className="App">
@@ -56,6 +58,7 @@ function App() {
                     <Route path="/chat/:chatId" element={<Chat />} />  {/* Nueva ruta para el chat */}
                     <Route path="/edit-patient" element={<EditPatient />} />
                     <Route path="/verify-email/:token" element={<VerifyEmail />} />
+                    <Route path="/historial-consultas" element={<HistorialConsultas />} />
                 </Routes>
                 <Footer />
             </Router>

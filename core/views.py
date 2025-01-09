@@ -1,3 +1,4 @@
+import tempfile
 from django.shortcuts import render
 from rest_framework import generics
 from django.contrib.auth import authenticate
@@ -6,7 +7,7 @@ from .models import Doctor
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .serializers import DoctorSerializer
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.views import View
 from django.urls import reverse
 from django.conf import settings
@@ -27,6 +28,28 @@ from rest_framework import status
 from .serializers import UserSerializer, PerfilSerializer
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image, Table, TableStyle
+from reportlab.lib.styles import ParagraphStyle
+from io import BytesIO
+import os
+import qrcode
+import tempfile
+from django.core.files.base import ContentFile
+from PIL import Image
+from reportlab.lib.units import inch
+from reportlab.lib.styles import ParagraphStyle
+from reportlab.platypus import Image
+from reportlab.platypus import HRFlowable
+from django.core.mail import EmailMessage
+from django.core.paginator import Paginator
+from django.db.models import Count
+from datetime import datetime
+from fpdf import FPDF
+import matplotlib.pyplot as plt
+import io
+import base64
+
 
 # API para crear un nuevo médico
 @api_view(['POST'])
@@ -214,20 +237,22 @@ def send_email(request):
 
 @api_view(['GET'])
 def consultas_paciente(request, paciente_id):
-    consultas = Consulta.objects.filter(paciente_id=paciente_id).select_related('medico')
+    consultas = Consulta.objects.filter(paciente_id=paciente_id).select_related('medico').prefetch_related('recetas')
     
-    # Agregar los datos del médico a la respuesta
     data = []
     for consulta in consultas:
+        receta = consulta.recetas.first()  # Suponemos una receta por consulta
         data.append({
             'id': consulta.id,
             'fecha': consulta.fecha,
             'hora': consulta.hora,
             'estado': consulta.estado,
-            'medico_name': f'{consulta.medico.first_name} {consulta.medico.last_name}'  # Nombre completo del médico
+            'medico_name': f'{consulta.medico.first_name} {consulta.medico.last_name}',
+            'doc_receta': receta.doc_receta.url if receta and receta.doc_receta else None,  # URL del documento
         })
     
     return Response(data)
+
 
 @api_view(['POST'])
 def cancelar_consulta(request, consulta_id):
@@ -241,18 +266,26 @@ def consultas_medico(request, user_id):
         # Verificar si el usuario es un médico
         doctor = Doctor.objects.get(user_id=user_id)  # Buscar el doctor por su user_id
         consultas = Consulta.objects.filter(medico_id=doctor.id)  # Filtrar las consultas por el medico_id
-        
+
         # Preparar los datos para la respuesta
-        consultas_data = [
-            {
+        consultas_data = []
+        for consulta in consultas:
+            # Buscar la receta asociada a la consulta
+            receta = Receta.objects.filter(consulta=consulta.id).first()
+            doc_receta_url = f"{settings.MEDIA_URL}{receta.doc_receta}" if receta and receta.doc_receta else None
+
+            # Crear el diccionario de datos
+            consultas_data.append({
                 "id": consulta.id,
                 "paciente_name": f"{consulta.paciente.first_name} {consulta.paciente.last_name}",
                 "fecha": consulta.fecha,
                 "hora": consulta.hora,
-            } for consulta in consultas
-        ]
+                "estado": consulta.estado,  # Incluir el estado de la consulta
+                "doc_receta": doc_receta_url,  # Incluir la URL de la receta si existe
+            })
+
         return JsonResponse(consultas_data, safe=False)
-    
+
     except Doctor.DoesNotExist:
         return JsonResponse({"error": "Este usuario no es un médico"}, status=404)
     
@@ -380,14 +413,14 @@ class GenerarRecetaView(APIView):
             # Crear la receta
             receta = Receta.objects.create(
                 consulta=consulta,
-                paciente=consulta.paciente,  # Relación con el paciente
-                medico=consulta.medico,  # Relación con el médico
+                paciente=consulta.paciente,
+                medico=consulta.medico,
                 nombre_paciente=data['nombre_paciente'],
-                id_card=consulta.paciente.perfil.id_card,  # Cedula del paciente
-                genero=consulta.genero,  # Género del paciente
-                tipo_sangre=consulta.tipo_sangre,  # Tipo de sangre
-                alergias=consulta.alergias,  # Alergias (opcional)
-                edad=consulta.edad,  # Edad del paciente
+                id_card=consulta.paciente.perfil.id_card,
+                genero=consulta.genero,
+                tipo_sangre=consulta.tipo_sangre,
+                alergias=consulta.alergias,
+                edad=consulta.edad,
                 peso=data['peso'],
                 talla=data['talla'],
                 diagnostico=data['diagnostico'],
@@ -396,13 +429,336 @@ class GenerarRecetaView(APIView):
                 notas=data.get('notas', '')
             )
 
-            # Serializar y responder con la receta creada
-            serializer = RecetaSerializer(receta)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            # Actualizar el estado de la consulta a "realizada"
+            consulta.estado = "realizada"
+            consulta.save()
+
+            # Generar PDF
+            buffer = BytesIO()
+            doc = SimpleDocTemplate(buffer, pagesize=letter)
+            elements = []
+
+            # Estilos
+            normal_style = ParagraphStyle(name='Normal', fontSize=10, leading=12)
+            medico_style = ParagraphStyle(name='Normal', fontSize=14, leading=16)
+            header_style = ParagraphStyle(name='Header', fontSize=14, leading=16, spaceAfter=12)
+            bold_style = ParagraphStyle(name='Bold', fontSize=12, leading=14, spaceAfter=12, fontName="Helvetica-Bold")
+            bold_style_small = ParagraphStyle(name='Bold', fontSize=8, leading=10, spaceAfter=5, fontName="Helvetica-Bold")
+            small_style = ParagraphStyle(name='Small', fontSize=8, leading=10)
+            right_align_style = ParagraphStyle(name='RightAlign', fontSize=10, alignment=2)  # Alineación a la derecha
+
+            # Fecha (alineada a la derecha)
+            elements.append(Paragraph(receta.fecha_creacion.strftime("%B %d, %Y"), right_align_style))
+
+            # Información del médico (con imagen a la izquierda)
+            medico = receta.medico
+            medico_image_path = medico.profile_picture.path if medico.profile_picture else None
+
+            # Si el médico tiene una foto de perfil, agregamos la imagen
+            medico_image = None
+            if medico_image_path and os.path.exists(medico_image_path):
+                medico_image = Image(medico_image_path, width=100, height=100)
+
+            # Crear la tabla para colocar la imagen y los datos del médico
+            medico_data = f"""
+                Dr(a): {medico.first_name} {medico.last_name}<br/>
+                Especialidad: {medico.specialty}<br/>
+                Dirección: {medico.address or 'N/A'}<br/>
+                Teléfono: {medico.phone_number}<br/>
+                Correo electrónico: {medico.email}
+            """
+            # Modificar estilo de negrita solo en los datos específicos
+            medico_data = medico_data.replace("Dr(a):", "<b>Dr(a):</b>").replace("Especialidad:", "<b>Especialidad:</b>").replace("Dirección:", "<b>Dirección:</b>").replace("Teléfono:", "<b>Teléfono:</b>").replace("Correo electrónico:", "<b>Correo electrónico:</b>")
+
+            medico_table = [[medico_image, Paragraph(medico_data, medico_style)]]
+            table = Table(medico_table, colWidths=[100, 400])  # Ajusta el ancho de las columnas
+            table.setStyle(TableStyle([
+                ('ALIGN', (0, 0), (0, 0), 'CENTER'),  # Centrado de la imagen
+                ('VALIGN', (0, 0), (0, 0), 'MIDDLE'),  # Centrado vertical de la imagen
+                ('ALIGN', (1, 0), (1, 0), 'LEFT'),  # Alineación izquierda del texto
+                ('TEXTCOLOR', (0, 0), (-1, -1), (0, 0, 0)),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+                ('LEFTPADDING', (0, 0), (-1, -1), 35),  # Añadir padding a la izquierda
+            ]))
+            elements.append(table)
+            elements.append(Spacer(1, 12))
+
+            # Agregar una línea horizontal después de la sección de información del médico
+            elements.append(HRFlowable())
+            elements.append(Paragraph("<b>PACIENTE</b>", header_style))
+            # Información del paciente (solo las palabras específicas en negrita)
+            paciente_data = f"""
+                Nombre: {receta.nombre_paciente}<br/>
+                CI: {receta.id_card}<br/>
+                Edad: {receta.edad}<br/>
+                Género: {receta.genero}<br/>
+                <b></b>
+                Alergias: {receta.alergias or 'Ninguna'}<br/>
+                Grupo Sanguineo: {receta.tipo_sangre} Peso: {receta.peso} kg, Talla: {receta.talla} cm
+            """
+            # Modificar estilo de negrita solo en los datos específicos
+            paciente_data = paciente_data.replace("Nombre:", "<b>Nombre:</b>").replace("CI:", "<b>CI:</b>").replace("Edad:", "<b>Edad:</b>").replace("Género:", "<b>Género:</b>").replace("Alergias:", "<b>Alergias:</b>").replace("Grupo Sanguineo:", "<b>Grupo Sanguineo:</b>").replace("Peso:", "<b>Peso:</b>").replace("Talla:", "<b>Talla:</b>")
+
+            elements.append(Paragraph(paciente_data, normal_style))
+            elements.append(Spacer(1, 12))
+
+            # Agregar una línea horizontal después de la sección de información del paciente
+            elements.append(HRFlowable())
+
+            # Diagnóstico
+            elements.append(Paragraph("<b>DIAGNÓSTICO</b>", header_style))
+            elements.append(Paragraph(receta.diagnostico, normal_style))
+            elements.append(Spacer(1, 12))
+
+            # Agregar una línea horizontal después del diagnóstico
+            elements.append(HRFlowable())
+
+            # Tratamiento
+            elements.append(Paragraph("<b>TRATAMIENTO</b>", header_style))
+            elements.append(Paragraph(receta.tratamiento, normal_style))
+            elements.append(Spacer(1, 12))
+
+            # Otras indicaciones
+            if receta.indicaciones:
+                elements.append(Paragraph("<b>Otras indicaciones</b>", bold_style))
+                elements.append(Paragraph(receta.indicaciones, normal_style))
+                elements.append(Spacer(1, 12))
+
+            # Firma
+            firma_texto = f"Firmado digitalmente por Dr(a): {medico.first_name} {medico.last_name}"
+            firma_paragraph = Paragraph(firma_texto, ParagraphStyle(name='Justify', fontSize=10, alignment=4))  # Justificado
+
+            # Generar QR
+            qr = qrcode.make(firma_texto)
+            qr_buffer = BytesIO()
+            qr.save(qr_buffer, format="PNG")
+            qr_buffer.seek(0)
+
+            # Convertir el buffer a un archivo temporal para reportlab
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as tmp_qr_file:
+                tmp_qr_file.write(qr_buffer.getvalue())
+                tmp_qr_path = tmp_qr_file.name
+
+            # Agregar el QR y el texto justificado en una tabla
+            qr_image = Image(tmp_qr_path, width=1 * inch, height=1 * inch)
+            qr_table = Table([[firma_paragraph, qr_image]], colWidths=[400, 100])
+            qr_table.setStyle(TableStyle([
+                ('ALIGN', (0, 0), (0, 0), 'LEFT'),  # Alineación izquierda para el texto
+                ('ALIGN', (1, 0), (1, 0), 'CENTER'),  # Centrado del QR
+                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),  # Centrado vertical
+                ('LEFTPADDING', (0, 0), (-1, -1), 21),  # Añadir padding
+            ]))
+
+            elements.append(qr_table)
+            elements.append(Spacer(1, 12))  # Espacio después del QR
+            # Notas
+            if receta.notas:
+                elements.append(Spacer(1, 24))
+                elements.append(Paragraph("<b>Notas:</b>", bold_style_small))
+                elements.append(Paragraph(receta.notas, small_style))
+
+            # Construir PDF
+            doc.build(elements)
+
+            # Eliminar el archivo temporal después de generar el PDF
+            os.unlink(tmp_qr_path)
+
+            # Guardar el PDF en el modelo
+            pdf_file = ContentFile(buffer.getvalue())
+            filename = f"receta_{receta.id}.pdf"
+            receta.doc_receta.save(filename, pdf_file)
+
+        
+             # Preparar el correo electrónico
+            paciente_email = consulta.paciente.email
+            asunto = f"Consulta Nº {consulta.id} 📋 Receta Médica de MEDITEST"
+            mensaje = f"""
+                            Estimado {consulta.paciente.first_name},
+
+                            Esperamos que este mensaje le encuentre bien.
+
+                            Nos complace informarle que su receta médica está lista. Puede encontrar su receta adjunta a este correo electrónico en formato PDF. A continuación, encontrará los detalles de su consulta:
+
+                            Detalles de la Consulta:
+                            Paciente: {consulta.paciente.first_name} {consulta.paciente.last_name}
+                            Consulta Nº: {consulta.id}
+                            Médico: {consulta.medico.first_name} {consulta.medico.last_name}
+
+                            Adjunto:
+                            Receta Médica: {receta.doc_receta.url}
+
+                            Instrucciones Importantes:
+                            - Revise detenidamente su receta para asegurarse de que toda la información es correcta.
+                            - Siga las indicaciones del tratamiento y las dosis recomendadas por su médico.
+                            - Si tiene alguna pregunta o necesita aclaraciones, no dude en contactarnos.
+
+                            Contacto:
+                            Correo Electrónico: servesa07@gmail.com
+                            Teléfono: +591 68449128
+
+                            Agradecemos su confianza en MEDITEST. Trabajamos constantemente para brindar el mejor servicio de salud para usted y su familia.
+
+                            Saludos cordiales,
+                            El Equipo de MEDITEST.
+                                        """
+
+            # Enviar el correo con el PDF adjunto
+            email = EmailMessage(
+                subject=asunto,
+                body=mensaje,
+                from_email='servesa07@gmail.com',
+                to=[paciente_email],
+            )
+            email.attach(f"receta_{receta.id}.pdf", buffer.getvalue(), "application/pdf")
+            email.send(fail_silently=False)
+
+            return Response({"message": "Receta generada y enviada al paciente exitosamente."}, status=status.HTTP_201_CREATED)
 
         except Consulta.DoesNotExist:
             return Response({"error": "Consulta no encontrada"}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
+# Vista para obtener todas las consultas y recetas con filtros
+def historial_consultas(request):
+    consultas = Consulta.objects.all()
+    recetas = Receta.objects.all()
+
+    # Filtros por fecha, consultas, recetas y búsqueda por palabra
+    fecha_inicio = request.GET.get('fecha_inicio')
+    fecha_fin = request.GET.get('fecha_fin')
+    
+    if fecha_inicio and fecha_fin:
+        try:
+            fecha_inicio = datetime.strptime(fecha_inicio, '%Y-%m-%d')
+            fecha_fin = datetime.strptime(fecha_fin, '%Y-%m-%d')
+            consultas = consultas.filter(fecha__range=[fecha_inicio, fecha_fin])
+        except ValueError:
+            return JsonResponse({'error': 'Formato de fecha inválido'}, status=400)
+
+    if 'consulta_estado' in request.GET:
+        consultas = consultas.filter(estado=request.GET['consulta_estado'])
+
+    if 'busqueda' in request.GET:
+        busqueda = request.GET['busqueda']
+        consultas = consultas.filter(motivo_consulta__icontains=busqueda)
+
+    # Paginación de resultados
+    paginator = Paginator(consultas, 10)  # 10 consultas por página
+    page = request.GET.get('page')
+    consultas_paginadas = paginator.get_page(page)
+
+    # Usamos list() para convertir el queryset a una lista de diccionarios
+    consultas_data = list(consultas_paginadas.object_list.values(
+        'id', 'fecha', 'hora', 'estado', 'motivo_consulta', 'genero', 'tipo_sangre', 'edad', 'medico__first_name', 'medico__last_name'
+    ))
+    recetas_data = list(recetas.values(
+        'id', 'nombre_paciente', 'diagnostico', 'fecha_creacion', 'medico__first_name', 'medico__last_name'
+    ))
+
+    data = {
+        'consultas': consultas_data,
+        'recetas': recetas_data,
+        'total_consultas': consultas.count(),
+        'total_recetas': recetas.count()
+    }
+
+    return JsonResponse(data)
 
 
+def generar_reporte(request):
+    # Especialidades predefinidas
+    especialidades = [
+        'Alergología', 'Cardiología', 'Dermatología', 'Endocrinología', 'Fisioterapia',
+        'Gastroenterología', 'Geriatría', 'Ginecología', 'Hematología', 'Infectología',
+        'Medicina General', 'Medicina Interna', 'Neumología', 'Neurología', 'Nefrología',
+        'Nutrición', 'Oftalmología', 'Oncología', 'Otorrinolaringología', 'Pediatría', 
+        'Podiatría', 'Psicología', 'Psiquiatría', 'Reumatología', 'Salud Mental Infantil',
+        'Sexología', 'Traumatología', 'Urología', 'Otros'
+    ]
+
+    # Recuperamos el tipo de reporte desde la URL
+    reporte_tipo = request.GET.get('tipo', '')
+
+    # Crear los gráficos basados en el tipo de reporte
+    if reporte_tipo == 'estado':
+        consultas_por_estado = Consulta.objects.values('estado').annotate(count=Count('estado'))
+        chart_data = consultas_por_estado
+        title = 'Consultas por estado'
+        xlabel = 'Estado'
+        ylabel = 'Cantidad'
+    elif reporte_tipo == 'genero':
+        consultas_por_genero = Consulta.objects.values('genero').annotate(count=Count('genero'))
+        chart_data = consultas_por_genero
+        title = 'Consultas por género'
+        xlabel = 'Género'
+        ylabel = 'Cantidad'
+    elif reporte_tipo == 'especialidad':
+        consultas_por_especialidad = Consulta.objects.filter(medico__specialty__in=especialidades) \
+            .values('medico__specialty').annotate(count=Count('medico__specialty'))
+        chart_data = consultas_por_especialidad
+        title = 'Consultas por especialidad'
+        xlabel = 'Especialidad'
+        ylabel = 'Cantidad'
+    else:
+        chart_data = []
+        title = 'Reporte no disponible'
+        xlabel = ''
+        ylabel = ''
+
+    def create_bar_chart(data, title, xlabel, ylabel):
+        labels = []
+        if data:
+            # Se verifica si la clave 'genero' está en los datos
+            if 'genero' in data[0]:
+                labels = [item['genero'] if 'genero' in item else 'Desconocido' for item in data]
+            # Se verifica si la clave 'estado' está en los datos
+            elif 'estado' in data[0]:
+                labels = [item['estado'] if 'estado' in item else 'Desconocido' for item in data]
+            # Se verifica si la clave 'medico__specialty' está en los datos
+            elif 'medico__specialty' in data[0]:
+                labels = [item['medico__specialty'] if 'medico__specialty' in item else 'Desconocido' for item in data]
+            else:
+                # Si ninguno de los campos esperados está presente, devolver 'Desconocido'
+                labels = ['Desconocido' for _ in data]
+
+            counts = [item['count'] for item in data]
+
+            # Filtrar las etiquetas y cuentas
+            filtered_labels = [label if label is not None else 'Desconocido' for label in labels]
+            filtered_counts = [count if count is not None else 0 for count in counts]
+
+            # Crear gráfico de barras
+            plt.bar(filtered_labels, filtered_counts)
+            plt.title(title)
+            plt.xlabel(xlabel)
+            plt.ylabel(ylabel)
+
+            with tempfile.NamedTemporaryFile(delete=False, suffix='.png') as tmpfile:
+                plt.savefig(tmpfile, format='png')
+                tmpfile.close()
+                return tmpfile.name
+        else:
+            # Si no hay datos, retornar un archivo vacío o algún valor por defecto
+            return None
+
+    # Generamos el gráfico solo con los datos relevantes
+    chart = create_bar_chart(chart_data, title, xlabel, ylabel)
+
+    # Crear el PDF con el gráfico correspondiente
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font('Arial', 'B', 16)
+    pdf.cell(200, 10, 'Reporte de Consultas', ln=True, align='C')
+
+    pdf.set_font('Arial', '', 12)
+    pdf.ln(10)
+    pdf.cell(200, 10, title, ln=True, align='C')
+    if chart:
+        pdf.image(chart, x=10, y=30, w=180)
+
+    pdf_output = pdf.output(dest='S').encode('latin1')
+    response = HttpResponse(pdf_output, content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="reporte_consultas.pdf"'
+    return response

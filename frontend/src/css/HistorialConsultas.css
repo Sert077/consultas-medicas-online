@@ -1,0 +1,51 @@
+/* HistorialConsultas.css */
+.historial-consultas {
+    padding: 20px;
+  }
+  
+  .historial-consultas h2 {
+    text-align: center;
+    font-size: 24px;
+  }
+  
+  .filtros {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  
+  .filtros input, .filtros select {
+    padding: 10px;
+    margin-right: 10px;
+    width: 200px;
+  }
+  
+  button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    margin-bottom: 20px;
+  }
+  
+  button:hover {
+    background-color: #45a049;
+  }
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  }
+  
+  table th, table td {
+    padding: 12px;
+    text-align: left;
+    border: 1px solid #ddd;
+  }
+  
+  table th {
+    background-color: #f2f2f2;
+  }
+  

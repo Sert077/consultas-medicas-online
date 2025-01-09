@@ -18,7 +18,7 @@ class DoctorSerializer(serializers.ModelSerializer):
 class ConsultaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Consulta
-        fields = ['id', 'paciente', 'medico', 'fecha', 'hora', 'estado', 'motivo_consulta', 'genero', 'tipo_sangre', 'alergias', 'edad']
+        fields = ['id', 'paciente', 'medico', 'fecha', 'hora', 'estado', 'motivo_consulta', 'genero', 'tipo_sangre', 'alergias', 'edad', 'tipo_consulta']
 
     def create(self, validated_data):
         paciente = validated_data.get('paciente')
