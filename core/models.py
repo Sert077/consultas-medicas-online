@@ -45,6 +45,11 @@ class Consulta(models.Model):
     )  # Tipo de sangre del paciente
     alergias = models.TextField(null=True, blank=True)  # Alergias del paciente
     edad = models.IntegerField(null=True, blank=True)  # Edad del paciente
+    tipo_consulta = models.CharField(
+        max_length=10,
+        choices=[('presencial', 'Presencial'), ('virtual', 'Virtual')],
+        default='presencial'
+    )
 
     def __str__(self):
         return f"Consulta con {self.medico} el {self.fecha} a las {self.hora}"

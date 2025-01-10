@@ -18,7 +18,7 @@ const DoctorDetail = () => {
     const [tipoSangre, setTipoSangre] = useState('');
     const [tieneAlergias, setTieneAlergias] = useState(false);
     const [descripcionAlergia, setDescripcionAlergia] = useState('');
-
+    const [tipoConsulta, setTipoConsulta] = useState('');
     const [showConfirmationModal, setShowConfirmationModal] = useState(false); 
 
     useEffect(() => {
@@ -69,6 +69,7 @@ const DoctorDetail = () => {
                 paciente: pacienteId,
                 fecha: formattedDate,
                 hora: hora,
+                tipo_consulta: tipoConsulta,
                 motivo_consulta: motivoConsulta,
                 genero: genero,
                 tipo_sangre: tipoSangre,
@@ -160,25 +161,63 @@ const DoctorDetail = () => {
     if (!doctor) {
         return <div>Loading...</div>;
     }
+    function formatDays(days) {
+        const dayMapping = {
+            L: "Lunes",
+            M: "Martes",
+            X: "Miércoles",
+            J: "Jueves",
+            V: "Viernes",
+            S: "Sábado",
+            D: "Domingo",
+        };
+    
+        // Divide el string en un array de días
+        const dayArray = days.split(',');
+    
+        // Si contiene todos los días
+        if (days === "L,M,X,J,V,S,D") {
+            return "Lunes a Domingo";
+        }
+    
+        // Si es de lunes a viernes
+        if (days === "L,M,X,J,V") {
+            return "Lunes a Viernes";
+        }
+    
+        const formattedDays = dayArray.map(day => dayMapping[day] || day);
+        return formattedDays.length > 1
+            ? `${formattedDays.slice(0, -1).join(', ')} y ${formattedDays.slice(-1)}`
+            : formattedDays[0];
+    }
+    
+    function formatTime(time) {
+        // Divide la hora, los minutos y los segundos
+        const [hours, minutes] = time.split(':');
+        // Devuelve solo las horas y los minutos
+        return `${hours}:${minutes}`;
+    }    
 
     return (
         <div className="doctor-detail-container">
             <div className="doctor-info-container">
-                <img
-                    src={doctor.profile_picture}
-                    alt={`${doctor.first_name} ${doctor.last_name}`}
-                    className="doctor-image"
-                />
-                <div className="doctor-details">
-                    <h2>Dr(a): {doctor.first_name} {doctor.last_name}</h2>
-                    <p>Especialidad: {doctor.specialty}</p>
-                    <p>Correo: {doctor.email}</p>
-                    <p>Teléfono: {doctor.phone_number}</p>
-                    <p>Dirección: {doctor.address}</p>
-                    <div className="doctor-buttons">
-                    <button className="consult-button" onClick={() => setShowModal(true)}>Reservar consulta médica</button>
-                        <button className="consult-button" onClick={() => navigate(`/misreservas`)}>
-                        Realizar consulta médica
+        <img
+            src={doctor.profile_picture}
+            alt={`${doctor.first_name} ${doctor.last_name}`}
+            className="doctor-image"
+        />
+        <div className="doctor-details">
+            <h2>Dr(a): {doctor.first_name} {doctor.last_name}</h2>
+            <p><i className="fas fa-stethoscope"></i> Especialidad: {doctor.specialty}</p>
+            <p><i className="fas fa-envelope"></i> Correo: {doctor.email}</p>
+            <p><i className="fas fa-phone"></i> Teléfono: {doctor.phone_number}</p>
+            <p><i className="fas fa-map-marker-alt"></i> Dirección: {doctor.address}</p>
+            <p><i className="fas fa-calendar-alt"></i> Días de Atención: {formatDays(doctor.days)}</p>
+            <p><i className="fas fa-clock"></i> Horario de Atención: {formatTime(doctor.start_time)} a {formatTime(doctor.end_time)} Hrs.</p>
+            <div className="doctor-buttons">
+                <button className="consult-button" onClick={() => setShowModal(true)}>Reservar consulta médica</button>
+                <button className="consult-button" onClick={() => navigate(`/misreservas`)}>
+                    Realizar consulta médica
                         </button>
                     </div>
                 </div>
@@ -237,6 +276,20 @@ const DoctorDetail = () => {
                         ))}
                     </select>
                 </div>
+
+                <div>
+                    <label htmlFor="tipo_consulta" className="modal-label">Tipo de consulta:</label>
+                    <select
+                        id="tipo_consulta"
+                        value={tipoConsulta}
+                        onChange={(e) => setTipoConsulta(e.target.value)}
+                        required
+                        className="input-field"                            >
+                            <option value="">Selecciona el tipo de consulta</option>
+                            <option value="presencial">Presencial</option>
+                            <option value="virtual">Virtual</option>
+                    </select>
+                    </div>
 
                 <div>
                     <label htmlFor="genero" className="modal-label">Género:</label>
