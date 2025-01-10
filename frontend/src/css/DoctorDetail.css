@@ -289,7 +289,7 @@ h3{
     align-items: center; /* Centrar verticalmente */
     gap: 10px; /* Espacio entre los botones */
     margin-top: 20px; /* Separación superior */
-    margin-bottom: -10px;
+    margin-bottom: -15px;
 }
 
 
@@ -413,4 +413,3 @@ h3{
         font-size: 14px; /* Reducir tamaño del texto */
     }
 }
-

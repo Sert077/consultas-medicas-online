@@ -9,11 +9,14 @@ const Header = () => {
     const [showDropdown, setShowDropdown] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false); // Estado para el menú hamburguesa
     const navigate = useNavigate();
+    const [profilePicture, setProfilePicture] = useState('/images/icon-user.png'); // Imagen por defecto
+
 
     useEffect(() => {
         const token = localStorage.getItem("token");
         const user = localStorage.getItem("username");
         const superUser = localStorage.getItem("is_superuser");
+        const userType = localStorage.getItem("tipo_usuario");
 
         if (token && user) {
             setIsLoggedIn(true);
@@ -60,6 +63,49 @@ const Header = () => {
         setIsMenuOpen(!isMenuOpen); // Alternar el estado del menú hamburguesa
     };
 
+    useEffect(() => {
+        const fetchProfilePicture = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                const userType = localStorage.getItem('tipo_usuario');
+    
+                if (!token || !userType) return;
+    
+                let apiUrl = '';
+                if (userType === 'paciente') {
+                    apiUrl = 'http://localhost:8000/api/patient/profile/';
+                } else if (userType === 'medico') {
+                    apiUrl = 'http://localhost:8000/api/doctors/me/';
+                }
+    
+                const response = await fetch(apiUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Token ${token}`,
+                    },
+                });
+    
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log("Datos obtenidos:", data);
+                    if (userType === 'paciente' && data.perfil?.user_picture) {
+                        setProfilePicture(`http://localhost:8000${data.perfil.user_picture}`);
+                    } else if (userType === 'medico' && data.profile_picture) {
+                        setProfilePicture(`http://localhost:8000${data.profile_picture}`);
+                    }
+                } else {
+                    console.error('Error al obtener la foto de perfil');
+                }
+            } catch (error) {
+                console.error('Error de red al obtener la foto de perfil:', error);
+            }
+        };
+    
+        fetchProfilePicture();
+    }, []);
+      
+
     return (
         <header className="header">
             <div className="logo">
@@ -103,25 +149,24 @@ const Header = () => {
                             <Link to="/registerdoctor">Registrar Médico</Link>
                         </li>
                     )}
-
                     {isLoggedIn ? (
                         <li className="user-menu">
                             <span onClick={toggleDropdown}>
                                 {username}{" "}
                                 <img
-                                    src="/images/icon-user.png"
-                                    alt="user"
+                                    src={profilePicture}
+                                    alt="Foto de perfil"
+                                    onError={(e) => (e.target.src = '/images/icon-user.png')} // Imagen por defecto si falla
+                                    className="profile-picture"
                                 />
                             </span>
                             {showDropdown && (
                                 <ul className="dropdown">
                                     <li>
-                                    <button onClick={() => navigate('/edit-patient')}>Configuración de la cuenta</button>
+                                        <button onClick={() => navigate('/edit-patient')}>Configuración de la cuenta</button>
                                     </li>
                                     <li>
-                                        <button onClick={handleLogout}>
-                                            Cerrar sesión
-                                        </button>
+                                        <button onClick={handleLogout}>Cerrar sesión</button>
                                     </li>
                                 </ul>
                             )}

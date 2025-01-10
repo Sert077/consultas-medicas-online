@@ -72,8 +72,8 @@
 }
 
 .user-menu img {
-    width: 30px;
-    height: 30px;
+    width: 40px;
+    height: 40px;
     margin-left: 10px;
     vertical-align: middle;
 }
@@ -92,9 +92,11 @@
 }
 
 .dropdown li {
-    padding: 10px;
+    padding: 0px;
     border-bottom: 1px solid #ddd;
     color: white;
+    margin-top: 10px;
+    margin-right: 18px;
 }
 
 .dropdown li:last-child {
@@ -136,6 +138,14 @@
 
 .navigation.open {
     display: block;
+}
+
+.profile-picture {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-left: 10px;
 }
 
 @media (max-width: 768px) {

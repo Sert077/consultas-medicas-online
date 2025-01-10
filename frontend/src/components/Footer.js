@@ -24,7 +24,7 @@ const Footer = () => {
                 </div>
             </div>
             <div className="footer-right">
-                <p>Copyright © 2024, Meditest - Consultas Médicas Online</p>
+                <p>Copyright © 2024, Meditest-Consultas Médicas Online</p>
                 <p>Todos los derechos reservados</p>
                 <div className="footer-links">
                     <a href="#" className="footer-link">Información legal</a>
