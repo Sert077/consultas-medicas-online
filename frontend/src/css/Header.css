@@ -71,49 +71,81 @@
     cursor: pointer;
 }
 
-.user-menu img {
-    width: 40px;
-    height: 40px;
-    margin-left: 10px;
-    vertical-align: middle;
+.user-info {
+    display: flex;
+    align-items: center; /* Alinea los elementos verticalmente */
+    gap: 10px; /* Espaciado entre el nombre y la imagen */
+}
+
+.username {
+    font-size: 17px;
+    color: white; /* Asegura que el color del texto sea visible */
+}
+
+.profile-picture {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #1de9b6; /* Borde verde */
 }
 
 .dropdown {
     position: absolute;
     right: 0;
-    top: 100%;
-    background-color: #301466;
-    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);
-    border-radius: 5px;
-    width: 200px;
+    top: calc(100% + 10px); /* Separación del icono */
+    background-color: #250e5d; /* Fondo ligeramente más oscuro */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    border-radius: 10px; /* Bordes redondeados */
+    width: 220px;
     z-index: 10;
+    padding: 10px 0; /* Espaciado interno */
     display: flex;
     flex-direction: column;
 }
 
 .dropdown li {
-    padding: 0px;
-    border-bottom: 1px solid #ddd;
+    padding: 10px 20px; /* Ajuste de espacio interno */
     color: white;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s; /* Transiciones suaves */
+    display: flex;
+    align-items: center; /* Alineación vertical centrada */
+    gap: 10px; /* Espacio entre el icono y el texto */
+    margin-bottom: 15px;
+    margin-right: 20px;
     margin-top: 10px;
-    margin-right: 18px;
+}
+
+.dropdown li:hover {
+    background-color: #1de9b6; /* Fondo verde en hover */
+    color: #250e5d; /* Texto morado en hover */
+    border-radius: 5px; /* Bordes redondeados en hover */
+}
+
+/* Botones dentro del dropdown */
+.dropdown li button {
+    background: none;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    width: 100%;
+    text-align: left; /* Alineación del texto a la izquierda */
+    font-size: 14px;
+    display: flex; /* Asegura que el botón se comporte como flexbox */
+    align-items: center; /* Alineación vertical centrada */
+    gap: 10px; /* Espacio entre el icono y el texto */
+    margin: 0; /* Elimina márgenes adicionales */
+    padding: 0; /* Elimina rellenos adicionales */
+    min-width: 170px;
+}
+
+.dropdown li button:hover {
+    color: inherit;
 }
 
 .dropdown li:last-child {
     border-bottom: none;
-}
-
-.dropdown li button {
-    background: none;
-    border: none;
-    color: white;
-    cursor: pointer;
-    text-align: left;
-}
-
-.dropdown li button:hover {
-    background-color: #1de9b6;
-    color: #301466;
 }
 
 /* Hamburger Menu */
@@ -121,8 +153,8 @@
     display: none;
     flex-direction: column;
     justify-content: space-around;
-    width: 25px;
-    height: 20px;
+    width: 30px;
+    height: 25px;
     background: none;
     border: none;
     cursor: pointer;
@@ -131,21 +163,14 @@
 
 .hamburger .bar {
     width: 100%;
-    height: 3px;
+    height: 4px;
     background-color: white;
     border-radius: 2px;
+    transition: all 0.3s; /* Suaviza el cambio al abrir/cerrar */
 }
 
 .navigation.open {
     display: block;
-}
-
-.profile-picture {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    object-fit: cover;
-    margin-left: 10px;
 }
 
 @media (max-width: 768px) {
@@ -158,16 +183,15 @@
         width: 100%;
         background-color: #301466;
         padding: 10px 0;
-        overflow-x: hidden; /* Prevenir el desbordamiento horizontal */
     }
 
     .navigation ul {
         flex-direction: column;
-        align-items: center; /* Centra los botones */
+        align-items: center;
     }
 
     .navigation ul li {
-        margin: 10px 0; /* Espaciado entre botones */
+        margin: 10px 0;
     }
 
     .hamburger {
@@ -175,14 +199,48 @@
     }
 }
 
-/* Ajusta el contenedor principal para evitar desbordamientos */
+/* General adjustments */
 body {
     margin: 0;
     padding: 0;
     overflow-x: hidden;
+    font-family: 'Arial', sans-serif;
 }
 
 .header {
     width: 100%;
-    box-sizing: border-box; /* Asegura que padding no cause desbordamientos */
+    box-sizing: border-box;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #301466;
+    color: white;
+}
+
+.icon {
+    width: 20px;
+    height: 20px;
+    margin-right: 5px;
+    color: white;
+    margin-bottom: -2px;
+}
+
+.icon-consultas
+{
+    width: 20px;
+    height: 20px;
+    margin-right: 1px;
+    color: white;
+    margin-bottom: -2px;
+}
+
+.icon-settings
+{
+    width: 30px;
+    height: 30px;
+    margin-right: 1px;
+    margin-left: -3px;
+    color: white;
+    margin-bottom: -2px;
 }

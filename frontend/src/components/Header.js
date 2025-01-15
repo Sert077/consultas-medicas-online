@@ -1,5 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import {
+    IconHome,
+    IconUser,
+    IconUsers,
+    IconStethoscope,
+    IconSettings,
+    IconLogout,
+    IconMenu2,
+    IconHelpCircle,
+} from "@tabler/icons-react";
 import "../css/Header.css";
 
 const Header = () => {
@@ -115,65 +125,84 @@ const Header = () => {
                     <span className="subtitle">Consultas médicas online</span>
                 </div>
             </div>
-
+    
             <button className="hamburger" onClick={toggleMenu}>
-                {/* Icono de menú hamburguesa */}
-                <span className="bar"></span>
-                <span className="bar"></span>
-                <span className="bar"></span>
+                <IconMenu2 className="icon" />
             </button>
-
+    
             <nav className={`navigation ${isMenuOpen ? "open" : ""}`}>
                 <ul>
                     <li>
-                        <Link to="/">Home</Link>
+                        <Link to="/">
+                            <IconHome className="icon" />
+                            Home
+                        </Link>
                     </li>
                     <li>
-                        <Link to="/doctores">Médicos</Link>
+                        <Link to="/doctores">
+                            <IconStethoscope className="icon" />
+                            Médicos
+                        </Link>
                     </li>
-
+    
                     {isLoggedIn && (
                         <li>
-                            <Link to="/misreservas">Mis Consultas</Link>
+                            <Link to="/misreservas">
+                                <IconUser className="icon-consultas" />
+                                Mis Consultas
+                            </Link>
                         </li>
                     )}
-
+    
                     <li>
                         <Link to="#!" className="disabled">
+                            <IconHelpCircle className="icon" />
                             Conoce más!
                         </Link>
                     </li>
-
+    
                     {isSuperUser && (
                         <li>
-                            <Link to="/registerdoctor">Registrar Médico</Link>
+                            <Link to="/registerdoctor">
+                                <IconStethoscope className="icon" />
+                                Registrar Médico
+                            </Link>
                         </li>
                     )}
                     {isLoggedIn ? (
                         <li className="user-menu">
-                            <span onClick={toggleDropdown}>
-                                {username}{" "}
+                            <div onClick={toggleDropdown} className="user-info">
+                                <span className="username">{username}</span>
                                 <img
                                     src={profilePicture}
                                     alt="Foto de perfil"
-                                    onError={(e) => (e.target.src = '/images/icon-user.png')} // Imagen por defecto si falla
+                                    onError={(e) => (e.target.src = "/images/icon-user.png")}
                                     className="profile-picture"
                                 />
-                            </span>
+                            </div>
                             {showDropdown && (
                                 <ul className="dropdown">
                                     <li>
-                                        <button onClick={() => navigate('/edit-patient')}>Configuración de la cuenta</button>
+                                        <button onClick={() => navigate("/edit-patient")}>
+                                            <IconSettings className="icon-settings" />
+                                            Configuración de la cuenta
+                                        </button>
                                     </li>
                                     <li>
-                                        <button onClick={handleLogout}>Cerrar sesión</button>
+                                        <button onClick={handleLogout}>
+                                            <IconLogout className="icon-logout" />
+                                            Cerrar sesión
+                                        </button>
                                     </li>
                                 </ul>
                             )}
                         </li>
                     ) : (
                         <li>
-                            <Link to="/login">Iniciar sesión</Link>
+                            <Link to="/login">
+                                <IconUser className="icon" />
+                                Iniciar sesión
+                            </Link>
                         </li>
                     )}
                 </ul>
