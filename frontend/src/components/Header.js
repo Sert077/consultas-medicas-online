@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
     IconHome,
@@ -7,11 +7,11 @@ import {
     IconStethoscope,
     IconSettings,
     IconLogout,
-    IconMenu2,
+    IconMenu,
     IconHelpCircle,
 } from "@tabler/icons-react";
 import "../css/Header.css";
-
+import { FaBars } from "react-icons/fa";
 const Header = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [username, setUsername] = useState("");
@@ -20,7 +20,7 @@ const Header = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false); // Estado para el menú hamburguesa
     const navigate = useNavigate();
     const [profilePicture, setProfilePicture] = useState('/images/icon-user.png'); // Imagen por defecto
-
+    const dropdownRef = useRef(null);
 
     useEffect(() => {
         const token = localStorage.getItem("token");
@@ -41,32 +41,32 @@ const Header = () => {
     
         // Escuchar cambios
         window.addEventListener('userUpdate', updateHeader);
+
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setShowDropdown(false);
+            }
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
     
         return () => {
             window.removeEventListener('userUpdate', updateHeader);
+            document.removeEventListener("mousedown", handleClickOutside);
         };
 
 
     }, [isLoggedIn]);
 
     const handleLogout = () => {
-        localStorage.removeItem("token");
-        localStorage.removeItem("username");
-        localStorage.removeItem("is_superuser");
-        localStorage.removeItem("birthdate");
-        localStorage.removeItem("email");
-        localStorage.removeItem("first_name");
-        localStorage.removeItem("last_name");
-        localStorage.removeItem("paciente_id");
-        localStorage.removeItem("tipo_usuario");
-
+        localStorage.clear();
         setIsLoggedIn(false);
         setIsSuperUser(false);
         navigate("/login");
     };
 
     const toggleDropdown = () => {
-        setShowDropdown(!showDropdown);
+        setShowDropdown((prev) => !prev);
     };
 
     const toggleMenu = () => {
@@ -126,8 +126,8 @@ const Header = () => {
                 </div>
             </div>
     
-            <button className="hamburger" onClick={toggleMenu}>
-                <IconMenu2 className="icon" />
+            <button className="hamburger" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+                <FaBars size={24} className="icon-menu"/>
             </button>
     
             <nav className={`navigation ${isMenuOpen ? "open" : ""}`}>
@@ -170,7 +170,7 @@ const Header = () => {
                         </li>
                     )}
                     {isLoggedIn ? (
-                        <li className="user-menu">
+                        <li className="user-menu" ref={dropdownRef}>
                             <div onClick={toggleDropdown} className="user-info">
                                 <span className="username">{username}</span>
                                 <img

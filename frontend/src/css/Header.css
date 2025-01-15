@@ -64,11 +64,30 @@
 .navigation ul li a:hover {
     color: #1de9b6;
 }
+.navigation ul li a:hover .icon {
+    color: #1de9b6; /* Cambia el color del icono */
+}
+.navigation ul li a:hover .icon-consultas {
+    color: #1de9b6; /* Cambia el color del icono */
+}
 
 /* Dropdown Menu */
 .user-menu {
     position: relative;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px; /* Espaciado entre los elementos */
+}
+
+.user-menu::before {
+    content: "";
+    display: block;
+    width: 1px;
+    height: 20px; /* Altura de la barra */
+    background-color: #9d9d9d; /* Color de la barra */
+    margin-right: 10px; /* Espacio entre la barra y los botones */
+    margin-left: -5px;
 }
 
 .user-info {
@@ -83,8 +102,8 @@
 }
 
 .profile-picture {
-    width: 35px;
-    height: 35px;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
     object-fit: cover;
     border: 2px solid #1de9b6; /* Borde verde */
@@ -105,14 +124,14 @@
 }
 
 .dropdown li {
-    padding: 10px 20px; /* Ajuste de espacio interno */
+    padding: 10px 17px; /* Ajuste de espacio interno */
     color: white;
     cursor: pointer;
     transition: background-color 0.3s, color 0.3s; /* Transiciones suaves */
     display: flex;
     align-items: center; /* Alineación vertical centrada */
     gap: 10px; /* Espacio entre el icono y el texto */
-    margin-bottom: 15px;
+    margin-bottom: 10px;
     margin-right: 20px;
     margin-top: 10px;
 }
@@ -154,7 +173,7 @@
     flex-direction: column;
     justify-content: space-around;
     width: 30px;
-    height: 25px;
+    height: 30px;
     background: none;
     border: none;
     cursor: pointer;
@@ -196,6 +215,9 @@
 
     .hamburger {
         display: flex;
+        position: absolute;
+        top: 15px; /* Ajusta según el espaciado deseado */
+        right: 15px; /* Alinea al lado derecho */
     }
 }
 
@@ -221,26 +243,25 @@ body {
 .icon {
     width: 20px;
     height: 20px;
-    margin-right: 5px;
+    margin-right: 10px;
     color: white;
     margin-bottom: -2px;
+    transition: color 0.3s ease; /* Transición suave para el cambio de color */
 }
 
 .icon-consultas
 {
     width: 20px;
     height: 20px;
-    margin-right: 1px;
+    margin-right: 5px;
     color: white;
     margin-bottom: -2px;
+    transition: color 0.3s ease; /* Transición suave para el cambio de color */
 }
 
 .icon-settings
 {
     width: 30px;
     height: 30px;
-    margin-right: 1px;
-    margin-left: -3px;
-    color: white;
-    margin-bottom: -2px;
+    
 }
