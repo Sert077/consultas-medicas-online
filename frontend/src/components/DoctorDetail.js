@@ -222,6 +222,20 @@ const DoctorDetail = () => {
                     </div>
                 </div>
             </div>
+
+            <div className="map-container">
+                    <h3>Ubicación del Consultorio</h3>
+                    <iframe
+                        title="map"
+                        src={`https://www.google.com/maps?q=${encodeURIComponent(doctor.address)}&output=embed`}
+                        width="100%"
+                        height="250"
+                        style={{ border: 0 }}
+                        allowFullScreen=""
+                        loading="lazy"
+                    ></iframe>
+                </div>
+                
             <div className="doctor-biography-container">
                 <h3>Biografía</h3>
                 <p>{doctor.biography}</p>

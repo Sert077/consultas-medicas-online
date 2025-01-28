@@ -9,6 +9,11 @@ import {
     IconLogout,
     IconMenu,
     IconHelpCircle,
+    IconCirclePlus,
+    IconChartBar,
+    IconChartLine,
+    IconFileText,
+    IconHistory    
 } from "@tabler/icons-react";
 import "../css/Header.css";
 import { FaBars } from "react-icons/fa";
@@ -156,7 +161,7 @@ const Header = () => {
     
                     <li>
                         <Link to="#!" className="disabled">
-                            <IconHelpCircle className="icon" />
+                            <IconHelpCircle className="icon-help" />
                             Conoce más!
                         </Link>
                     </li>
@@ -164,8 +169,17 @@ const Header = () => {
                     {isSuperUser && (
                         <li>
                             <Link to="/registerdoctor">
-                                <IconStethoscope className="icon" />
-                                Registrar Médico
+                                <IconCirclePlus className="icon-circle" />
+                                Añadir Médico
+                            </Link>
+                        </li>
+                    )}
+
+                    {isSuperUser && (
+                        <li>
+                            <Link to="/historial-consultas">
+                                <IconChartBar className="icon-circle" />
+                                Historial
                             </Link>
                         </li>
                     )}
