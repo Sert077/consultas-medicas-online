@@ -264,6 +264,92 @@ h3{
     border-radius: 8px;
     margin-bottom: 8px;
 }
+
+/* Contenedor de horarios */
+.horarios-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    justify-content: center;
+    margin-top: 10px;
+  }
+  
+  /* Botón de horario */
+  .horario-button {
+    border: 1px solid #4e4ab7; /* Borde morado */
+    color: #4e4ab7; /* Texto morado */
+    background-color: white; /* Fondo blanco para resaltar el contraste */
+    padding: 10px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.horario-button:hover {
+    background-color: #4e4ab7; /* Morado al pasar el cursor */
+    color: white; /* Texto blanco al pasar el cursor */
+}
+  
+  /* Cuando está seleccionado */
+  .horario-button.selected {
+    background-color: #4e4ab7;
+    color: white;
+    font-weight: bold;
+  }
+  
+  /* Estilo del cuadro de selección */
+  .seleccion-info {
+    background-color: #4e4ab7;
+    border: 1px solid #ddd;
+    color: white;
+    padding: 0px;
+    margin-top: 5px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between; /* Espacia los elementos */
+    grid-column: span 2; /* Hace que ocupe ambas columnas */
+    align-items: center; /* Alinea verticalmente */
+}
+
+/* Contenedor del texto (Fecha y Hora) */
+.seleccion-texto {
+  text-align: left; /* Alinea el texto a la izquierda */
+  margin-bottom: -10px;
+  margin-top: -10px;
+  margin-left: 15px;
+}
+
+/* "Hora seleccionada" en negrita */
+.hora-seleccionada {
+    font-weight: bold;
+    margin-bottom: 0px; /* Elimina espacio extra debajo */
+  }
+  
+  /* Hora y fecha seleccionada */
+  .hora-detalle {
+    margin-top: 0px; /* Elimina espacio extra arriba */
+  }
+  
+  /* Botón de cancelar selección */
+  .button.cancelar-seleccion {
+    background-color: #cecece;
+    color: rgb(35, 35, 35);
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    margin-right: 15px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .button.cancelar-seleccion:hover {
+    background-color: #bcbcbc;
+  }
+  
 /* Separación entre tipo de consulta y hora */
 .input-field {
     width: 100%;
@@ -372,7 +458,6 @@ h3{
     margin-right: 5px; /* Espaciado pequeño entre el radio y el texto */
 }
 
-
 /* Estilo del modal de confirmación */
 .confirmation-modal-overlay {
     position: fixed;
@@ -401,7 +486,7 @@ h3{
 
 .confirmation-modal-content button {
     padding: 10px 20px;
-    background-color: #4CAF50;
+    background-color: #6c63ff;
     border: none;
     color: white;
     font-size: 16px;
@@ -410,7 +495,7 @@ h3{
 }
 
 .confirmation-modal-content button:hover {
-    background-color: #45a049;
+    background-color: #4e4ab7;
 }
 
 @media (max-width: 600px) {

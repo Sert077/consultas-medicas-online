@@ -48,7 +48,7 @@ class Consulta(models.Model):
     tipo_consulta = models.CharField(
         max_length=10,
         choices=[('presencial', 'Presencial'), ('virtual', 'Virtual')],
-        default='presencial'
+        default='virtual'
     )
 
     def __str__(self):
