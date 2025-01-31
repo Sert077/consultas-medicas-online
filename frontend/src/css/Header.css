@@ -57,61 +57,114 @@
 .navigation ul li a {
     text-decoration: none;
     color: white;
-    font-size: 1.2em;
+    font-size: 17px;
     transition: color 0.3s ease;
 }
 
 .navigation ul li a:hover {
     color: #1de9b6;
 }
+.navigation ul li a:hover .icon {
+    color: #1de9b6; /* Cambia el color del icono */
+}
+.navigation ul li a:hover .icon-consultas {
+    color: #1de9b6; /* Cambia el color del icono */
+}
 
 /* Dropdown Menu */
 .user-menu {
     position: relative;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px; /* Espaciado entre los elementos */
 }
 
-.user-menu img {
+.user-menu::before {
+    content: "";
+    display: block;
+    width: 1px;
+    height: 20px; /* Altura de la barra */
+    background-color: #9d9d9d; /* Color de la barra */
+    margin-right: 10px; /* Espacio entre la barra y los botones */
+    margin-left: -5px;
+}
+
+.user-info {
+    display: flex;
+    align-items: center; /* Alinea los elementos verticalmente */
+    gap: 10px; /* Espaciado entre el nombre y la imagen */
+}
+
+.username {
+    font-size: 17px;
+    color: white; /* Asegura que el color del texto sea visible */
+}
+
+.profile-picture {
     width: 30px;
     height: 30px;
-    margin-left: 10px;
-    vertical-align: middle;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #1de9b6; /* Borde verde */
 }
 
 .dropdown {
     position: absolute;
     right: 0;
-    top: 100%;
-    background-color: #301466;
-    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);
-    border-radius: 5px;
-    width: 200px;
+    top: calc(100% + 10px); /* Separación del icono */
+    background-color: #250e5d; /* Fondo ligeramente más oscuro */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    border-radius: 10px; /* Bordes redondeados */
+    width: 220px;
     z-index: 10;
+    padding: 10px 0; /* Espaciado interno */
     display: flex;
     flex-direction: column;
 }
 
 .dropdown li {
-    padding: 10px;
-    border-bottom: 1px solid #ddd;
+    padding: 10px 17px; /* Ajuste de espacio interno */
     color: white;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s; /* Transiciones suaves */
+    display: flex;
+    align-items: center; /* Alineación vertical centrada */
+    gap: 10px; /* Espacio entre el icono y el texto */
+    margin-bottom: 10px;
+    margin-right: 20px;
+    margin-top: 10px;
+}
+
+.dropdown li:hover {
+    background-color: #1de9b6; /* Fondo verde en hover */
+    color: #250e5d; /* Texto morado en hover */
+    border-radius: 5px; /* Bordes redondeados en hover */
+}
+
+/* Botones dentro del dropdown */
+.dropdown li button {
+    background: none;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    width: 100%;
+    text-align: left; /* Alineación del texto a la izquierda */
+    font-size: 14px;
+    display: flex; /* Asegura que el botón se comporte como flexbox */
+    align-items: center; /* Alineación vertical centrada */
+    gap: 10px; /* Espacio entre el icono y el texto */
+    margin: 0; /* Elimina márgenes adicionales */
+    padding: 0; /* Elimina rellenos adicionales */
+    min-width: 170px;
+}
+
+.dropdown li button:hover {
+    color: inherit;
 }
 
 .dropdown li:last-child {
     border-bottom: none;
-}
-
-.dropdown li button {
-    background: none;
-    border: none;
-    color: white;
-    cursor: pointer;
-    text-align: left;
-}
-
-.dropdown li button:hover {
-    background-color: #1de9b6;
-    color: #301466;
 }
 
 /* Hamburger Menu */
@@ -119,8 +172,8 @@
     display: none;
     flex-direction: column;
     justify-content: space-around;
-    width: 25px;
-    height: 20px;
+    width: 30px;
+    height: 30px;
     background: none;
     border: none;
     cursor: pointer;
@@ -129,9 +182,10 @@
 
 .hamburger .bar {
     width: 100%;
-    height: 3px;
+    height: 4px;
     background-color: white;
     border-radius: 2px;
+    transition: all 0.3s; /* Suaviza el cambio al abrir/cerrar */
 }
 
 .navigation.open {
@@ -148,31 +202,83 @@
         width: 100%;
         background-color: #301466;
         padding: 10px 0;
-        overflow-x: hidden; /* Prevenir el desbordamiento horizontal */
     }
 
     .navigation ul {
         flex-direction: column;
-        align-items: center; /* Centra los botones */
+        align-items: center;
     }
 
     .navigation ul li {
-        margin: 10px 0; /* Espaciado entre botones */
+        margin: 10px 0;
     }
 
     .hamburger {
         display: flex;
+        position: absolute;
+        top: 15px; /* Ajusta según el espaciado deseado */
+        right: 15px; /* Alinea al lado derecho */
     }
 }
 
-/* Ajusta el contenedor principal para evitar desbordamientos */
+/* General adjustments */
 body {
     margin: 0;
     padding: 0;
     overflow-x: hidden;
+    font-family: 'Arial', sans-serif;
 }
 
 .header {
     width: 100%;
-    box-sizing: border-box; /* Asegura que padding no cause desbordamientos */
+    box-sizing: border-box;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #301466;
+    color: white;
+}
+
+.icon {
+    width: 20px;
+    height: 20px;
+    margin-right: 5px;
+    color: white;
+    margin-bottom: -3px;
+    transition: color 0.3s ease; /* Transición suave para el cambio de color */
+}
+
+.icon-consultas
+{
+    width: 20px;
+    height: 20px;
+    margin-right: 2px;
+    color: white;
+    margin-bottom: -3px;
+    transition: color 0.3s ease; /* Transición suave para el cambio de color */
+}
+
+.icon-settings
+{
+    width: 30px;
+    height: 30px;
+    
+}
+.icon-help
+{
+    width: 20px;
+    height: 20px;
+    margin-bottom: -3px;
+    margin-right: 2px;
+    
+}
+
+.icon-circle
+{
+    width: 20px;
+    height: 20px;
+    margin-bottom: -3px;
+    margin-right: 2px;
+    
 }

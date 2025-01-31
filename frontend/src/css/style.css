@@ -63,7 +63,7 @@ textarea {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background: url('http://localhost:3000/images/fondo-logo7.png') repeat; /* Repite la imagen */
+  background: url('http://localhost:3000/images/fondo-logo18.png') repeat; /* Repite la imagen */
   background-size: 70px 70px; /* Incluye espacio entre repeticiones */
   width: 100%;
   flex-grow: 1;

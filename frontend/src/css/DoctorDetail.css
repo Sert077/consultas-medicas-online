@@ -77,6 +77,21 @@
     background-color: #f9f9f9;
 }
 
+.map-container {
+    flex: 1;
+    max-width: 720px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #f9f9f9;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
 h3{
     text-align: center;
 }
@@ -130,9 +145,35 @@ h3{
     animation: fadeIn 1.2s ease;
 }
 
+/* Ajustes generales para que los estilos sean responsivos */
+@media (max-width: 768px) {
+    .doctor-info-container {
+        flex-direction: column; /* Cambiar a disposición vertical */
+        align-items: center; /* Asegurar que los elementos estén centrados */
+    }
+
+    .doctor-image {
+        margin-right: 0; /* Eliminar el margen derecho en pantallas pequeñas */
+        margin-bottom: 15px; /* Añadir margen inferior para espacio */
+    }
+
+    .doctor-buttons {
+        flex-direction: column; /* Botones en una sola columna */
+        gap: 0px; /* Más espacio entre botones */
+        width: 100%; /* Asegurar que ocupen el ancho completo */
+    }
+
+    .doctor-biography-container,
+    .consultas-container {
+        max-width: 90%; /* Reducir el ancho en pantallas pequeñas */
+    }
+
+    .map-container {
+        max-width: 94.5%; /* Reducir el ancho en pantallas pequeñas */
+    }
+}
 
 /* Estilos para el modal */
-/* Fondo semitransparente para el modal */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -172,13 +213,35 @@ h3{
     animation: slideDown 0.3s ease; /* Aplicar animación */
 }
 
-/* Formulario del modal */
+/* Estilos responsivos para el formulario del modal */
 .modal-form {
     display: grid;
-    grid-template-columns: repeat(2, 1fr); /* Dos columnas iguales */
-    gap: 15px; /* Espaciado entre los campos */
-    align-items: center; /* Centra los elementos en el eje transversal */
+    grid-template-columns: repeat(2, 1fr); /* Dos columnas por defecto */
+    gap: 15px;
+    align-items: left;
     width: 100%;
+}
+
+/* Para hacer el formulario de una sola columna en pantallas pequeñas */
+@media (max-width: 768px) {
+    .modal-form {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .seleccion-info {
+        grid-column: span 1; /* Ajusta el cuadro de selección en una sola columna */
+        margin-bottom: 20px;
+    }
+
+    .horarios-container {
+        grid-column: span 1; /* Ajusta el cuadro de selección en una sola columna */    
+    }
+    
+    .modal-buttons-container-outside {
+        grid-column: span 1; /* Asegura que los botones ocupen una sola columna */
+    }
 }
 
 .modal-content h3 {
@@ -189,8 +252,7 @@ h3{
 
 /* Etiquetas del formulario */
 .modal-label,
-.modal-label-calendary,
-.modal-label-alergias {
+.modal-label-calendary {
     color: #301466;
     margin-bottom: 5px; /* Separación entre la etiqueta y el campo */
     text-align: left; /* Alinear texto a la izquierda */
@@ -222,6 +284,92 @@ h3{
     border-radius: 8px;
     margin-bottom: 8px;
 }
+
+/* Contenedor de horarios */
+.horarios-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    justify-content: center;
+    margin-top: 10px;
+  }
+  
+  /* Botón de horario */
+  .horario-button {
+    border: 1px solid #4e4ab7; /* Borde morado */
+    color: #4e4ab7; /* Texto morado */
+    background-color: white; /* Fondo blanco para resaltar el contraste */
+    padding: 10px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.horario-button:hover {
+    background-color: #4e4ab7; /* Morado al pasar el cursor */
+    color: white; /* Texto blanco al pasar el cursor */
+}
+  
+  /* Cuando está seleccionado */
+  .horario-button.selected {
+    background-color: #4e4ab7;
+    color: white;
+    font-weight: bold;
+  }
+  
+  /* Estilo del cuadro de selección */
+  .seleccion-info {
+    background-color: #4e4ab7;
+    border: 1px solid #ddd;
+    color: white;
+    padding: 0px;
+    margin-top: 5px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between; /* Espacia los elementos */
+    grid-column: span 2; /* Hace que ocupe ambas columnas */
+    align-items: center; /* Alinea verticalmente */
+}
+
+/* Contenedor del texto (Fecha y Hora) */
+.seleccion-texto {
+  text-align: left; /* Alinea el texto a la izquierda */
+  margin-bottom: -10px;
+  margin-top: -10px;
+  margin-left: 15px;
+}
+
+/* "Hora seleccionada" en negrita */
+.hora-seleccionada {
+    font-weight: bold;
+    margin-bottom: 0px; /* Elimina espacio extra debajo */
+  }
+  
+  /* Hora y fecha seleccionada */
+  .hora-detalle {
+    margin-top: 0px; /* Elimina espacio extra arriba */
+  }
+  
+  /* Botón de cancelar selección */
+  .button.cancelar-seleccion {
+    background-color: #cecece;
+    color: rgb(35, 35, 35);
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    margin-right: 15px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .button.cancelar-seleccion:hover {
+    background-color: #bcbcbc;
+  }
+  
 /* Separación entre tipo de consulta y hora */
 .input-field {
     width: 100%;
@@ -289,7 +437,7 @@ h3{
     align-items: center; /* Centrar verticalmente */
     gap: 10px; /* Espacio entre los botones */
     margin-top: 20px; /* Separación superior */
-    margin-bottom: -10px;
+    margin-bottom: -15px;
 }
 
 
@@ -310,16 +458,29 @@ h3{
 }
 
 /* Ajustar tamaño de los campos relacionados con alergias */
+.modal-label-alergias {
+    color: #301466;
+    margin-bottom: 5px; /* Separación entre la etiqueta y el campo */
+    text-align: left; /* Alinear texto a la izquierda */
+    width: 100%; /* Asegurar que ocupe todo el ancho del contenedor */
+    display: block; /* Evita comportamiento inline para un alineado correcto */
+}
+
 .alergias-input-field {
     display: flex;
-    gap: 5px; /* Reducir el espacio entre las opciones */
-    justify-content: start; /* Alinear a la izquierda */
-    width: 94%;
+    gap: 15px; /* Espacio entre los botones */
+    justify-content: start;
+    align-items: center; /* Asegura que los radios y los textos estén alineados verticalmente */
+}
+
+.alergias-input-field label {
+    display: flex;
+    align-items: center; /* Alinear verticalmente los radios y el texto */
+    gap: 5px; /* Espacio entre el radio y el texto */
 }
 
 .alergias-textarea {
     width: 95.5%; /* Reducir el ancho */
-    
     height: 60px; /* Ajustar la altura */
     padding: 6px; /* Reducir el padding interno */
     border: 1px solid #ddd; /* Mantener el estilo */
@@ -327,9 +488,9 @@ h3{
 }
 
 .radio-alergias {
-    margin-right: 5px; /* Espaciado pequeño entre el radio y el texto */
+    
+    margin: 0; /* Eliminar márgenes innecesarios */
 }
-
 
 /* Estilo del modal de confirmación */
 .confirmation-modal-overlay {
@@ -359,7 +520,7 @@ h3{
 
 .confirmation-modal-content button {
     padding: 10px 20px;
-    background-color: #4CAF50;
+    background-color: #6c63ff;
     border: none;
     color: white;
     font-size: 16px;
@@ -368,7 +529,7 @@ h3{
 }
 
 .confirmation-modal-content button:hover {
-    background-color: #45a049;
+    background-color: #4e4ab7;
 }
 
 @media (max-width: 600px) {
@@ -376,31 +537,6 @@ h3{
         max-width: 100%; /* Asegurar que el textarea no se salga del contenedor */
     }
 }
-
-/* Ajustes generales para que los estilos sean responsivos */
-@media (max-width: 768px) {
-    .doctor-info-container {
-        flex-direction: column; /* Cambiar a disposición vertical */
-        align-items: center; /* Asegurar que los elementos estén centrados */
-    }
-
-    .doctor-image {
-        margin-right: 0; /* Eliminar el margen derecho en pantallas pequeñas */
-        margin-bottom: 15px; /* Añadir margen inferior para espacio */
-    }
-
-    .doctor-buttons {
-        flex-direction: column; /* Botones en una sola columna */
-        gap: 15px; /* Más espacio entre botones */
-        width: 100%; /* Asegurar que ocupen el ancho completo */
-    }
-
-    .doctor-biography-container,
-    .consultas-container {
-        max-width: 90%; /* Reducir el ancho en pantallas pequeñas */
-    }
-}
-
 
 /* Confirmación modal responsivo */
 @media (max-width: 600px) {

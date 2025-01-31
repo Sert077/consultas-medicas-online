@@ -4,7 +4,7 @@ from .views import UserRegistrationView, login_user
 from . import views
 from .views import send_email
 from .views import get_chat_messages, get_doctor_by_chat, consulta_detail, user_detail, patient_profile
-from .views import VerifyEmailView, GenerarRecetaView
+from .views import VerifyEmailView, GenerarRecetaView, get_authenticated_doctor
 
 urlpatterns = [
     # Rutas comentadas, puedes descomentarlas si las necesitas
@@ -45,5 +45,6 @@ urlpatterns = [
     path('recetas/', GenerarRecetaView.as_view(), name='generar_receta'),
     path('historial-consultas/', views.historial_consultas, name='historial_consultas'),
     path('generar-reporte/', views.generar_reporte, name='generar_reporte'),
+    path('doctors/me/', get_authenticated_doctor, name='get_authenticated_doctor'),
 
 ]

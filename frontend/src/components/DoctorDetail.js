@@ -222,6 +222,20 @@ const DoctorDetail = () => {
                     </div>
                 </div>
             </div>
+
+            <div className="map-container">
+                    <h3>Ubicación del Consultorio</h3>
+                    <iframe
+                        title="map"
+                        src={`https://www.google.com/maps?q=${encodeURIComponent(doctor.address)}&output=embed`}
+                        width="100%"
+                        height="250"
+                        style={{ border: 0 }}
+                        allowFullScreen=""
+                        loading="lazy"
+                    ></iframe>
+                </div>
+                
             <div className="doctor-biography-container">
                 <h3>Biografía</h3>
                 <p>{doctor.biography}</p>
@@ -244,159 +258,178 @@ const DoctorDetail = () => {
 
            {/* Modal para reserva de consulta */}
            {showModal && (
-    <div className="modal-overlay" onClick={() => setShowModal(false)}>
-        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <h3>Reservar Consulta Médica</h3>
-            <form onSubmit={handleReserva} className="modal-form">
-                <div>
-                    <label htmlFor="fecha" className="modal-label-calendary">Fecha:</label>
-                    <DatePicker
-                        selected={fecha}
-                        onChange={(date) => setFecha(date)}
-                        minDate={new Date()}
-                        filterDate={filterUnavailableDays}
-                        required
-                        inline
-                        className="calendar-picker"
-                    />
-                </div>
+            <div className="modal-overlay" onClick={() => setShowModal(false)}>
+                <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                    <h3>Reservar Consulta Médica</h3>
+                    <form onSubmit={handleReserva} className="modal-form">
+                        <div className="calendar-picker-container">
+                            <label htmlFor="fecha" className="modal-label-calendary">Fecha:</label>
+                            <DatePicker
+                                selected={fecha}
+                                onChange={(date) => setFecha(date)}
+                                minDate={new Date()}
+                                filterDate={filterUnavailableDays}
+                                required
+                                inline
+                                className="calendar-picker"
+                            />
+                        </div>
 
-                <div>
-                    <label htmlFor="hora" className="modal-label">Hora:</label>
-                    <select
-                        id="hora"
-                        value={hora}
-                        onChange={(e) => setHora(e.target.value)}
-                        required
-                        className="input-field"
-                    >
-                        <option value="">Selecciona una hora</option>
-                        {getAvailableTimeSlots().map(slot => (
-                            <option key={slot} value={slot}>{slot}</option>
-                        ))}
-                    </select>
-                </div>
+                        <div>
+                        <label className="modal-label">Hora:</label>
+                        <div className="horarios-container">
+                            {getAvailableTimeSlots().map((slot) => (
+                            <button
+                                type="button"
+                                key={slot}
+                                className={`horario-button ${hora === slot ? "selected" : ""}`}
+                                onClick={() => setHora(slot)}
+                            >
+                                {slot}
+                            </button>
+                            ))}
+                        </div>
+                        </div>
 
-                <div>
-                    <label htmlFor="tipo_consulta" className="modal-label">Tipo de consulta:</label>
-                    <select
-                        id="tipo_consulta"
-                        value={tipoConsulta}
-                        onChange={(e) => setTipoConsulta(e.target.value)}
-                        required
-                        className="input-field"                            >
-                            <option value="">Selecciona el tipo de consulta</option>
-                            <option value="presencial">Presencial</option>
-                            <option value="virtual">Virtual</option>
-                    </select>
-                    </div>
+                        {/* Mostrar la fecha y hora seleccionada */}
+                        {fecha && hora && (
+                        <div className="seleccion-info">
+                            <div className="seleccion-texto">
+                            <p className="hora-seleccionada">
+                                <strong>📅 Hora seleccionada</strong>
+                            </p>
+                            <p className="hora-detalle">{hora}, {fecha.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                            </div>
+                            <button
+                            type="button"
+                            className="button cancelar-seleccion"
+                            onClick={() => { setFecha(null); setHora(""); }}
+                            >
+                            Cancelar selección
+                            </button>
+                        </div>
+                        )}
 
-                <div>
-                    <label htmlFor="genero" className="modal-label">Género:</label>
-                    <select
-                        id="genero"
-                        value={genero}
-                        onChange={(e) => setGenero(e.target.value)}
-                        required
-                        className="input-field"
-                    >
-                        <option value="">Selecciona su género</option>
-                        <option value="M">Masculino</option>
-                        <option value="F">Femenino</option>
-                        <option value="Otro">Otro</option>
-                    </select>
-                </div>
+                        <div>
+                            <label htmlFor="tipo_consulta" className="modal-label">Tipo de consulta:</label>
+                            <select
+                                id="tipo_consulta"
+                                value={tipoConsulta}
+                                onChange={(e) => setTipoConsulta(e.target.value)}
+                                required
+                                className="input-field"                            >
+                                    <option value="">Selecciona el tipo de consulta</option>
+                                    <option value="presencial">Presencial</option>
+                                    <option value="virtual">Virtual</option>
+                            </select>
+                            </div>
 
-                <div>
-                    <label htmlFor="tipo-sangre" className="modal-label">Tipo de sangre:</label>
-                    <select
-                        id="tipo-sangre"
-                        value={tipoSangre}
-                        onChange={(e) => setTipoSangre(e.target.value)}
-                        required
-                        className="input-field"
-                    >
-                        <option value="">Seleccione su tipo de sangre</option>
-                        <option value="O+">O+</option>
-                        <option value="O-">O-</option>
-                        <option value="A+">A+</option>
-                        <option value="A-">A-</option>
-                        <option value="B+">B+</option>
-                        <option value="B-">B-</option>
-                        <option value="AB+">AB+</option>
-                        <option value="AB-">AB-</option>
-                    </select>
-                </div>
+                        <div>
+                            <label htmlFor="genero" className="modal-label">Género:</label>
+                            <select
+                                id="genero"
+                                value={genero}
+                                onChange={(e) => setGenero(e.target.value)}
+                                required
+                                className="input-field"
+                            >
+                                <option value="">Selecciona su género</option>
+                                <option value="M">Masculino</option>
+                                <option value="F">Femenino</option>
+                                <option value="Otro">Otro</option>
+                            </select>
+                        </div>
 
-                <div>
-    <label htmlFor="tiene-alergias" className="modal-label-alergias">¿Tiene alergias?</label>
-    <div className="input-field alergias-input-field">
-        <label>
-            <input
-                type="radio"
-                name="tiene-alergias"
-                value="Sí"
-                checked={tieneAlergias === true}
-                onChange={() => setTieneAlergias(true)}
-                className="radio-alergias"
-            />
-            Sí
-        </label>
-        <label>
-            <input
-                type="radio"
-                name="tiene-alergias"
-                value="No"
-                checked={tieneAlergias === false}
-                onChange={() => {
-                    setTieneAlergias(false);
-                    setDescripcionAlergia('');
-                }}
-                className="radio-alergias"
-            />
-            No
-        </label>
-    </div>
+                        <div>
+                            <label htmlFor="tipo-sangre" className="modal-label">Tipo de sangre:</label>
+                            <select
+                                id="tipo-sangre"
+                                value={tipoSangre}
+                                onChange={(e) => setTipoSangre(e.target.value)}
+                                required
+                                className="input-field"
+                            >
+                                <option value="">Seleccione su tipo de sangre</option>
+                                <option value="O+">O+</option>
+                                <option value="O-">O-</option>
+                                <option value="A+">A+</option>
+                                <option value="A-">A-</option>
+                                <option value="B+">B+</option>
+                                <option value="B-">B-</option>
+                                <option value="AB+">AB+</option>
+                                <option value="AB-">AB-</option>
+                            </select>
+                        </div>
 
-    {tieneAlergias && (
-        <div>
-            <label htmlFor="descripcion-alergia" className="modal-label-alergias">Describa sus alergias:</label>
-            <textarea
-                id="descripcion-alergia"
-                value={descripcionAlergia}
-                onChange={(e) => setDescripcionAlergia(e.target.value)}
-                className="input-field alergias-textarea"
-                placeholder="Describa sus alergias"
-                required
-            ></textarea>
-        </div>
-    )}
-</div>
+                        <div>
+                            <label htmlFor="tiene-alergias" className="modal-label-alergias">¿Tiene alergias?</label>
+                            <div className="input-field alergias-input-field">
+                                <label>
+                                    <input
+                                        type="radio"
+                                        name="tiene-alergias"
+                                        value="Sí"
+                                        checked={tieneAlergias === true}
+                                        onChange={() => setTieneAlergias(true)}
+                                        className="radio-alergias"
+                                    />
+                                    Sí
+                                </label>
+                                <label>
+                                    <input
+                                        type="radio"
+                                        name="tiene-alergias"
+                                        value="No"
+                                        checked={tieneAlergias === false}
+                                        onChange={() => {
+                                            setTieneAlergias(false);
+                                            setDescripcionAlergia('');
+                                        }}
+                                        className="radio-alergias"
+                                    />
+                                    No
+                                </label>
+                            </div>
 
-                <div>
-                    <label htmlFor="motivo-consulta" className="modal-label-motivo">Motivo de consulta:</label>
-                    <input
-                        id="motivo-consulta"
-                        value={motivoConsulta}
-                        onChange={(e) => setMotivoConsulta(e.target.value)}
-                        required
-                        className="input-field-motivo"
-                        placeholder="Escriba el motivo de la consulta"
-                    />
-                </div>
+                            {tieneAlergias && (
+                                <div>
+                                    <label htmlFor="descripcion-alergia" className="modal-label-alergias">Describa sus alergias:</label>
+                                    <textarea
+                                        id="descripcion-alergia"
+                                        value={descripcionAlergia}
+                                        onChange={(e) => setDescripcionAlergia(e.target.value)}
+                                        className="input-field alergias-textarea"
+                                        placeholder="Describa sus alergias"
+                                        required
+                                    ></textarea>
+                                </div>
+                            )}
+                        </div>
 
-                {/* Contenedor para los botones */}
-    <div className="modal-buttons-container-outside">
-        <button type="submit" className="button reservar">Reservar</button>
-        <button type="button" className="button close-modal" onClick={() => setShowModal(false)}>Cerrar</button>
-    </div>
-            </form>
-        </div>
-    </div>
-)}
+                        <div>
+                            <label htmlFor="motivo-consulta" className="modal-label-motivo">Motivo de consulta:</label>
+                            <input
+                                id="motivo-consulta"
+                                value={motivoConsulta}
+                                onChange={(e) => setMotivoConsulta(e.target.value)}
+                                required
+                                className="input-field-motivo"
+                                placeholder="Escriba el motivo de la consulta"
+                            />
+                        </div>
 
- {/* Modal de confirmación */}
- {showConfirmationModal && (
+                        {/* Contenedor para los botones */}
+                        <div className="modal-buttons-container-outside">
+                            <button type="submit" className="button reservar">Reservar</button>
+                            <button type="button" className="button close-modal" onClick={() => setShowModal(false)}>Cerrar</button>
+                        </div>
+                                </form>
+                            </div>
+                        </div>
+                    )}
+
+            {/* Modal de confirmación */}
+            {showConfirmationModal && (
                 <div className="modal-overlay" onClick={() => setShowConfirmationModal(false)}>
                     <div className="modal-content confirmation-modal" onClick={(e) => e.stopPropagation()}>
                         <h3>¡Consulta Reservada Correctamente!</h3>

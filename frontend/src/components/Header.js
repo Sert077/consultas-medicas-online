@@ -1,7 +1,22 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import {
+    IconHome,
+    IconUser,
+    IconUsers,
+    IconStethoscope,
+    IconSettings,
+    IconLogout,
+    IconMenu,
+    IconHelpCircle,
+    IconCirclePlus,
+    IconChartBar,
+    IconChartLine,
+    IconFileText,
+    IconHistory    
+} from "@tabler/icons-react";
 import "../css/Header.css";
-
+import { FaBars } from "react-icons/fa";
 const Header = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [username, setUsername] = useState("");
@@ -9,11 +24,14 @@ const Header = () => {
     const [showDropdown, setShowDropdown] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false); // Estado para el menú hamburguesa
     const navigate = useNavigate();
+    const [profilePicture, setProfilePicture] = useState('/images/icon-user.png'); // Imagen por defecto
+    const dropdownRef = useRef(null);
 
     useEffect(() => {
         const token = localStorage.getItem("token");
         const user = localStorage.getItem("username");
         const superUser = localStorage.getItem("is_superuser");
+        const userType = localStorage.getItem("tipo_usuario");
 
         if (token && user) {
             setIsLoggedIn(true);
@@ -28,37 +46,80 @@ const Header = () => {
     
         // Escuchar cambios
         window.addEventListener('userUpdate', updateHeader);
+
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setShowDropdown(false);
+            }
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
     
         return () => {
             window.removeEventListener('userUpdate', updateHeader);
+            document.removeEventListener("mousedown", handleClickOutside);
         };
 
 
     }, [isLoggedIn]);
 
     const handleLogout = () => {
-        localStorage.removeItem("token");
-        localStorage.removeItem("username");
-        localStorage.removeItem("is_superuser");
-        localStorage.removeItem("birthdate");
-        localStorage.removeItem("email");
-        localStorage.removeItem("first_name");
-        localStorage.removeItem("last_name");
-        localStorage.removeItem("paciente_id");
-        localStorage.removeItem("tipo_usuario");
-
+        localStorage.clear();
         setIsLoggedIn(false);
         setIsSuperUser(false);
         navigate("/login");
     };
 
     const toggleDropdown = () => {
-        setShowDropdown(!showDropdown);
+        setShowDropdown((prev) => !prev);
     };
 
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen); // Alternar el estado del menú hamburguesa
     };
+
+    useEffect(() => {
+        const fetchProfilePicture = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                const userType = localStorage.getItem('tipo_usuario');
+    
+                if (!token || !userType) return;
+    
+                let apiUrl = '';
+                if (userType === 'paciente') {
+                    apiUrl = 'http://localhost:8000/api/patient/profile/';
+                } else if (userType === 'medico') {
+                    apiUrl = 'http://localhost:8000/api/doctors/me/';
+                }
+    
+                const response = await fetch(apiUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Token ${token}`,
+                    },
+                });
+    
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log("Datos obtenidos:", data);
+                    if (userType === 'paciente' && data.perfil?.user_picture) {
+                        setProfilePicture(`http://localhost:8000${data.perfil.user_picture}`);
+                    } else if (userType === 'medico' && data.profile_picture) {
+                        setProfilePicture(`http://localhost:8000${data.profile_picture}`);
+                    }
+                } else {
+                    console.error('Error al obtener la foto de perfil');
+                }
+            } catch (error) {
+                console.error('Error de red al obtener la foto de perfil:', error);
+            }
+        };
+    
+        fetchProfilePicture();
+    }, []);
+      
 
     return (
         <header className="header">
@@ -69,57 +130,81 @@ const Header = () => {
                     <span className="subtitle">Consultas médicas online</span>
                 </div>
             </div>
-
-            <button className="hamburger" onClick={toggleMenu}>
-                {/* Icono de menú hamburguesa */}
-                <span className="bar"></span>
-                <span className="bar"></span>
-                <span className="bar"></span>
+    
+            <button className="hamburger" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+                <FaBars size={24} className="icon-menu"/>
             </button>
-
+    
             <nav className={`navigation ${isMenuOpen ? "open" : ""}`}>
                 <ul>
                     <li>
-                        <Link to="/">Home</Link>
+                        <Link to="/">
+                            <IconHome className="icon" />
+                            Home
+                        </Link>
                     </li>
                     <li>
-                        <Link to="/doctores">Médicos</Link>
+                        <Link to="/doctores">
+                            <IconStethoscope className="icon" />
+                            Médicos
+                        </Link>
                     </li>
-
+    
                     {isLoggedIn && (
                         <li>
-                            <Link to="/misreservas">Mis Consultas</Link>
+                            <Link to="/misreservas">
+                                <IconUser className="icon-consultas" />
+                                Mis Consultas
+                            </Link>
                         </li>
                     )}
-
+    
                     <li>
                         <Link to="#!" className="disabled">
+                            <IconHelpCircle className="icon-help" />
                             Conoce más!
                         </Link>
                     </li>
-
+    
                     {isSuperUser && (
                         <li>
-                            <Link to="/registerdoctor">Registrar Médico</Link>
+                            <Link to="/registerdoctor">
+                                <IconCirclePlus className="icon-circle" />
+                                Añadir Médico
+                            </Link>
                         </li>
                     )}
 
+                    {isSuperUser && (
+                        <li>
+                            <Link to="/historial-consultas">
+                                <IconChartBar className="icon-circle" />
+                                Historial
+                            </Link>
+                        </li>
+                    )}
                     {isLoggedIn ? (
-                        <li className="user-menu">
-                            <span onClick={toggleDropdown}>
-                                {username}{" "}
+                        <li className="user-menu" ref={dropdownRef}>
+                            <div onClick={toggleDropdown} className="user-info">
+                                <span className="username">{username}</span>
                                 <img
-                                    src="/images/icon-user.png"
-                                    alt="user"
+                                    src={profilePicture}
+                                    alt="Foto de perfil"
+                                    onError={(e) => (e.target.src = "/images/icon-user.png")}
+                                    className="profile-picture"
                                 />
-                            </span>
+                            </div>
                             {showDropdown && (
                                 <ul className="dropdown">
                                     <li>
-                                    <button onClick={() => navigate('/edit-patient')}>Configuración de la cuenta</button>
+                                        <button onClick={() => navigate("/edit-patient")}>
+                                            <IconSettings className="icon-settings" />
+                                            Configuración de la cuenta
+                                        </button>
                                     </li>
                                     <li>
                                         <button onClick={handleLogout}>
+                                            <IconLogout className="icon-logout" />
                                             Cerrar sesión
                                         </button>
                                     </li>
@@ -128,7 +213,10 @@ const Header = () => {
                         </li>
                     ) : (
                         <li>
-                            <Link to="/login">Iniciar sesión</Link>
+                            <Link to="/login">
+                                <IconUser className="icon" />
+                                Iniciar sesión
+                            </Link>
                         </li>
                     )}
                 </ul>

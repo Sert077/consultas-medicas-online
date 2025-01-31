@@ -762,3 +762,12 @@ def generar_reporte(request):
     response = HttpResponse(pdf_output, content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="reporte_consultas.pdf"'
     return response
+
+
+@api_view(['GET'])
+def get_authenticated_doctor(request):
+    if request.user.is_authenticated and hasattr(request.user, 'doctor'):
+        doctor = request.user.doctor
+        serializer = DoctorSerializer(doctor)
+        return Response(serializer.data)
+    return Response({'detail': 'Usuario no autorizado'}, status=401)
