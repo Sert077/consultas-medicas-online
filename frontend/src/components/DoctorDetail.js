@@ -262,7 +262,7 @@ const DoctorDetail = () => {
                 <div className="modal-content" onClick={(e) => e.stopPropagation()}>
                     <h3>Reservar Consulta Médica</h3>
                     <form onSubmit={handleReserva} className="modal-form">
-                        <div>
+                        <div className="calendar-picker-container">
                             <label htmlFor="fecha" className="modal-label-calendary">Fecha:</label>
                             <DatePicker
                                 selected={fecha}
@@ -276,42 +276,39 @@ const DoctorDetail = () => {
                         </div>
 
                         <div>
-          <label className="modal-label">Hora:</label>
-          <div className="horarios-container">
-            {getAvailableTimeSlots().map((slot) => (
-              <button
-                type="button"
-                key={slot}
-                className={`horario-button ${hora === slot ? "selected" : ""}`}
-                onClick={() => setHora(slot)}
-              >
-                {slot}
-              </button>
-            ))}
-          </div>
-        </div>
-
+                        <label className="modal-label">Hora:</label>
+                        <div className="horarios-container">
+                            {getAvailableTimeSlots().map((slot) => (
+                            <button
+                                type="button"
+                                key={slot}
+                                className={`horario-button ${hora === slot ? "selected" : ""}`}
+                                onClick={() => setHora(slot)}
+                            >
+                                {slot}
+                            </button>
+                            ))}
+                        </div>
+                        </div>
 
                         {/* Mostrar la fecha y hora seleccionada */}
-{fecha && hora && (
-  <div className="seleccion-info">
-    <div className="seleccion-texto">
-      <p className="hora-seleccionada">
-        <strong>📅 Hora seleccionada</strong>
-      </p>
-      <p className="hora-detalle">{hora}, {fecha.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
-    </div>
-    <button
-      type="button"
-      className="button cancelar-seleccion"
-      onClick={() => { setFecha(null); setHora(""); }}
-    >
-      Cancelar selección
-    </button>
-  </div>
-)}
-
-
+                        {fecha && hora && (
+                        <div className="seleccion-info">
+                            <div className="seleccion-texto">
+                            <p className="hora-seleccionada">
+                                <strong>📅 Hora seleccionada</strong>
+                            </p>
+                            <p className="hora-detalle">{hora}, {fecha.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                            </div>
+                            <button
+                            type="button"
+                            className="button cancelar-seleccion"
+                            onClick={() => { setFecha(null); setHora(""); }}
+                            >
+                            Cancelar selección
+                            </button>
+                        </div>
+                        )}
 
                         <div>
                             <label htmlFor="tipo_consulta" className="modal-label">Tipo de consulta:</label>

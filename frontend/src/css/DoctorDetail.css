@@ -174,7 +174,6 @@ h3{
 }
 
 /* Estilos para el modal */
-/* Fondo semitransparente para el modal */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -214,13 +213,35 @@ h3{
     animation: slideDown 0.3s ease; /* Aplicar animación */
 }
 
-/* Formulario del modal */
+/* Estilos responsivos para el formulario del modal */
 .modal-form {
     display: grid;
-    grid-template-columns: repeat(2, 1fr); /* Dos columnas iguales */
-    gap: 15px; /* Espaciado entre los campos */
-    align-items: center; /* Centra los elementos en el eje transversal */
+    grid-template-columns: repeat(2, 1fr); /* Dos columnas por defecto */
+    gap: 15px;
+    align-items: left;
     width: 100%;
+}
+
+/* Para hacer el formulario de una sola columna en pantallas pequeñas */
+@media (max-width: 768px) {
+    .modal-form {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .seleccion-info {
+        grid-column: span 1; /* Ajusta el cuadro de selección en una sola columna */
+        margin-bottom: 20px;
+    }
+
+    .horarios-container {
+        grid-column: span 1; /* Ajusta el cuadro de selección en una sola columna */    
+    }
+    
+    .modal-buttons-container-outside {
+        grid-column: span 1; /* Asegura que los botones ocupen una sola columna */
+    }
 }
 
 .modal-content h3 {
@@ -231,8 +252,7 @@ h3{
 
 /* Etiquetas del formulario */
 .modal-label,
-.modal-label-calendary,
-.modal-label-alergias {
+.modal-label-calendary {
     color: #301466;
     margin-bottom: 5px; /* Separación entre la etiqueta y el campo */
     text-align: left; /* Alinear texto a la izquierda */
@@ -438,16 +458,29 @@ h3{
 }
 
 /* Ajustar tamaño de los campos relacionados con alergias */
+.modal-label-alergias {
+    color: #301466;
+    margin-bottom: 5px; /* Separación entre la etiqueta y el campo */
+    text-align: left; /* Alinear texto a la izquierda */
+    width: 100%; /* Asegurar que ocupe todo el ancho del contenedor */
+    display: block; /* Evita comportamiento inline para un alineado correcto */
+}
+
 .alergias-input-field {
     display: flex;
-    gap: 5px; /* Reducir el espacio entre las opciones */
-    justify-content: start; /* Alinear a la izquierda */
-    width: 94%;
+    gap: 15px; /* Espacio entre los botones */
+    justify-content: start;
+    align-items: center; /* Asegura que los radios y los textos estén alineados verticalmente */
+}
+
+.alergias-input-field label {
+    display: flex;
+    align-items: center; /* Alinear verticalmente los radios y el texto */
+    gap: 5px; /* Espacio entre el radio y el texto */
 }
 
 .alergias-textarea {
     width: 95.5%; /* Reducir el ancho */
-    
     height: 60px; /* Ajustar la altura */
     padding: 6px; /* Reducir el padding interno */
     border: 1px solid #ddd; /* Mantener el estilo */
@@ -455,7 +488,8 @@ h3{
 }
 
 .radio-alergias {
-    margin-right: 5px; /* Espaciado pequeño entre el radio y el texto */
+    
+    margin: 0; /* Eliminar márgenes innecesarios */
 }
 
 /* Estilo del modal de confirmación */

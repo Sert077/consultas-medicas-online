@@ -39,7 +39,7 @@ import Chat from './components/Chat';
 import VerifyEmail from './components/VerifyEmail';
 import EditPatient from './components/EditPatient';
 import HistorialConsultas from './components/HistorialConsultas';
-
+import Chatbot from './components/Chatbot';
 function App() {
     return (
         <div className="App">
@@ -61,6 +61,7 @@ function App() {
                     <Route path="/historial-consultas" element={<HistorialConsultas />} />
                 </Routes>
                 <Footer />
+                <Chatbot /> {/* Agregar chatbot debajo del footer */}
             </Router>
         </div>
     );
