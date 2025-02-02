@@ -39,7 +39,7 @@ import Chat from './components/Chat';
 import VerifyEmail from './components/VerifyEmail';
 import EditPatient from './components/EditPatient';
 import HistorialConsultas from './components/HistorialConsultas';
-
+import Chatbot from './components/Chatbot';
 function App() {
     return (
         <div className="App">
@@ -49,7 +49,7 @@ function App() {
                     <Route path="/" element={<Home />} />
                     <Route path="/registerdoctor" element={<RegisterDoctor />} />
                     <Route path="/doctores" element={<Doctores />} /> 
-                    <Route path="/doctores/:id" element={<DoctorDetail />} /> {/* Nueva ruta */}
+                    <Route path="/doctores/:id" element={<DoctorDetail />} /> {/* Detalles de doctor */}
                     <Route path="/register" element={<Register />} />
                     <Route path="/login" element={<Login />} />
                     <Route path="/send-email" element={<EmailForm />} />
@@ -61,14 +61,10 @@ function App() {
                     <Route path="/historial-consultas" element={<HistorialConsultas />} />
                 </Routes>
                 <Footer />
+                <Chatbot /> {/* Agregar chatbot debajo del footer */}
             </Router>
         </div>
     );
 }
 
 export default App;
-
-
-
-
-
