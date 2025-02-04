@@ -156,3 +156,30 @@
         visibility: hidden;
     }
 }
+
+.loading-slide {
+    display: flex;
+    gap: 4px;
+}
+
+.loading-slide span {
+    width: 4px;
+    height: 4px;
+    background-color: #301466;
+    border-radius: 50%;
+    animation: slide 0.6s infinite ease-in-out alternate;
+}
+
+.loading-slide span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.loading-slide span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes slide {
+    from { transform: translateY(0); }
+    to { transform: translateY(-8px); }
+}
+
