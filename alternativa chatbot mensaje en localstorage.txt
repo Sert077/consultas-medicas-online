@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
 import "../css/Chatbot.css";
@@ -6,31 +6,29 @@ import "../css/Chatbot.css";
 const Chatbot = () => {
     const location = useLocation();
     const [isOpen, setIsOpen] = useState(false);
-    const [messages, setMessages] = useState([
-        { sender: "bot", text: "¡Hola! Soy el asistente virtual de MediTest. ¿En qué puedo ayudarte hoy?" }
-    ]);
+    const [messages, setMessages] = useState([{ sender: "bot", text: "¡Hola! ¿En qué puedo ayudarte?" }]);
     const [input, setInput] = useState("");
     const [loading, setLoading] = useState(false);
-    const [showHint, setShowHint] = useState(true);
-    const messagesEndRef = useRef(null);
-
-    // Scroll automático
-    const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    };
-
-    useEffect(() => {
-        scrollToBottom();
-    }, [messages, loading]);
+    const [showHint, setShowHint] = useState(false);
 
     useEffect(() => {
         if (location.pathname === "/doctores") {
-            setShowHint(true);
-            const timer = setTimeout(() => setShowHint(false), 15000);
-            return () => clearTimeout(timer);
+            const hintShown = localStorage.getItem("chatbotHintShown");
+
+            if (!hintShown) {
+                setShowHint(true);
+                localStorage.setItem("chatbotHintShown", "true");
+
+                const timer = setTimeout(() => {
+                    setShowHint(false);
+                }, 15000); // 15 segundos
+
+                return () => clearTimeout(timer);
+            }
         }
     }, [location.pathname]);
 
+    // Ocultar chatbot en Home, Login, Registro, Chat y Detalles de doctor
     if (
         location.pathname === "/" || 
         location.pathname === "/login" || 
@@ -41,6 +39,7 @@ const Chatbot = () => {
         return null;
     }
 
+    // Función para enviar mensaje a Gemini
     const handleSendMessage = async () => {
         if (!input.trim()) return;
     
@@ -50,30 +49,11 @@ const Chatbot = () => {
         setLoading(true);
     
         try {
-            // Instrucción personalizada según la ruta actual
-            let instruction = "Eres un asistente virtual de MediTest, una plataforma para consultas médicas online. " +
-                "Siempre recomienda consultar con un médico de MediTest o, si no es posible, acudir a un médico presencial. " +
-                "Nunca proporciones diagnósticos médicos exactos ni recetas. ";
-    
-            if (location.pathname === "/doctores") {
-                instruction += "Actualmente estás en la sección de doctores, por lo que si un usuario pregunta por un problema de salud, " +
-                    "recomienda consultar directamente con uno de los médicos disponibles en la lista. " +
-                    "Si es posible, sugiere que haga clic en 'Más información' para ver los detalles del médico.";
-            }
-    
-            // Historial de la conversación
-            const conversationHistory = newMessages.map(msg => ({
-                role: msg.sender === "user" ? "user" : "model",
-                parts: [{ text: msg.text }]
-            }));
-    
             const response = await axios.post(
                 "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent",
                 {
                     contents: [
-                        { role: "user", parts: [{ text: instruction }] }, // Instrucción para el asistente
-                        ...conversationHistory,                           // Historial de la conversación
-                        { role: "user", parts: [{ text: input }] }        // Nuevo mensaje del usuario
+                        { role: "user", parts: [{ text: input }] }
                     ]
                 },
                 {
@@ -84,22 +64,15 @@ const Chatbot = () => {
     
             const botResponse = response.data.candidates[0].content.parts[0].text;
     
-            setMessages((prevMessages) => [...prevMessages, { sender: "bot", text: botResponse }]);
+            setMessages([...newMessages, { sender: "bot", text: botResponse }]);
         } catch (error) {
             console.log("Error al obtener respuesta del chatbot:", error.response ? error.response.data : error);
-            setMessages((prevMessages) => [...prevMessages, { sender: "bot", text: "Lo siento, ocurrió un error. Intenta nuevamente." }]);
+            setMessages([...newMessages, { sender: "bot", text: "Lo siento, ocurrió un error. Intenta nuevamente." }]);
         } finally {
             setLoading(false);
         }
-    };        
-
-    const handleKeyDown = (e) => {
-        if (e.key === "Enter" && !e.shiftKey) {
-            e.preventDefault();
-            handleSendMessage();
-        }
-    };
-
+    };    
+    
     return (
         <div className="chatbot-container">
             {showHint && (
@@ -123,23 +96,13 @@ const Chatbot = () => {
                                 {msg.text}
                             </div>
                         ))}
-                        {loading && (
-    <div className="chatbot-message bot">
-        <div className="loading-slide">
-            <span></span><span></span><span></span>
-        </div>
-    </div>
-)}
-
-                        <div ref={messagesEndRef} /> 
+                        {loading && <div className="chatbot-message bot">...</div>}
                     </div>
-
                     <div className="chatbot-input">
                         <input
                             type="text"
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
-                            onKeyDown={handleKeyDown}
                             placeholder="Escribe un mensaje..."
                         />
                         <button onClick={handleSendMessage} disabled={loading}>

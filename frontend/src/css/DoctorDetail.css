@@ -471,7 +471,11 @@ h3{
     gap: 15px; /* Espacio entre los botones */
     justify-content: start;
     align-items: center; /* Asegura que los radios y los textos estén alineados verticalmente */
+    width: 94.5%; /* Asegura que ocupe todo el ancho disponible */
+    font-size: 15px;
+    border: none; /* Elimina cualquier borde */
 }
+
 
 .alergias-input-field label {
     display: flex;
@@ -488,7 +492,6 @@ h3{
 }
 
 .radio-alergias {
-    
     margin: 0; /* Eliminar márgenes innecesarios */
 }
 
@@ -518,7 +521,7 @@ h3{
     margin-bottom: 20px;
 }
 
-.confirmation-modal-content button {
+button.confirmation-modal-content  {
     padding: 10px 20px;
     background-color: #6c63ff;
     border: none;
@@ -526,6 +529,7 @@ h3{
     font-size: 16px;
     cursor: pointer;
     border-radius: 4px;
+    margin-bottom: auto;
 }
 
 .confirmation-modal-content button:hover {

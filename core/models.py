@@ -50,7 +50,9 @@ class Consulta(models.Model):
         choices=[('presencial', 'Presencial'), ('virtual', 'Virtual')],
         default='virtual'
     )
-
+    embarazo = models.BooleanField(null=True, blank=True)
+    archivo_pdf = models.FileField(upload_to='profile_pictures/pdf_adjunt_consultas/', null=True, blank=True)
+    
     def __str__(self):
         return f"Consulta con {self.medico} el {self.fecha} a las {self.hora}"
     

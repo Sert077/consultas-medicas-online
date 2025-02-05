@@ -68,7 +68,7 @@ const MisReservas = () => {
 
     return (
         <div className="reservas-container">
-            <h2>Consultas</h2>
+            <h2>Consultas médicas</h2>
             {reservas.length === 0 ? (
                 <p>No tienes consultas reservadas.</p>
             ) : (
