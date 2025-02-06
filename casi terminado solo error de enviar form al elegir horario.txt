@@ -24,6 +24,7 @@ const DoctorDetail = () => {
     const [fechaError, setFechaError] = useState('');
     const [horaError, setHoraError] = useState('');
     const [reservaError, setReservaError] = useState('');
+    const [selectedHora, setSelectedHora] = useState('');
 
     useEffect(() => {
         fetch(`http://localhost:8000/api/doctores/${id}/`)
@@ -46,11 +47,7 @@ const DoctorDetail = () => {
     const filterUnavailableDays = (date) => {
         return !isDayFullyBooked(date);
     };
-
-    const isAvailable = (fecha, hora) => {
-        return !consultas.some(consulta => consulta.fecha === fecha && consulta.hora === hora);
-    };
-
+    
     const handleReserva = (e) => {
         e.preventDefault();
     
@@ -173,7 +170,7 @@ const DoctorDetail = () => {
     };    
 
     const getAvailableTimeSlots = () => {
-        if (!doctor || !doctor.start_time || !doctor.end_time || !fecha) return [];
+        if (!doctor || !doctor.start_time || !doctor.end_time) return [];
     
         const startHour = parseInt(doctor.start_time.split(':')[0]);
         const endHour = parseInt(doctor.end_time.split(':')[0]);
@@ -184,16 +181,27 @@ const DoctorDetail = () => {
             allTimeSlots.push(formattedHour);
         }
     
-        // Filtrar horarios ocupados en la fecha seleccionada
-        const fechaSeleccionada = fecha.toISOString().split('T')[0]; // Formato YYYY-MM-DD
+        if (!fecha) {
+            // Si no se ha seleccionado una fecha, mostrar solo los horarios pero deshabilitados (Opción 1)
+            return allTimeSlots.map(hora => ({ hora, disponible: false }));
+        }
+    
+        const fechaSeleccionada = fecha.toISOString().split('T')[0];
         const horariosOcupados = consultas
             .filter(consulta => consulta.fecha === fechaSeleccionada)
-            .map(consulta => consulta.hora.substring(0, 5)); // Convertir "12:00:00.000000" -> "12:00"
+            .map(consulta => consulta.hora.substring(0, 5));
     
-        return allTimeSlots.filter(hora => !horariosOcupados.includes(hora));
+        return allTimeSlots.map(hora => ({
+            hora,
+            disponible: !horariosOcupados.includes(hora),
+        }));
     };
     
-        
+    const handleCancelDateSelection = () => {
+        setFecha(null);  // Se borra la fecha
+        setHora('');     // Se borra la hora
+        setSelectedHora(''); // Se borra la hora seleccionada
+    };
 
     if (!doctor) {
         return <div>Loading...</div>;
@@ -233,8 +241,12 @@ const DoctorDetail = () => {
         const [hours, minutes] = time.split(':');
         // Devuelve solo las horas y los minutos
         return `${hours}:${minutes}`;
-    }    
-
+    }   
+    const handleHoraSelect = (hora) => {
+        setHora(hora);
+        setSelectedHora(hora); // Cambia el estado de la hora seleccionada
+    };
+    
     return (
         <div className="doctor-detail-container">
             <div className="doctor-info-container">
@@ -319,30 +331,25 @@ const DoctorDetail = () => {
                     <div>
                         <label className="modal-label">Hora:</label>
                         <div className="horarios-container">
-{/* Opción 2: Mostrar mensaje si no se ha seleccionado fecha */}
-{!fecha && <p className="seleccione-fecha-mensaje">Seleccione una fecha para ver los horarios disponibles.</p>}
-
-                            {getAvailableTimeSlots().map((slot) => {
-                                const isDisabled = fecha && !isAvailable(fecha.toISOString().split('T')[0], slot);
-                                return (
-                                    <button
-                                        type="button"
-                                        key={slot}
-                                        className={`horario-button ${hora === slot ? "selected" : ""}`}
-                                        onClick={() => {
-                                            setHora(slot);
-                                            setHoraError(''); // Limpiar el error al seleccionar una hora
-                                        }}
-                                        disabled={isDisabled}
-                                    >
-                                        {slot}
-                                    </button>
-                                );
-                            })}
+                            {!fecha && <p className="seleccione-fecha-mensaje">Seleccione una fecha para ver los horarios disponibles.</p>}
+                            {fecha && (
+                                <div className="horarios">
+                                    {getAvailableTimeSlots().map((slot) => (
+                                <button
+                                    key={slot.hora}
+                                    className={`horario-button ${slot.disponible ? '' : 'disabled'} ${selectedHora === slot.hora ? 'selected' : ''}`}
+                                    onClick={() => slot.disponible && handleHoraSelect(slot.hora)} // Solo permite seleccionar si está disponible
+                                    disabled={!slot.disponible}
+                                    required
+                                >
+                                    {slot.hora}
+                                </button>
+                            ))}
+                                </div>
+                            )}
+                            {horaError && <p className="error-message">{horaError}</p>}
                         </div>
-                        {horaError && <div className="error-message">{horaError}</div>}
-                    </div>
-
+                        </div>
                         {/* Mostrar la fecha y hora seleccionada */}
                         {fecha && hora && (
                         <div className="seleccion-info">
@@ -355,7 +362,7 @@ const DoctorDetail = () => {
                             <button
                             type="button"
                             className="button cancelar-seleccion"
-                            onClick={() => { setFecha(null); setHora(""); }}
+                            onClick={handleCancelDateSelection}
                             required
                             >
                             Cancelar selección
@@ -489,7 +496,7 @@ const DoctorDetail = () => {
                         {/* Contenedor para los botones */}
                         {reservaError && <p className="error-message-consulta">{reservaError}</p>}
                         <div className="modal-buttons-container-outside">
-                            <button type="submit" className="button reservar">Reservar</button>
+                            <button type="submit" className="button reservar" >Reservar</button>
                             <button type="button" className="button close-modal" onClick={() => setShowModal(false)}>Cerrar</button>
                         </div>
                                 </form>

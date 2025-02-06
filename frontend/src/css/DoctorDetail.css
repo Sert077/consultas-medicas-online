@@ -291,15 +291,24 @@ h3{
     flex-wrap: wrap;
     gap: 5px;
     justify-content: center;
-    margin-top: 10px;
+    margin-bottom: -10px;
+    text-align: center;
+    margin-top: 20px;
   }
+
+  .horarios {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+}
   
   /* Botón de horario */
   .horario-button {
     border: 1px solid #4e4ab7; /* Borde morado */
     color: #4e4ab7; /* Texto morado */
     background-color: white; /* Fondo blanco para resaltar el contraste */
-    padding: 10px 15px;
+    padding: 10px;
     border-radius: 8px;
     cursor: pointer;
     font-size: 1rem;
@@ -317,6 +326,18 @@ h3{
     color: white;
     font-weight: bold;
   }
+
+  .horario-button.disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.seleccione-fecha-mensaje {
+    color: #555;
+    font-size: 14px;
+}
+
   
   /* Estilo del cuadro de selección */
   .seleccion-info {
@@ -324,7 +345,6 @@ h3{
     border: 1px solid #ddd;
     color: white;
     padding: 0px;
-    margin-top: 5px;
     border-radius: 8px;
     display: flex;
     justify-content: space-between; /* Espacia los elementos */
@@ -436,10 +456,8 @@ h3{
     justify-content: center; /* Centrar horizontalmente */
     align-items: center; /* Centrar verticalmente */
     gap: 10px; /* Espacio entre los botones */
-    margin-top: 20px; /* Separación superior */
     margin-bottom: -15px;
 }
-
 
 .button.reservar {
     background-color: #6c63ff;
@@ -475,7 +493,6 @@ h3{
     font-size: 15px;
     border: none; /* Elimina cualquier borde */
 }
-
 
 .alergias-input-field label {
     display: flex;
@@ -535,6 +552,22 @@ button.confirmation-modal-content  {
 .confirmation-modal-content button:hover {
     background-color: #4e4ab7;
 }
+
+.error-message {
+    color: red;
+    font-size: 0.9em;
+    margin-top: 5px;
+}
+
+.error-message-consulta {
+    color: red;
+    grid-column: span 2; /* Ocupar ambas columnas del grid */
+    display: flex;
+    font-size: 0.9em;
+    margin-top: 5px;
+    text-align: center;
+}
+
 
 @media (max-width: 600px) {
     .alergias-textarea {

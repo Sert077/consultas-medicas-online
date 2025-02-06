@@ -317,31 +317,22 @@ const DoctorDetail = () => {
                     </div>
 
                     <div>
-                        <label className="modal-label">Hora:</label>
-                        <div className="horarios-container">
-{/* Opción 2: Mostrar mensaje si no se ha seleccionado fecha */}
-{!fecha && <p className="seleccione-fecha-mensaje">Seleccione una fecha para ver los horarios disponibles.</p>}
+    <label className="modal-label">Hora:</label>
+    <div className="horarios-container">
+        {getAvailableTimeSlots().map((slot) => (
+            <button
+                key={slot}
+                className={`horario-boton ${hora === slot ? 'seleccionado' : ''}`}
+                onClick={() => setHora(slot)}
+                disabled={consultas.some(consulta => consulta.fecha === fecha?.toISOString().split('T')[0] && consulta.hora.startsWith(slot))}
+            >
+                {slot}
+            </button>
+        ))}
+    </div>
+    {horaError && <div className="error-message">{horaError}</div>}
+</div>
 
-                            {getAvailableTimeSlots().map((slot) => {
-                                const isDisabled = fecha && !isAvailable(fecha.toISOString().split('T')[0], slot);
-                                return (
-                                    <button
-                                        type="button"
-                                        key={slot}
-                                        className={`horario-button ${hora === slot ? "selected" : ""}`}
-                                        onClick={() => {
-                                            setHora(slot);
-                                            setHoraError(''); // Limpiar el error al seleccionar una hora
-                                        }}
-                                        disabled={isDisabled}
-                                    >
-                                        {slot}
-                                    </button>
-                                );
-                            })}
-                        </div>
-                        {horaError && <div className="error-message">{horaError}</div>}
-                    </div>
 
                         {/* Mostrar la fecha y hora seleccionada */}
                         {fecha && hora && (
