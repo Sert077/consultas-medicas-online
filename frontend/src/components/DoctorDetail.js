@@ -20,6 +20,10 @@ const DoctorDetail = () => {
     const [descripcionAlergia, setDescripcionAlergia] = useState('');
     const [tipoConsulta, setTipoConsulta] = useState('');
     const [showConfirmationModal, setShowConfirmationModal] = useState(false); 
+    const [estaEmbarazada, setEstaEmbarazada] = useState(false);
+    const [fechaError, setFechaError] = useState('');
+    const [horaError, setHoraError] = useState('');
+    const [reservaError, setReservaError] = useState('');
 
     useEffect(() => {
         fetch(`http://localhost:8000/api/doctores/${id}/`)
@@ -49,6 +53,22 @@ const DoctorDetail = () => {
 
     const handleReserva = (e) => {
         e.preventDefault();
+    
+        // Limpiar mensajes de error previos
+    setFechaError('');
+    setHoraError('');
+
+    // Validación de fecha y hora
+    if (!fecha) {
+        setFechaError('Por favor, seleccione una fecha para la consulta.');
+        return;
+    }
+
+    if (!hora) {
+        setHoraError('Por favor, seleccione una hora para la consulta.');
+        return;
+    }
+    
         const formattedDate = fecha.toISOString().split('T')[0];
         const pacienteId = localStorage.getItem('paciente_id');
         const pacienteName = `${localStorage.getItem('first_name')} ${localStorage.getItem('last_name')}`;
@@ -58,7 +78,7 @@ const DoctorDetail = () => {
             alert('Error: No se ha encontrado un paciente válido. Inicie sesión para reservar.');
             return;
         }
-
+    
         fetch('http://localhost:8000/api/consultas/create/', {
             method: 'POST',
             headers: {
@@ -74,23 +94,24 @@ const DoctorDetail = () => {
                 genero: genero,
                 tipo_sangre: tipoSangre,
                 alergias: tieneAlergias ? descripcionAlergia : null,
+                embarazo: genero === "F" ? estaEmbarazada : null,
             }),
         })
         .then((response) => {
             if (!response.ok) {
                 return response.json().then((data) => {
-                    throw new Error(data.error || 'Ya existe una consulta reservada con la fecha y hora seleccionadas, por favor escoja otra fecha y hora.');
+                    throw new Error(data.error || 'Ya existe una consulta reservada con la fecha y hora seleccionadas, por favor escoja otro horario.');
                 });
             }
             return response.json();
         })
         .then((data) => {
-            setShowConfirmationModal(true); // Mostrar el modal de confirmación
+            setShowConfirmationModal(true);
             console.log('Consulta creada:', data);
             setConsultas([...consultas, data]);
             setShowModal(false);
-
-            // Enviar correos usando la API
+    
+            // Enviar correos
             const emailData = {
                 subject: 'Recordatorio de Consulta Médica',
                 message_paciente: `Estimado(a) ${pacienteName},\n\n` +
@@ -102,7 +123,7 @@ const DoctorDetail = () => {
                 recipient_list_paciente: [pacienteEmail],
                 recipient_list_medico: [doctor.email],
             };
-
+    
             fetch('http://localhost:8000/api/send-email/', {
                 method: 'POST',
                 headers: {
@@ -147,16 +168,26 @@ const DoctorDetail = () => {
             });
         })
         .catch((error) => {
-            alert(error.message);
+            setReservaError(error.message); 
             console.error('Error creando consulta:', error);
         });
-    };
+    };    
 
     const getAvailableTimeSlots = () => {
-        const allTimeSlots = ["09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00"];
-        const formattedDate = fecha ? fecha.toISOString().split('T')[0] : '';
-        return allTimeSlots.filter(slot => isAvailable(formattedDate, slot));
+        if (!doctor || !doctor.start_time || !doctor.end_time) return [];
+    
+        const startHour = parseInt(doctor.start_time.split(':')[0]);
+        const endHour = parseInt(doctor.end_time.split(':')[0]);
+    
+        const timeSlots = [];
+        for (let hour = startHour; hour <= endHour; hour++) {
+            const formattedHour = hour.toString().padStart(2, '0') + ':00';
+            timeSlots.push(formattedHour);
+        }
+    
+        return timeSlots; // Mostrar todos los horarios disponibles
     };
+        
 
     if (!doctor) {
         return <div>Loading...</div>;
@@ -262,34 +293,46 @@ const DoctorDetail = () => {
                 <div className="modal-content" onClick={(e) => e.stopPropagation()}>
                     <h3>Reservar Consulta Médica</h3>
                     <form onSubmit={handleReserva} className="modal-form">
-                        <div className="calendar-picker-container">
-                            <label htmlFor="fecha" className="modal-label-calendary">Fecha:</label>
-                            <DatePicker
-                                selected={fecha}
-                                onChange={(date) => setFecha(date)}
-                                minDate={new Date()}
-                                filterDate={filterUnavailableDays}
-                                required
-                                inline
-                                className="calendar-picker"
-                            />
-                        </div>
+                    <div className="calendar-picker-container">
+                        <label htmlFor="fecha" className="modal-label-calendary">Fecha:</label>
+                        <DatePicker
+                            selected={fecha}
+                            onChange={(date) => {
+                                setFecha(date);
+                                setFechaError(''); // Limpiar el error al seleccionar una fecha
+                            }}
+                            minDate={new Date()}
+                            filterDate={filterUnavailableDays}
+                            required
+                            inline
+                            className="calendar-picker"
+                        />
+                        {fechaError && <div className="error-message">{fechaError}</div>}
+                    </div>
 
-                        <div>
+                    <div>
                         <label className="modal-label">Hora:</label>
                         <div className="horarios-container">
-                            {getAvailableTimeSlots().map((slot) => (
-                            <button
-                                type="button"
-                                key={slot}
-                                className={`horario-button ${hora === slot ? "selected" : ""}`}
-                                onClick={() => setHora(slot)}
-                            >
-                                {slot}
-                            </button>
-                            ))}
+                            {getAvailableTimeSlots().map((slot) => {
+                                const isDisabled = fecha && !isAvailable(fecha.toISOString().split('T')[0], slot);
+                                return (
+                                    <button
+                                        type="button"
+                                        key={slot}
+                                        className={`horario-button ${hora === slot ? "selected" : ""}`}
+                                        onClick={() => {
+                                            setHora(slot);
+                                            setHoraError(''); // Limpiar el error al seleccionar una hora
+                                        }}
+                                        disabled={isDisabled}
+                                    >
+                                        {slot}
+                                    </button>
+                                );
+                            })}
                         </div>
-                        </div>
+                        {horaError && <div className="error-message">{horaError}</div>}
+                    </div>
 
                         {/* Mostrar la fecha y hora seleccionada */}
                         {fecha && hora && (
@@ -304,6 +347,7 @@ const DoctorDetail = () => {
                             type="button"
                             className="button cancelar-seleccion"
                             onClick={() => { setFecha(null); setHora(""); }}
+                            required
                             >
                             Cancelar selección
                             </button>
@@ -336,10 +380,25 @@ const DoctorDetail = () => {
                                 <option value="">Selecciona su género</option>
                                 <option value="M">Masculino</option>
                                 <option value="F">Femenino</option>
-                                <option value="Otro">Otro</option>
                             </select>
                         </div>
 
+                        {/* Mostrar solo si el género es "F" */}
+                        {genero === "F" && (
+                            <div>
+                                <label htmlFor="embarazo" className="modal-label">¿Está embarazada?</label>
+                                <select
+                                    id="embarazo"
+                                    value={estaEmbarazada ? "Sí" : "No"}
+                                    onChange={(e) => setEstaEmbarazada(e.target.value === "Sí")}
+                                    className="input-field"
+                                >
+                                    <option value="No">No</option>
+                                    <option value="Sí">Sí</option>
+                                </select>
+                            </div>
+                        )}
+                        
                         <div>
                             <label htmlFor="tipo-sangre" className="modal-label">Tipo de sangre:</label>
                             <select
@@ -419,6 +478,7 @@ const DoctorDetail = () => {
                         </div>
 
                         {/* Contenedor para los botones */}
+                        {reservaError && <p className="error-message-consulta">{reservaError}</p>}
                         <div className="modal-buttons-container-outside">
                             <button type="submit" className="button reservar">Reservar</button>
                             <button type="button" className="button close-modal" onClick={() => setShowModal(false)}>Cerrar</button>
@@ -428,18 +488,17 @@ const DoctorDetail = () => {
                         </div>
                     )}
 
-            {/* Modal de confirmación */}
-            {showConfirmationModal && (
-                <div className="modal-overlay" onClick={() => setShowConfirmationModal(false)}>
-                    <div className="modal-content confirmation-modal" onClick={(e) => e.stopPropagation()}>
-                        <h3>¡Consulta Reservada Correctamente!</h3>
-                        <p>Tu consulta con el Dr(a). {doctor.first_name} {doctor.last_name} ha sido reservada para el {fecha?.toLocaleDateString()} a las {hora}.</p>
-                        <button className="button close-modal" onClick={() => setShowConfirmationModal(false)}>Cerrar</button>
-                    </div>
+                    {/* Modal de confirmación */}
+                    {showConfirmationModal && (
+                        <div className="modal-overlay" onClick={() => setShowConfirmationModal(false)}>
+                            <div className="modal-content confirmation-modal" onClick={(e) => e.stopPropagation()}>
+                                <h3>¡Consulta Reservada Correctamente!</h3>
+                                <p>Tu consulta con el Dr(a): {doctor.first_name} {doctor.last_name} ha sido reservada para el {fecha?.toLocaleDateString()} a las {hora}.</p>
+                                <button className="button confirmation-modal-content" onClick={() => setShowConfirmationModal(false)}>Cerrar</button>
+                            </div>
+                        </div>
+                    )}
                 </div>
-            )}
-
-        </div>
     );
 };
 
