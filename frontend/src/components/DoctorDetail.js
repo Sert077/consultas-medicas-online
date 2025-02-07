@@ -44,7 +44,8 @@ const DoctorDetail = () => {
     };
 
     const filterUnavailableDays = (date) => {
-        return !isDayFullyBooked(date);
+        const availableDays = getDoctorAvailableDays();
+        return availableDays.includes(date.getDay()) && !isDayFullyBooked(date);
     };
 
     const isAvailable = (fecha, hora) => {
@@ -173,7 +174,7 @@ const DoctorDetail = () => {
     };    
 
     const getAvailableTimeSlots = () => {
-        if (!doctor || !doctor.start_time || !doctor.end_time || !fecha) return [];
+        if (!doctor || !doctor.start_time || !doctor.end_time) return [];
     
         const startHour = parseInt(doctor.start_time.split(':')[0]);
         const endHour = parseInt(doctor.end_time.split(':')[0]);
@@ -184,16 +185,21 @@ const DoctorDetail = () => {
             allTimeSlots.push(formattedHour);
         }
     
-        // Filtrar horarios ocupados en la fecha seleccionada
-        const fechaSeleccionada = fecha.toISOString().split('T')[0]; // Formato YYYY-MM-DD
+        if (!fecha) {
+            // Si no se ha seleccionado una fecha, mostrar solo los horarios pero deshabilitados (Opción 1)
+            return allTimeSlots.map(hora => ({ hora, disponible: false }));
+        }
+    
+        const fechaSeleccionada = fecha.toISOString().split('T')[0];
         const horariosOcupados = consultas
             .filter(consulta => consulta.fecha === fechaSeleccionada)
-            .map(consulta => consulta.hora.substring(0, 5)); // Convertir "12:00:00.000000" -> "12:00"
+            .map(consulta => consulta.hora.substring(0, 5));
     
-        return allTimeSlots.filter(hora => !horariosOcupados.includes(hora));
-    };
-    
-        
+        return allTimeSlots.map(hora => ({
+            hora,
+            disponible: !horariosOcupados.includes(hora),
+        }));
+    };    
 
     if (!doctor) {
         return <div>Loading...</div>;
@@ -233,8 +239,18 @@ const DoctorDetail = () => {
         const [hours, minutes] = time.split(':');
         // Devuelve solo las horas y los minutos
         return `${hours}:${minutes}`;
-    }    
+    }  
 
+    const getDoctorAvailableDays = () => {
+        if (!doctor || !doctor.days) return [];
+    
+        const dayMapping = {
+            "L": 1, "M": 2, "X": 3, "J": 4, "V": 5, "S": 6, "D": 0
+        };
+    
+        return doctor.days.split(',').map(day => dayMapping[day]);
+    };
+      
     return (
         <div className="doctor-detail-container">
             <div className="doctor-info-container">
@@ -319,28 +335,30 @@ const DoctorDetail = () => {
                     <div>
                         <label className="modal-label">Hora:</label>
                         <div className="horarios-container">
-{/* Opción 2: Mostrar mensaje si no se ha seleccionado fecha */}
-{!fecha && <p className="seleccione-fecha-mensaje">Seleccione una fecha para ver los horarios disponibles.</p>}
+                            {!fecha && <p className="seleccione-fecha-mensaje">Seleccione una fecha para ver los horarios disponibles.</p>}
 
-                            {getAvailableTimeSlots().map((slot) => {
-                                const isDisabled = fecha && !isAvailable(fecha.toISOString().split('T')[0], slot);
-                                return (
-                                    <button
-                                        type="button"
-                                        key={slot}
-                                        className={`horario-button ${hora === slot ? "selected" : ""}`}
-                                        onClick={() => {
-                                            setHora(slot);
-                                            setHoraError(''); // Limpiar el error al seleccionar una hora
-                                        }}
-                                        disabled={isDisabled}
-                                    >
-                                        {slot}
-                                    </button>
-                                );
-                            })}
+                            {fecha && (
+                                <div className="horarios">
+                                    {getAvailableTimeSlots().map(({ hora: horaDisponible, disponible }) => (
+                                        <button
+                                            key={horaDisponible}
+                                            type="button"  // Asegura que el botón no envíe el formulario
+                                            className={`horario-button ${disponible ? "disponible" : "disabled"} ${hora === horaDisponible ? "selected" : ""}`}
+                                            onClick={() => {
+                                                if (disponible) {
+                                                    setHora(horaDisponible);
+                                                    setHoraError(""); // Limpiar error si se selecciona un horario válido
+                                                }
+                                            }}
+                                            disabled={!disponible}
+                                        >
+                                            {horaDisponible}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                            {horaError && <p className="error-message">{horaError}</p>}
                         </div>
-                        {horaError && <div className="error-message">{horaError}</div>}
                     </div>
 
                         {/* Mostrar la fecha y hora seleccionada */}
