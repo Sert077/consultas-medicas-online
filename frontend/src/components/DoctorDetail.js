@@ -24,6 +24,7 @@ const DoctorDetail = () => {
     const [fechaError, setFechaError] = useState('');
     const [horaError, setHoraError] = useState('');
     const [reservaError, setReservaError] = useState('');
+    const [archivoPdf, setArchivoPdf] = useState(null);
 
     useEffect(() => {
         fetch(`http://localhost:8000/api/doctores/${id}/`)
@@ -44,7 +45,8 @@ const DoctorDetail = () => {
     };
 
     const filterUnavailableDays = (date) => {
-        return !isDayFullyBooked(date);
+        const availableDays = getDoctorAvailableDays();
+        return availableDays.includes(date.getDay()) && !isDayFullyBooked(date);
     };
 
     const isAvailable = (fecha, hora) => {
@@ -53,12 +55,10 @@ const DoctorDetail = () => {
 
     const handleReserva = (e) => {
         e.preventDefault();
-    
-        // Limpiar mensajes de error previos
+
     setFechaError('');
     setHoraError('');
 
-    // Validación de fecha y hora
     if (!fecha) {
         setFechaError('Por favor, seleccione una fecha para la consulta.');
         return;
@@ -68,7 +68,6 @@ const DoctorDetail = () => {
         setHoraError('Por favor, seleccione una hora para la consulta.');
         return;
     }
-    
         const formattedDate = fecha.toISOString().split('T')[0];
         const pacienteId = localStorage.getItem('paciente_id');
         const pacienteName = `${localStorage.getItem('first_name')} ${localStorage.getItem('last_name')}`;
@@ -79,24 +78,26 @@ const DoctorDetail = () => {
             return;
         }
     
-        fetch('http://localhost:8000/api/consultas/create/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                medico: id,
-                paciente: pacienteId,
-                fecha: formattedDate,
-                hora: hora,
-                tipo_consulta: tipoConsulta,
-                motivo_consulta: motivoConsulta,
-                genero: genero,
-                tipo_sangre: tipoSangre,
-                alergias: tieneAlergias ? descripcionAlergia : null,
-                embarazo: genero === "F" ? estaEmbarazada : null,
-            }),
-        })
+        const formData = new FormData();
+    formData.append('medico', id);
+    formData.append('paciente', pacienteId);
+    formData.append('fecha', formattedDate);
+    formData.append('hora', hora);
+    formData.append('tipo_consulta', tipoConsulta);
+    formData.append('motivo_consulta', motivoConsulta);
+    formData.append('genero', genero);
+    formData.append('tipo_sangre', tipoSangre);
+    formData.append('alergias', tieneAlergias ? descripcionAlergia : "no");
+    formData.append('embarazo', genero === "F" ? estaEmbarazada : null);
+
+    if (archivoPdf) {
+        formData.append('archivo_pdf', archivoPdf);
+    }
+
+    fetch('http://localhost:8000/api/consultas/create/', {
+        method: 'POST',
+        body: formData,
+    })
         .then((response) => {
             if (!response.ok) {
                 return response.json().then((data) => {
@@ -179,15 +180,26 @@ const DoctorDetail = () => {
         const startHour = parseInt(doctor.start_time.split(':')[0]);
         const endHour = parseInt(doctor.end_time.split(':')[0]);
     
-        const timeSlots = [];
+        const allTimeSlots = [];
         for (let hour = startHour; hour <= endHour; hour++) {
             const formattedHour = hour.toString().padStart(2, '0') + ':00';
-            timeSlots.push(formattedHour);
+            allTimeSlots.push(formattedHour);
         }
     
-        return timeSlots; // Mostrar todos los horarios disponibles
-    };
-        
+        if (!fecha) {
+            return allTimeSlots.map(hora => ({ hora, disponible: false }));
+        }
+    
+        const fechaSeleccionada = fecha.toISOString().split('T')[0];
+        const horariosOcupados = consultas
+            .filter(consulta => consulta.fecha === fechaSeleccionada)
+            .map(consulta => consulta.hora.substring(0, 5));
+    
+        return allTimeSlots.map(hora => ({
+            hora,
+            disponible: !horariosOcupados.includes(hora),
+        }));
+    };    
 
     if (!doctor) {
         return <div>Loading...</div>;
@@ -205,12 +217,11 @@ const DoctorDetail = () => {
     
         // Divide el string en un array de días
         const dayArray = days.split(',');
-    
+
         // Si contiene todos los días
         if (days === "L,M,X,J,V,S,D") {
             return "Lunes a Domingo";
         }
-    
         // Si es de lunes a viernes
         if (days === "L,M,X,J,V") {
             return "Lunes a Viernes";
@@ -223,12 +234,42 @@ const DoctorDetail = () => {
     }
     
     function formatTime(time) {
-        // Divide la hora, los minutos y los segundos
         const [hours, minutes] = time.split(':');
-        // Devuelve solo las horas y los minutos
         return `${hours}:${minutes}`;
-    }    
+    }  
 
+    const getDoctorAvailableDays = () => {
+        if (!doctor || !doctor.days) return [];
+    
+        const dayMapping = {
+            "L": 1, "M": 2, "X": 3, "J": 4, "V": 5, "S": 6, "D": 0
+        };
+    
+        return doctor.days.split(',').map(day => dayMapping[day]);
+    };
+    
+    const handleFileChange = (e) => {
+        setArchivoPdf(e.target.files[0]);
+    };
+
+    const handleDescripcionAlergiaChange = (e) => {
+        const value = e.target.value;
+        const regex = /^[a-zA-Z0-9\s.,áéíóúÁÉÍÓÚñÑ]*$/; // Permitir solo letras, números, espacios, comas y puntos
+    
+        if (value.length <= 100 && regex.test(value)) {
+            setDescripcionAlergia(value);
+        }
+    };
+    
+    const handleMotivoConsultaChange = (e) => {
+        const value = e.target.value;
+        const regex = /^[a-zA-Z0-9\s.,áéíóúÁÉÍÓÚñÑ]*$/;
+    
+        if (value.length <= 150 && regex.test(value)) {
+            setMotivoConsulta(value);
+        }
+    };    
+      
     return (
         <div className="doctor-detail-container">
             <div className="doctor-info-container">
@@ -313,25 +354,30 @@ const DoctorDetail = () => {
                     <div>
                         <label className="modal-label">Hora:</label>
                         <div className="horarios-container">
-                            {getAvailableTimeSlots().map((slot) => {
-                                const isDisabled = fecha && !isAvailable(fecha.toISOString().split('T')[0], slot);
-                                return (
-                                    <button
-                                        type="button"
-                                        key={slot}
-                                        className={`horario-button ${hora === slot ? "selected" : ""}`}
-                                        onClick={() => {
-                                            setHora(slot);
-                                            setHoraError(''); // Limpiar el error al seleccionar una hora
-                                        }}
-                                        disabled={isDisabled}
-                                    >
-                                        {slot}
-                                    </button>
-                                );
-                            })}
+                            {!fecha && <p className="seleccione-fecha-mensaje">Seleccione una fecha para ver los horarios disponibles.</p>}
+
+                            {fecha && (
+                                <div className="horarios">
+                                    {getAvailableTimeSlots().map(({ hora: horaDisponible, disponible }) => (
+                                        <button
+                                            key={horaDisponible}
+                                            type="button"  // Asegura que el botón no envíe el formulario
+                                            className={`horario-button ${disponible ? "disponible" : "disabled"} ${hora === horaDisponible ? "selected" : ""}`}
+                                            onClick={() => {
+                                                if (disponible) {
+                                                    setHora(horaDisponible);
+                                                    setHoraError(""); // Limpiar error si se selecciona un horario válido
+                                                }
+                                            }}
+                                            disabled={!disponible}
+                                        >
+                                            {horaDisponible}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                            {horaError && <p className="error-message">{horaError}</p>}
                         </div>
-                        {horaError && <div className="error-message">{horaError}</div>}
                     </div>
 
                         {/* Mostrar la fecha y hora seleccionada */}
@@ -361,12 +407,23 @@ const DoctorDetail = () => {
                                 value={tipoConsulta}
                                 onChange={(e) => setTipoConsulta(e.target.value)}
                                 required
-                                className="input-field"                            >
+                                className="input-field" >
                                     <option value="">Selecciona el tipo de consulta</option>
                                     <option value="presencial">Presencial</option>
                                     <option value="virtual">Virtual</option>
                             </select>
-                            </div>
+                        </div>
+
+                        <div>
+                            <label htmlFor="archivoPdf" className="modal-label">Adjuntar Analisis (PDF):</label>
+                                <input
+                                    type="file"
+                                    id="archivoPdf"
+                                    accept="application/pdf"
+                                    onChange={handleFileChange}
+                                    className="input-field"
+                                />
+                        </div>
 
                         <div>
                             <label htmlFor="genero" className="modal-label">Género:</label>
@@ -383,7 +440,6 @@ const DoctorDetail = () => {
                             </select>
                         </div>
 
-                        {/* Mostrar solo si el género es "F" */}
                         {genero === "F" && (
                             <div>
                                 <label htmlFor="embarazo" className="modal-label">¿Está embarazada?</label>
@@ -451,17 +507,18 @@ const DoctorDetail = () => {
                             </div>
 
                             {tieneAlergias && (
-                                <div>
-                                    <label htmlFor="descripcion-alergia" className="modal-label-alergias">Describa sus alergias:</label>
-                                    <textarea
-                                        id="descripcion-alergia"
-                                        value={descripcionAlergia}
-                                        onChange={(e) => setDescripcionAlergia(e.target.value)}
-                                        className="input-field alergias-textarea"
-                                        placeholder="Describa sus alergias"
-                                        required
-                                    ></textarea>
-                                </div>
+                            <div>
+                                <label htmlFor="descripcion-alergia" className="modal-label-alergias">Describa sus alergias:</label>
+                                <textarea
+                                    id="descripcion-alergia"
+                                    value={descripcionAlergia}
+                                    onChange={handleDescripcionAlergiaChange}
+                                    className="input-field alergias-textarea"
+                                    placeholder="Describa sus alergias"
+                                    required
+                                ></textarea>
+                                <p className="char-count">{descripcionAlergia.length}/100</p>
+                            </div>
                             )}
                         </div>
 
@@ -470,14 +527,13 @@ const DoctorDetail = () => {
                             <input
                                 id="motivo-consulta"
                                 value={motivoConsulta}
-                                onChange={(e) => setMotivoConsulta(e.target.value)}
+                                onChange={handleMotivoConsultaChange}
                                 required
                                 className="input-field-motivo"
-                                placeholder="Escriba el motivo de la consulta"
+                                placeholder="Escriba el motivo de su consulta"
                             />
+                            <p className="char-count">{motivoConsulta.length}/150</p>
                         </div>
-
-                        {/* Contenedor para los botones */}
                         {reservaError && <p className="error-message-consulta">{reservaError}</p>}
                         <div className="modal-buttons-container-outside">
                             <button type="submit" className="button reservar">Reservar</button>

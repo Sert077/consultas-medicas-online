@@ -274,6 +274,7 @@ h3{
     text-align: left; /* Alinear texto a la izquierda */
     width: 100%; /* Asegurar que ocupe todo el ancho del contenedor */
     height: 70px;
+    padding-bottom: 40px;
 }
 
 /* Calendario */
@@ -292,17 +293,26 @@ h3{
     gap: 5px;
     justify-content: center;
     margin-bottom: -10px;
+    text-align: center;
+    margin-top: 20px;
   }
+
+  .horarios {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+}
   
   /* Botón de horario */
   .horario-button {
     border: 1px solid #4e4ab7; /* Borde morado */
     color: #4e4ab7; /* Texto morado */
     background-color: white; /* Fondo blanco para resaltar el contraste */
-    padding: 10px 15px;
+    padding: 10px;
     border-radius: 8px;
     cursor: pointer;
-    font-size: 1rem;
+    font-size: 15px;
     transition: all 0.3s ease;
 }
 
@@ -317,7 +327,18 @@ h3{
     color: white;
     font-weight: bold;
   }
-  
+
+  .horario-button.disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.seleccione-fecha-mensaje {
+    color: #555;
+    font-size: 14px;
+}
+
   /* Estilo del cuadro de selección */
   .seleccion-info {
     background-color: #4e4ab7;
