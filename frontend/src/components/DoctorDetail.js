@@ -24,6 +24,7 @@ const DoctorDetail = () => {
     const [fechaError, setFechaError] = useState('');
     const [horaError, setHoraError] = useState('');
     const [reservaError, setReservaError] = useState('');
+    const [archivoPdf, setArchivoPdf] = useState(null);
 
     useEffect(() => {
         fetch(`http://localhost:8000/api/doctores/${id}/`)
@@ -54,12 +55,10 @@ const DoctorDetail = () => {
 
     const handleReserva = (e) => {
         e.preventDefault();
-    
-        // Limpiar mensajes de error previos
+
     setFechaError('');
     setHoraError('');
 
-    // Validación de fecha y hora
     if (!fecha) {
         setFechaError('Por favor, seleccione una fecha para la consulta.');
         return;
@@ -79,24 +78,26 @@ const DoctorDetail = () => {
             return;
         }
     
-        fetch('http://localhost:8000/api/consultas/create/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                medico: id,
-                paciente: pacienteId,
-                fecha: formattedDate,
-                hora: hora,
-                tipo_consulta: tipoConsulta,
-                motivo_consulta: motivoConsulta,
-                genero: genero,
-                tipo_sangre: tipoSangre,
-                alergias: tieneAlergias ? descripcionAlergia : null,
-                embarazo: genero === "F" ? estaEmbarazada : null,
-            }),
-        })
+        const formData = new FormData();
+    formData.append('medico', id);
+    formData.append('paciente', pacienteId);
+    formData.append('fecha', formattedDate);
+    formData.append('hora', hora);
+    formData.append('tipo_consulta', tipoConsulta);
+    formData.append('motivo_consulta', motivoConsulta);
+    formData.append('genero', genero);
+    formData.append('tipo_sangre', tipoSangre);
+    formData.append('alergias', tieneAlergias ? descripcionAlergia : "no");
+    formData.append('embarazo', genero === "F" ? estaEmbarazada : null);
+
+    if (archivoPdf) {
+        formData.append('archivo_pdf', archivoPdf);
+    }
+
+    fetch('http://localhost:8000/api/consultas/create/', {
+        method: 'POST',
+        body: formData,
+    })
         .then((response) => {
             if (!response.ok) {
                 return response.json().then((data) => {
@@ -186,7 +187,6 @@ const DoctorDetail = () => {
         }
     
         if (!fecha) {
-            // Si no se ha seleccionado una fecha, mostrar solo los horarios pero deshabilitados (Opción 1)
             return allTimeSlots.map(hora => ({ hora, disponible: false }));
         }
     
@@ -217,12 +217,11 @@ const DoctorDetail = () => {
     
         // Divide el string en un array de días
         const dayArray = days.split(',');
-    
+
         // Si contiene todos los días
         if (days === "L,M,X,J,V,S,D") {
             return "Lunes a Domingo";
         }
-    
         // Si es de lunes a viernes
         if (days === "L,M,X,J,V") {
             return "Lunes a Viernes";
@@ -235,9 +234,7 @@ const DoctorDetail = () => {
     }
     
     function formatTime(time) {
-        // Divide la hora, los minutos y los segundos
         const [hours, minutes] = time.split(':');
-        // Devuelve solo las horas y los minutos
         return `${hours}:${minutes}`;
     }  
 
@@ -250,6 +247,28 @@ const DoctorDetail = () => {
     
         return doctor.days.split(',').map(day => dayMapping[day]);
     };
+    
+    const handleFileChange = (e) => {
+        setArchivoPdf(e.target.files[0]);
+    };
+
+    const handleDescripcionAlergiaChange = (e) => {
+        const value = e.target.value;
+        const regex = /^[a-zA-Z0-9\s.,áéíóúÁÉÍÓÚñÑ]*$/; // Permitir solo letras, números, espacios, comas y puntos
+    
+        if (value.length <= 100 && regex.test(value)) {
+            setDescripcionAlergia(value);
+        }
+    };
+    
+    const handleMotivoConsultaChange = (e) => {
+        const value = e.target.value;
+        const regex = /^[a-zA-Z0-9\s.,áéíóúÁÉÍÓÚñÑ]*$/;
+    
+        if (value.length <= 150 && regex.test(value)) {
+            setMotivoConsulta(value);
+        }
+    };    
       
     return (
         <div className="doctor-detail-container">
@@ -316,7 +335,8 @@ const DoctorDetail = () => {
                     <h3>Reservar Consulta Médica</h3>
                     <form onSubmit={handleReserva} className="modal-form">
                     <div className="calendar-picker-container">
-                        <label htmlFor="fecha" className="modal-label-calendary">Fecha:</label>
+                        <label htmlFor="fecha" className="modal-label-calendary">Fecha:<span style={{ color: 'red' }}>*</span>
+                        </label>
                         <DatePicker
                             selected={fecha}
                             onChange={(date) => {
@@ -333,7 +353,8 @@ const DoctorDetail = () => {
                     </div>
 
                     <div>
-                        <label className="modal-label">Hora:</label>
+                        <label className="modal-label">Hora:<span style={{ color: 'red' }}>*</span>
+                        </label>
                         <div className="horarios-container">
                             {!fecha && <p className="seleccione-fecha-mensaje">Seleccione una fecha para ver los horarios disponibles.</p>}
 
@@ -382,21 +403,41 @@ const DoctorDetail = () => {
                         )}
 
                         <div>
-                            <label htmlFor="tipo_consulta" className="modal-label">Tipo de consulta:</label>
+                            <label htmlFor="tipo_consulta" className="modal-label">Tipo de consulta:<span style={{ color: 'red' }}>*</span>
+                            </label>
                             <select
                                 id="tipo_consulta"
                                 value={tipoConsulta}
                                 onChange={(e) => setTipoConsulta(e.target.value)}
                                 required
-                                className="input-field"                            >
+                                className="input-field" >
                                     <option value="">Selecciona el tipo de consulta</option>
                                     <option value="presencial">Presencial</option>
                                     <option value="virtual">Virtual</option>
                             </select>
-                            </div>
+                        </div>
+
+                        <div className="file-upload-container">
+    <label htmlFor="archivoPdf" className="modal-label">Adjuntar Análisis (PDF):</label>
+    <div className="custom-file-upload">
+        <label htmlFor="archivoPdf" className="upload-button">Seleccionar archivo</label>
+        <span className="file-name">{archivoPdf ? archivoPdf.name : "Ningún archivo seleccionado"}</span>
+    </div>
+    <input
+        type="file"
+        id="archivoPdf"
+        accept="application/pdf"
+        onChange={handleFileChange}
+        className="hidden-file-input"
+    />
+</div>
+
+
 
                         <div>
-                            <label htmlFor="genero" className="modal-label">Género:</label>
+                        <label htmlFor="genero" className="modal-label">
+                            Género:<span style={{ color: 'red', marginLeft: '3px' }}>*</span>
+                        </label>
                             <select
                                 id="genero"
                                 value={genero}
@@ -410,10 +451,9 @@ const DoctorDetail = () => {
                             </select>
                         </div>
 
-                        {/* Mostrar solo si el género es "F" */}
                         {genero === "F" && (
                             <div>
-                                <label htmlFor="embarazo" className="modal-label">¿Está embarazada?</label>
+                                <label htmlFor="embarazo" className="modal-label">¿Está embarazada?<span style={{ color: 'red' }}>*</span></label>
                                 <select
                                     id="embarazo"
                                     value={estaEmbarazada ? "Sí" : "No"}
@@ -427,7 +467,7 @@ const DoctorDetail = () => {
                         )}
                         
                         <div>
-                            <label htmlFor="tipo-sangre" className="modal-label">Tipo de sangre:</label>
+                            <label htmlFor="tipo-sangre" className="modal-label">Tipo de sangre:<span style={{ color: 'red' }}>*</span></label>
                             <select
                                 id="tipo-sangre"
                                 value={tipoSangre}
@@ -444,11 +484,12 @@ const DoctorDetail = () => {
                                 <option value="B-">B-</option>
                                 <option value="AB+">AB+</option>
                                 <option value="AB-">AB-</option>
+                                <option value="N/A">N/A</option>
                             </select>
                         </div>
 
                         <div>
-                            <label htmlFor="tiene-alergias" className="modal-label-alergias">¿Tiene alergias?</label>
+                            <label htmlFor="tiene-alergias" className="modal-label-alergias">¿Tiene alergias?<span style={{ color: 'red', marginLeft: '3px' }}>*</span></label>
                             <div className="input-field alergias-input-field">
                                 <label>
                                     <input
@@ -478,34 +519,43 @@ const DoctorDetail = () => {
                             </div>
 
                             {tieneAlergias && (
-                                <div>
-                                    <label htmlFor="descripcion-alergia" className="modal-label-alergias">Describa sus alergias:</label>
-                                    <textarea
-                                        id="descripcion-alergia"
-                                        value={descripcionAlergia}
-                                        onChange={(e) => setDescripcionAlergia(e.target.value)}
-                                        className="input-field alergias-textarea"
-                                        placeholder="Describa sus alergias"
-                                        required
-                                    ></textarea>
-                                </div>
-                            )}
+    <div>
+        <label htmlFor="descripcion-alergia" className="modal-label-alergias">
+            Describa sus alergias:<span style={{ color: 'red' }}>*</span>
+        </label>
+        <div className="textarea-container">
+            <textarea
+                id="descripcion-alergia"
+                value={descripcionAlergia}
+                onChange={handleDescripcionAlergiaChange}
+                className="input-field alergias-textarea"
+                placeholder="Describa sus alergias"
+                required
+            ></textarea>
+            <p className="char-count">{descripcionAlergia.length}/100</p>
+        </div>
+    </div>
+)}
                         </div>
 
                         <div>
-                            <label htmlFor="motivo-consulta" className="modal-label-motivo">Motivo de consulta:</label>
-                            <input
-                                id="motivo-consulta"
-                                value={motivoConsulta}
-                                onChange={(e) => setMotivoConsulta(e.target.value)}
-                                required
-                                className="input-field-motivo"
-                                placeholder="Escriba el motivo de la consulta"
-                            />
-                        </div>
-
-                        {/* Contenedor para los botones */}
+    <label htmlFor="motivo-consulta" className="modal-label-motivo">
+        Motivo de consulta:<span style={{ color: 'red' }}>*</span>
+    </label>
+    <div className="input-container-motivo">
+        <input
+            id="motivo-consulta"
+            value={motivoConsulta}
+            onChange={handleMotivoConsultaChange}
+            required
+            className="input-field-motivo"
+            placeholder="Escriba el motivo de su consulta"
+        />
+        <p className="char-count">{motivoConsulta.length}/150</p>
+    </div>
+</div>
                         {reservaError && <p className="error-message-consulta">{reservaError}</p>}
+
                         <div className="modal-buttons-container-outside">
                             <button type="submit" className="button reservar">Reservar</button>
                             <button type="button" className="button close-modal" onClick={() => setShowModal(false)}>Cerrar</button>

@@ -274,6 +274,7 @@ h3{
     text-align: left; /* Alinear texto a la izquierda */
     width: 100%; /* Asegurar que ocupe todo el ancho del contenedor */
     height: 70px;
+    padding-bottom: 40px;
 }
 
 /* Calendario */
@@ -510,6 +511,63 @@ h3{
 .radio-alergias {
     margin: 0; /* Eliminar márgenes innecesarios */
 }
+
+.textarea-container,
+.input-container-motivo {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.char-count {
+    position: absolute;
+    bottom: 5px;
+    right: 10px;
+    font-size: 12px;
+    color: rgba(0, 0, 0, 0.3); /* Color tenue */
+    pointer-events: none; /* No interfiere con la escritura */
+}
+
+.file-upload-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0px;
+}
+
+.custom-file-upload {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.upload-button {
+    background-color: #4e4ab7;
+    color: white;
+    padding: 9px 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    border: 2px solid ;
+    transition: background-color 0.3s;
+    font-size: 12px;
+    font-weight: normal;
+    margin-top: -1px;
+    white-space: nowrap; /* Evita que el texto se divida en dos líneas */
+}
+
+.upload-button:hover {
+    background-color: #413e99;
+}
+
+.file-name {
+    font-size: 12px;
+    color: #301466;
+}
+
+.hidden-file-input {
+    display: none;
+}
+
+
 
 /* Estilo del modal de confirmación */
 .confirmation-modal-overlay {
