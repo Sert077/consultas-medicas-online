@@ -49,7 +49,8 @@ from fpdf import FPDF
 import matplotlib.pyplot as plt
 import io
 import base64
-
+from rest_framework.decorators import api_view, parser_classes
+from rest_framework.parsers import MultiPartParser, FormParser
 
 # API para crear un nuevo médico
 @api_view(['POST'])
@@ -763,7 +764,6 @@ def generar_reporte(request):
     response['Content-Disposition'] = 'attachment; filename="reporte_consultas.pdf"'
     return response
 
-
 @api_view(['GET'])
 def get_authenticated_doctor(request):
     if request.user.is_authenticated and hasattr(request.user, 'doctor'):
@@ -771,3 +771,28 @@ def get_authenticated_doctor(request):
         serializer = DoctorSerializer(doctor)
         return Response(serializer.data)
     return Response({'detail': 'Usuario no autorizado'}, status=401)
+
+@api_view(['POST'])
+@parser_classes([MultiPartParser, FormParser])
+def upload_pdf(request, chat_id):
+    if 'pdf' not in request.FILES:
+        return JsonResponse({'error': 'No se envió ningún archivo PDF'}, status=400)
+
+    pdf = request.FILES['pdf']
+    sender_id = request.data.get('sender_id')
+    sender_name = request.data.get('sender_name')
+
+    chat_message = ChatMessage.objects.create(
+        chat_id=chat_id,
+        sender_id=sender_id,
+        sender_name=sender_name,
+        pdf=pdf
+    )
+
+    return JsonResponse({
+        'id': chat_message.id,
+        'pdf': chat_message.pdf.url,
+        'sender_id': sender_id,
+        'sender_name': sender_name,
+        'type': 'pdf'
+    })

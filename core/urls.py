@@ -3,7 +3,7 @@ from .views import DoctorCreateView, DoctorListView, DoctorDetailView, create_do
 from .views import UserRegistrationView, login_user
 from . import views
 from .views import send_email
-from .views import get_chat_messages, get_doctor_by_chat, consulta_detail, user_detail, patient_profile
+from .views import get_chat_messages, get_doctor_by_chat, consulta_detail, user_detail, patient_profile, upload_pdf
 from .views import VerifyEmailView, GenerarRecetaView, get_authenticated_doctor
 
 urlpatterns = [
@@ -37,7 +37,7 @@ urlpatterns = [
     path('chat/<str:chat_id>/messages/', get_chat_messages, name='get_chat_messages'),
     path('chat/<int:chat_id>/upload_image/', views.upload_image, name='upload_image'),
     path('chat/<int:chat_id>/doctor/', get_doctor_by_chat, name='get_doctor_by_chat'),
-
+    path('chat/<str:chat_id>/upload_pdf/', upload_pdf, name='upload_pdf'),
     path('chat/<int:chat_id>/consulta/', consulta_detail, name='consulta_detail'),
     path('users/<int:user_id>/', user_detail, name='user_detail'),
     path('verify-email/<str:token>/', VerifyEmailView.as_view(), name='verify-email'),

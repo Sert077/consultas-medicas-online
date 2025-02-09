@@ -196,6 +196,40 @@ const Chat = () => {
         }
     };
 
+    const sendPdf = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const formData = new FormData();
+            formData.append('pdf', file);
+            formData.append('sender_id', userId);
+            formData.append('sender_name', userName);
+    
+            axios.post(`http://localhost:8000/api/chat/${chatId}/upload_pdf/`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            })
+            .then((response) => {
+                const newMessage = response.data;
+                if (ws && ws.readyState === WebSocket.OPEN) {
+                    ws.send(JSON.stringify({
+                        'type': 'pdf',
+                        'pdf': newMessage.pdf,
+                        'sender_id': userId,
+                        'sender_name': userName,
+                        'id': newMessage.id,
+                    }));
+                }
+    
+                setMessages((prevMessages) => [...prevMessages, newMessage]);
+                e.target.value = null;
+            })
+            .catch((error) => {
+                console.error('Error al enviar el PDF:', error);
+            });
+        }
+    };    
+
     const handleKeyPress = (e) => {
         if (e.key === 'Enter') {
             e.preventDefault();
@@ -280,6 +314,7 @@ const Chat = () => {
                         ) : (
                             <p>{formatMessageWithLinks(msg.message)}</p>
                         )}
+                        
                     </div>
                 ))}
                 <div ref={messagesEndRef} />
@@ -298,6 +333,12 @@ const Chat = () => {
                         <FaImage className="image-icon" />
                     </label>
                     <input type="file" accept="image/*" onChange={sendImage} style={{ display: 'none' }} id="file-upload" />
+                    <input
+    type="file"
+    accept="application/pdf"
+    onChange={sendPdf}
+/>
+
                     <button onClick={sendMessage}>Enviar</button>
                 </div>
             </div>
