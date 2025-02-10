@@ -70,7 +70,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
             }
         )
 
-
     @database_sync_to_async
     def save_message(self, chat_id, sender_id, sender_name, message, image=None, pdf=None):
         ChatMessage.objects.create(chat_id=chat_id, sender_id=sender_id, sender_name=sender_name, message=message, image=image, pdf=pdf)

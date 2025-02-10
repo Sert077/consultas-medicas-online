@@ -293,17 +293,20 @@ def consultas_medico(request, user_id):
 
 def get_chat_messages(request, chat_id):
     messages = ChatMessage.objects.filter(chat_id=chat_id).order_by('timestamp')
-    messages_data = [
-        {
-            'message': msg.message,
-            'sender_id': msg.sender_id,
-            'sender_name': msg.sender_name,
-            'image': msg.image.url if msg.image else None  # Devolver la URL tal cual
+    message_list = []
+    for message in messages:
+        message_data = {
+            'id': message.id,
+            'sender_id': message.sender_id,
+            'sender_name': message.sender_name,
+            'message': message.message,
+            'image': message.image.url if message.image else None,
+            'pdf': message.pdf.url if message.pdf else None,
+            'type': 'image' if message.image else 'pdf' if message.pdf else 'text',
+            'timestamp': message.timestamp.isoformat(),
         }
-        for msg in messages
-    ]
-    
-    return JsonResponse(messages_data, safe=False)
+        message_list.append(message_data)
+    return JsonResponse(message_list, safe=False)
 
 @csrf_exempt
 def upload_image(request, chat_id):
@@ -796,3 +799,20 @@ def upload_pdf(request, chat_id):
         'sender_name': sender_name,
         'type': 'pdf'
     })
+
+@api_view(['GET'])
+def get_pdfs(request, chat_id):
+    pdf_messages = ChatMessage.objects.filter(chat_id=chat_id).order_by('id')
+
+    pdf_list = [
+        {
+            'id': msg.id,
+            'pdf': msg.pdf.url if msg.pdf else None,  # Verifica si hay archivo
+            'sender_id': msg.sender_id,
+            'sender_name': msg.sender_name,
+            'type': 'pdf'
+        }
+        for msg in pdf_messages if msg.pdf  # Filtra los que tienen PDF
+    ]
+
+    return JsonResponse(pdf_list, safe=False)

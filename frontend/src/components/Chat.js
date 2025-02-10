@@ -84,7 +84,6 @@ const Chat = () => {
         }
     };
     
-    
     useEffect(() => {
         const fetchDisplayName = async () => {
             try {
@@ -228,7 +227,7 @@ const Chat = () => {
                 console.error('Error al enviar el PDF:', error);
             });
         }
-    };    
+    };  
 
     const handleKeyPress = (e) => {
         if (e.key === 'Enter') {
@@ -301,22 +300,34 @@ const Chat = () => {
           </div> 
 
             <div className="chat-messages">
-                {messages.map((msg, index) => (
-                    <div key={index} className={msg.sender_id === userId ? 'my-message' : 'other-message'}>
-                        <p><strong>{msg.sender_name}:</strong></p>
-                        {msg.image ? (
-                            <img 
-                                src={`http://localhost:8000${msg.image}`} 
-                                alt="Mensaje enviado" 
-                                style={{ maxWidth: '100%', height: 'auto', cursor: 'pointer' }} 
-                                onClick={() => openImagePreview(`http://localhost:8000${msg.image}`)}
-                            />
-                        ) : (
-                            <p>{formatMessageWithLinks(msg.message)}</p>
-                        )}
-                        
-                    </div>
-                ))}
+                    {messages.map((msg, index) => (
+                        <div key={index} className={msg.sender_id === userId ? 'my-message' : 'other-message'}>
+                            <p><strong>{msg.sender_name}:</strong></p>
+                            {msg.image && (
+                                <img 
+                                    src={`http://localhost:8000${msg.image}`} 
+                                    alt="Mensaje enviado" 
+                                    style={{ maxWidth: '100%', height: 'auto', cursor: 'pointer' }} 
+                                    onClick={() => openImagePreview(`http://localhost:8000${msg.image}`)}
+                                />
+                            )}
+                            {/* Si es un PDF */}
+                            {msg.type === 'pdf' && msg.pdf && (
+                                <div className="chat-pdf">
+                                    <a 
+                                        href={`http://localhost:8000${msg.pdf}`} 
+                                        download 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                    >
+                                        📄 Descargar PDF
+                                    </a>
+                                </div>
+                            )}
+
+                            {!msg.image && msg.type !== 'pdf' && <p>{formatMessageWithLinks(msg.message)}</p>}
+                        </div>
+                    ))}
                 <div ref={messagesEndRef} />
             </div>
 
@@ -334,11 +345,10 @@ const Chat = () => {
                     </label>
                     <input type="file" accept="image/*" onChange={sendImage} style={{ display: 'none' }} id="file-upload" />
                     <input
-    type="file"
-    accept="application/pdf"
-    onChange={sendPdf}
-/>
-
+                        type="file"
+                        accept="application/pdf"
+                        onChange={sendPdf}
+                    />
                     <button onClick={sendMessage}>Enviar</button>
                 </div>
             </div>
@@ -473,7 +483,6 @@ const Chat = () => {
                         </form>
                     </div>
                 )}
-
         </div>
     );
 };
