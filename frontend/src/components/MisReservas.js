@@ -93,7 +93,6 @@ const MisReservas = () => {
                             </div>
                         )}
 
-
                         </div>
                             <div className="reserva-info">
                                 <FaUserMd className="icono-doctor" />
@@ -108,7 +107,15 @@ const MisReservas = () => {
                                 <p><strong>Hora:</strong> {consulta.hora}</p>
                             </div>
 
-                            <div className="divider"></div>
+                            <div className="divider">
+                                {consulta.archivo_pdf && (
+                                    <div className="descarga-pdf">
+                                        <a href={`http://localhost:8000${consulta.archivo_pdf}`} download target="_blank" rel="noopener noreferrer">
+                                            <FaFileDownload className="icono-descarga-pdf" /> Ver Análisis Adjunto
+                                        </a>
+                                    </div>
+                                )}
+                            </div>
 
                             <div className="button-group">
                                 <button

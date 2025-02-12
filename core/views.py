@@ -239,7 +239,8 @@ def send_email(request):
 @api_view(['GET'])
 def consultas_paciente(request, paciente_id):
     consultas = Consulta.objects.filter(paciente_id=paciente_id).select_related('medico').prefetch_related('recetas')
-    
+    archivo_pdf_url = f"{settings.MEDIA_URL}{consulta.archivo_pdf}" if consulta.archivo_pdf else None
+
     data = []
     for consulta in consultas:
         receta = consulta.recetas.first()  # Suponemos una receta por consulta
@@ -250,6 +251,8 @@ def consultas_paciente(request, paciente_id):
             'estado': consulta.estado,
             'medico_name': f'{consulta.medico.first_name} {consulta.medico.last_name}',
             'doc_receta': receta.doc_receta.url if receta and receta.doc_receta else None,  # URL del documento
+            'archivo_pdf': archivo_pdf_url,
+            "tipo_consulta": consulta.tipo_consulta,
         })
     
     return Response(data)
@@ -274,6 +277,7 @@ def consultas_medico(request, user_id):
             # Buscar la receta asociada a la consulta
             receta = Receta.objects.filter(consulta=consulta.id).first()
             doc_receta_url = f"{settings.MEDIA_URL}{receta.doc_receta}" if receta and receta.doc_receta else None
+            archivo_pdf_url = f"{settings.MEDIA_URL}{consulta.archivo_pdf}" if consulta.archivo_pdf else None
 
             # Crear el diccionario de datos
             consultas_data.append({
@@ -283,6 +287,8 @@ def consultas_medico(request, user_id):
                 "hora": consulta.hora,
                 "estado": consulta.estado,  # Incluir el estado de la consulta
                 "doc_receta": doc_receta_url,  # Incluir la URL de la receta si existe
+                "archivo_pdf": archivo_pdf_url,
+                "tipo_consulta": consulta.tipo_consulta,
             })
 
         return JsonResponse(consultas_data, safe=False)

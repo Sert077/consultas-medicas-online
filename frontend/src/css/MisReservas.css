@@ -60,6 +60,7 @@
     justify-content: flex-end;
     gap: 10px;
     margin-top: 10px;
+    margin-bottom: -10px;
 }
 
 .reservas-list button {
@@ -148,10 +149,35 @@
     text-decoration: none;
     color: #4CAF50; /* Verde acorde a tu estilo */
     font-weight: bold;
+    margin-top: -10px;
 }
 
 .icono-descarga {
     margin-right: 5px;
+    margin-top: -5px;
 }
 
+.descarga-pdf {
+    margin-top: 10px;
+}
+
+.descarga-pdf a {
+    display: flex;
+    align-items: center;
+    color: #1559a1;
+    font-weight: bold;
+    text-decoration: none;
+    margin-top: 30px;
+    margin-left: 2px;
+}
+
+.descarga-pdf a:hover {
+    text-decoration: underline;
+}
+
+.icono-descarga-pdf {
+    margin-right: 10px;
+    width: 17px;
+    height: 17px;
+}
 
