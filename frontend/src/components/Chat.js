@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
-import { FaImage, FaDownload, FaTimes, FaVideo, FaUser } from 'react-icons/fa';
+import { FaImage, FaDownload, FaTimes, FaVideo, FaUser, FaFilePdf } from 'react-icons/fa';
 import '../css/ChatComponent.css';
 
 const Chat = () => {
@@ -38,7 +38,6 @@ const Chat = () => {
     };
 
     const handleRecipeSubmit = async () => {
-        // Validar campos requeridos
         if (
             !recipeData.nombre_paciente.trim() ||
             !recipeData.peso.trim() ||
@@ -83,7 +82,6 @@ const Chat = () => {
             }
         }
     };
-    
     
     useEffect(() => {
         const fetchDisplayName = async () => {
@@ -196,6 +194,47 @@ const Chat = () => {
         }
     };
 
+    const sendPdf = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const formData = new FormData();
+            formData.append('pdf', file);
+            formData.append('sender_id', userId);
+            formData.append('sender_name', userName);
+    
+            axios.post(`http://localhost:8000/api/chat/${chatId}/upload_pdf/`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            })
+            .then((response) => {
+                    const newMessage = response.data;
+                    if (ws && ws.readyState === WebSocket.OPEN) {
+                        ws.send(JSON.stringify({
+                            'type': 'pdf',
+                            'pdf': newMessage.pdf,
+                            'sender_id': userId,
+                            'sender_name': userName,
+                            'id': newMessage.id,
+                        }));
+                    }
+
+                    setMessages((prevMessages) => {
+                        const isDuplicate = prevMessages.some((msg) => msg.id === newMessage.id);
+                        if (!isDuplicate) {
+                            return [...prevMessages, newMessage];
+                        }
+                        return prevMessages;
+                    });
+
+                    e.target.value = null;
+                })
+                .catch((error) => {
+                    console.error('Error al enviar el pdf:', error);
+                });
+        }
+    };
+    
     const handleKeyPress = (e) => {
         if (e.key === 'Enter') {
             e.preventDefault();
@@ -236,21 +275,17 @@ const Chat = () => {
             )
         );
     };
-
     // Filtrar solo mensajes de tipo "status"
     const statusMessages = messages.filter(msg => msg.type === 'status');
 
     return (
         <div className="chat-container">
             <h2>Chat</h2>
-            
-
           <div className="doctor-infochat">
             <FaUser className="doctor-iconchat" />
             <span>
                 {tipoUsuario === 'paciente' ? `Dr(a): ${displayName}` : displayName}
             </span>
-
             {/* Aquí mostramos solo el estado sin el nombre del usuario */}
             {statusMessages.length > 0 && (
                 <div className="status-container">
@@ -267,24 +302,37 @@ const Chat = () => {
           </div> 
 
             <div className="chat-messages">
-                {messages.map((msg, index) => (
-                    <div key={index} className={msg.sender_id === userId ? 'my-message' : 'other-message'}>
-                        <p><strong>{msg.sender_name}:</strong></p>
-                        {msg.image ? (
-                            <img 
-                                src={`http://localhost:8000${msg.image}`} 
-                                alt="Mensaje enviado" 
-                                style={{ maxWidth: '100%', height: 'auto', cursor: 'pointer' }} 
-                                onClick={() => openImagePreview(`http://localhost:8000${msg.image}`)}
-                            />
-                        ) : (
-                            <p>{formatMessageWithLinks(msg.message)}</p>
-                        )}
-                    </div>
-                ))}
+                    {messages.map((msg, index) => (
+                        <div key={index} className={msg.sender_id === userId ? 'my-message' : 'other-message'}>
+                            <p><strong>{msg.sender_name}:</strong></p>
+                            {msg.image && (
+                                <img 
+                                    src={`http://localhost:8000${msg.image}`} 
+                                    alt="Mensaje enviado" 
+                                    style={{ maxWidth: '100%', height: 'auto', cursor: 'pointer' }} 
+                                    onClick={() => openImagePreview(`http://localhost:8000${msg.image}`)}
+                                />
+                            )}
+                            {/* Si es un PDF */}
+                            {msg.type === 'pdf' && msg.pdf && (
+                                <div className="chat-pdf">
+                                    <FaFilePdf className="pdf-icon-chat" />
+                                    <a 
+                                        href={`http://localhost:8000${msg.pdf}`} 
+                                        download 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        className="pdf-link"
+                                    >
+                                        {msg.pdf.split('/').pop()} {/* Muestra solo el nombre del archivo */}
+                                    </a>
+                                </div>
+                            )}
+                            {!msg.image && msg.type !== 'pdf' && <p>{formatMessageWithLinks(msg.message)}</p>}
+                        </div>
+                    ))}
                 <div ref={messagesEndRef} />
             </div>
-
             <div className="chat-input">
                 <div style={{ display: 'flex', justifyContent: 'flex-start', width: '100%' }}>
                     <input
@@ -298,10 +346,13 @@ const Chat = () => {
                         <FaImage className="image-icon" />
                     </label>
                     <input type="file" accept="image/*" onChange={sendImage} style={{ display: 'none' }} id="file-upload" />
+                    <label htmlFor="pdf-upload" className="custom-file-upload">
+            <FaFilePdf className="pdf-icon" />
+        </label>
+        <input type="file" accept="application/pdf" onChange={sendPdf} style={{ display: 'none' }} id="pdf-upload" />
                     <button onClick={sendMessage}>Enviar</button>
                 </div>
             </div>
-
             {selectedImage && (
                 <div className="image-preview-overlay" onClick={closeImagePreview}>
                     <div className="image-preview-content" onClick={(e) => e.stopPropagation()}>
@@ -432,7 +483,6 @@ const Chat = () => {
                         </form>
                     </div>
                 )}
-
         </div>
     );
 };

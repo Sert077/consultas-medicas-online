@@ -49,7 +49,8 @@ from fpdf import FPDF
 import matplotlib.pyplot as plt
 import io
 import base64
-
+from rest_framework.decorators import api_view, parser_classes
+from rest_framework.parsers import MultiPartParser, FormParser
 
 # API para crear un nuevo médico
 @api_view(['POST'])
@@ -292,17 +293,20 @@ def consultas_medico(request, user_id):
 
 def get_chat_messages(request, chat_id):
     messages = ChatMessage.objects.filter(chat_id=chat_id).order_by('timestamp')
-    messages_data = [
-        {
-            'message': msg.message,
-            'sender_id': msg.sender_id,
-            'sender_name': msg.sender_name,
-            'image': msg.image.url if msg.image else None  # Devolver la URL tal cual
+    message_list = []
+    for message in messages:
+        message_data = {
+            'id': message.id,
+            'sender_id': message.sender_id,
+            'sender_name': message.sender_name,
+            'message': message.message,
+            'image': message.image.url if message.image else None,
+            'pdf': message.pdf.url if message.pdf else None,
+            'type': 'image' if message.image else 'pdf' if message.pdf else 'text',
+            'timestamp': message.timestamp.isoformat(),
         }
-        for msg in messages
-    ]
-    
-    return JsonResponse(messages_data, safe=False)
+        message_list.append(message_data)
+    return JsonResponse(message_list, safe=False)
 
 @csrf_exempt
 def upload_image(request, chat_id):
@@ -763,7 +767,6 @@ def generar_reporte(request):
     response['Content-Disposition'] = 'attachment; filename="reporte_consultas.pdf"'
     return response
 
-
 @api_view(['GET'])
 def get_authenticated_doctor(request):
     if request.user.is_authenticated and hasattr(request.user, 'doctor'):
@@ -771,3 +774,44 @@ def get_authenticated_doctor(request):
         serializer = DoctorSerializer(doctor)
         return Response(serializer.data)
     return Response({'detail': 'Usuario no autorizado'}, status=401)
+
+@api_view(['POST'])
+@parser_classes([MultiPartParser, FormParser])
+def upload_pdf(request, chat_id):
+    if 'pdf' not in request.FILES:
+        return JsonResponse({'error': 'No se envió ningún archivo PDF'}, status=400)
+
+    pdf = request.FILES['pdf']
+    sender_id = request.data.get('sender_id')
+    sender_name = request.data.get('sender_name')
+
+    chat_message = ChatMessage.objects.create(
+        chat_id=chat_id,
+        sender_id=sender_id,
+        sender_name=sender_name,
+        pdf=pdf
+    )
+
+    return JsonResponse({
+        'message': None,
+        'pdf': chat_message.pdf.url,
+        'sender_id': sender_id,
+        'sender_name': sender_name,
+    })
+
+@api_view(['GET'])
+def get_pdfs(request, chat_id):
+    pdf_messages = ChatMessage.objects.filter(chat_id=chat_id).order_by('id')
+
+    pdf_list = [
+        {
+            'id': msg.id,
+            'pdf': msg.pdf.url if msg.pdf else None,  # Verifica si hay archivo
+            'sender_id': msg.sender_id,
+            'sender_name': msg.sender_name,
+            'type': 'pdf'
+        }
+        for msg in pdf_messages if msg.pdf  # Filtra los que tienen PDF
+    ]
+
+    return JsonResponse(pdf_list, safe=False)

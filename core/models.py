@@ -79,6 +79,7 @@ class ChatMessage(models.Model):
     sender_name = models.CharField(max_length=255, null=True)
     message = models.TextField(null=True, blank=True)  # Hacer que el mensaje sea opcional para admitir imágenes
     image = models.ImageField(upload_to='profile_pictures/chat_images/', null=True, blank=True)  # Agregar campo de imagen
+    pdf = models.FileField(upload_to='profile_pictures/chat_pdfs/', null=True, blank=True)  # Nuevo campo para PDF
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
