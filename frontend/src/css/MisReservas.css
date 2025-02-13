@@ -149,7 +149,7 @@
     text-decoration: none;
     color: #4CAF50; /* Verde acorde a tu estilo */
     font-weight: bold;
-    margin-top: -10px;
+    margin-top: -7px;
 }
 
 .icono-descarga {
@@ -180,4 +180,72 @@
     width: 17px;
     height: 17px;
 }
+
+.filtros-container {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.filtros-container label {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+    margin-top: 7px;
+}
+
+.filtros-container select {
+    padding: 9px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 15px;
+    color: #333;
+    background-color: #fff;
+    width: 180px;
+    cursor: pointer;
+}
+
+/* Contenedor del icono del calendario */
+.icono-calendario-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 35px;
+    height: 35px;
+    background-color: #f0f0f0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.icono-calendario-container:hover {
+    background-color: #ddd;
+}
+
+.icono-calendario-filter {
+    
+}
+
+/* Estilos para el rango de fechas */
+.fecha-rango {
+    font-size: 14px;
+    color: #777;
+    margin-top: 5px;
+    display: block;
+}
+
+/* Ajuste para mostrar el DatePicker de forma inline */
+.react-datepicker {
+    position: absolute;
+    z-index: 100;
+    margin-top: 5px;
+}
+
+.filtro-label-icon {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Espacio entre el label y el icono */
+}
+
 
