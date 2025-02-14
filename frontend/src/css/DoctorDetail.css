@@ -416,11 +416,6 @@ h3{
     margin-bottom: 5px; /* Separación entre calendario y tipo consulta */
 }
 
-/* Ajustar la separación entre el campo de hora y tipo de consulta */
-.calendar-picker {
-    margin-bottom: 8px; /* Añadir un pequeño espacio entre el calendario y el select */
-}
-
 .input-field:focus {
     outline: none;
     border-color: #6c63ff;

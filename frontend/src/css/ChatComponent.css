@@ -400,12 +400,13 @@
     height: 100%;
     background: #fff;
     box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
-    padding: 20px;
+    padding: 15px;
     overflow-y: auto;
+    border-radius: 6px;
 }
 
 .recipe-form-container h3 {
-    color: #28ada8;
+    color: #4CAF50;
     margin-top: 0;
 }
 
@@ -421,14 +422,14 @@
 }
 
 .form-group-receta label {
-    font-weight: bold;
+    
     margin-bottom: 5px;
     font-size: 14px;
   }
 
   .form-group-receta input {
     font-weight: normal;
-    margin-bottom: 5px;
+    margin-bottom: 0px;
     margin-top: 5px;
     font-size: 14px;
   }
@@ -451,23 +452,23 @@
 }
 
 .form-buttons button {
-    width: 200px;           /* Asegura un tamaño uniforme */
+    width: 180px;           /* Asegura un tamaño uniforme */
     padding: 10px;
     color: white;
     border: none;
     border-radius: 6px;
     cursor: pointer;
     font-size: 16px;
-    transition: background-color 0.2s, transform 0.2s;
+    transition: background-color 0.1s, transform 0.1s;
 }
 
 .send-recipe {
-    background-color: #4caf50; /* Verde */
+    background-color: #6c63ff; /* Verde */
 }
 
 .send-recipe:hover {
-    background-color: #45a049;
-    transform: scale(1.05); /* Pequeño efecto al pasar el cursor */
+    background-color: #4e4ab7;
+    transform: scale(1.01); /* Pequeño efecto al pasar el cursor */
 }
 
 .cancel-button {
@@ -476,7 +477,37 @@
 
 .cancel-button:hover {
     background-color: #d32f2f;
-    transform: scale(1.05); /* Pequeño efecto al pasar el cursor */
+    transform: scale(1.01); /* Pequeño efecto al pasar el cursor */
 }
 
+.chat-pdf {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #f8f9fa;
+    padding: 8px;
+    border-radius: 5px;
+    max-width: 100%;
+    overflow: hidden;
+}
 
+.pdf-icon-chat {
+    color: #d9534f;
+    font-size: 15px; /* Ajusté un poco el tamaño */
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0; /* Evita que el icono se achique */
+}
+
+.pdf-link {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: bold;
+    overflow-wrap: break-word; /* Asegura que el nombre del archivo no desborde */
+    word-break: break-all;
+    max-width: calc(100% - 40px); /* Limita el ancho del texto */
+}
+
+.pdf-link:hover {
+    text-decoration: underline;
+}

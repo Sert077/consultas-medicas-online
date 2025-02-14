@@ -91,11 +91,13 @@ const HistorialConsultas = () => {
         <button onClick={generarReporte}>Generar Reporte PDF</button>
 
         {/* Consultas */}
+        <h3>Consultas</h3>
         <table>
           <thead>
             <tr>
               <th>Fecha</th>
               <th>Hora</th>
+              <th>Tipo consulta</th>
               <th>Genero</th>
               <th>Edad</th>
               <th>Tipo de sangre</th>
@@ -108,6 +110,7 @@ const HistorialConsultas = () => {
               <tr key={consulta.id}>
                 <td>{consulta.fecha}</td>
                 <td>{consulta.hora}</td>
+                <td>{consulta.tipo_consulta}</td>
                 <td>{consulta.genero}</td>
                 <td>{consulta.edad}</td>
                 <td>{consulta.tipo_sangre}</td>
@@ -119,21 +122,23 @@ const HistorialConsultas = () => {
         </table>
 
         {/* Recetas */}
+        <h3>Recetas</h3>
         <table>
           <thead>
             <tr>
+              <th>Fecha</th>
               <th>Paciente</th>
               <th>Diagnóstico</th>
-              <th>Fecha de Creación</th>
               <th>Médico</th>
             </tr>
           </thead>
           <tbody>
             {recetas.map((receta) => (
               <tr key={receta.id}>
+                <td>{new Date(receta.fecha_creacion).toLocaleDateString()}</td>
                 <td>{receta.nombre_paciente}</td>
                 <td>{receta.diagnostico}</td>
-                <td>{new Date(receta.fecha_creacion).toLocaleDateString()}</td>
+                
                 <td>{receta.medico__first_name} {receta.medico__last_name}</td>
               </tr>
             ))}

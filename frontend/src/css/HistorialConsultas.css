@@ -7,6 +7,11 @@
     text-align: center;
     font-size: 24px;
   }
+  .historial-consultas h3 {
+    text-align: center;
+    color: #392682;
+    font-size: 20px;
+  }
   
   .filtros {
     display: flex;
