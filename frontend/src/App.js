@@ -49,7 +49,7 @@ function App() {
                     <Route path="/" element={<Home />} />
                     <Route path="/registerdoctor" element={<RegisterDoctor />} />
                     <Route path="/doctores" element={<Doctores />} /> 
-                    <Route path="/doctores/:id" element={<DoctorDetail />} /> {/* Nueva ruta */}
+                    <Route path="/doctores/:id" element={<DoctorDetail />} /> {/* Detalles de doctor */}
                     <Route path="/register" element={<Register />} />
                     <Route path="/login" element={<Login />} />
                     <Route path="/send-email" element={<EmailForm />} />
@@ -68,8 +68,3 @@ function App() {
 }
 
 export default App;
-
-
-
-
-

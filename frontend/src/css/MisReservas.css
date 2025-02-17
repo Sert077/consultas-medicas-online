@@ -57,21 +57,46 @@
 
 .button-group {
     display: flex;
-    justify-content: flex-end;
-    gap: 10px;
+    align-items: center;
     margin-top: 10px;
     margin-bottom: -10px;
+}
+
+.botones-derecha {
+    display: flex;
+    gap: 10px;
+    margin-bottom: -5px;
+    margin-left: auto; /* Fija los botones a la derecha */
 }
 
 .reservas-list button {
     padding: 7px 10px; /* Reducir el tamaño del botón */
     border: none;
     border-radius: 5px;
-    background-color: #4CAF50;
+    background-color: #6c63ff;
     color: white;
     /*font-size: 0.97em; /* Reducir tamaño de la fuente en los botones */
     cursor: pointer;
     transition: background-color 0.3s ease;
+}
+
+.reservas-list button:hover{
+    background-color: #4e4ab7;
+}
+
+.reservas-list button.button-realizado{
+    padding: 7px 10px; /* Reducir el tamaño del botón */
+    border: none;
+    border-radius: 5px;
+    background-color: #6c63ff;
+    color: white;
+    /*font-size: 0.97em; /* Reducir tamaño de la fuente en los botones */
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.reservas-list button.button-realizado:hover{
+    background-color: #4e4ab7;
 }
 
 .reservas-list button:last-child {
@@ -80,10 +105,15 @@
 }
 
 .reservas-list button:last-child:hover {
-    background-color: #ff3333;
+    background-color: #c0392b;
 }
 
 .reservas-list button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.reservas-list button:disabled:hover {
     background-color: #ccc;
     cursor: not-allowed;
 }
@@ -158,7 +188,7 @@
 }
 
 .descarga-pdf {
-    margin-top: 10px;
+    margin-top: 20px;
 }
 
 .descarga-pdf a {
@@ -167,12 +197,7 @@
     color: #1559a1;
     font-weight: bold;
     text-decoration: none;
-    margin-top: 30px;
     margin-left: 2px;
-}
-
-.descarga-pdf a:hover {
-    text-decoration: underline;
 }
 
 .icono-descarga-pdf {
@@ -184,13 +209,15 @@
 .filtros-container {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 15px;
     margin-bottom: 20px;
 }
 
 .filtros-container label {
     font-size: 16px;
-    font-weight: bold;
+    font-weight: 500; /* Un poco más grueso que normal */
+    font-family: 'Inter', sans-serif;
     color: #333;
     margin-top: 7px;
 }
@@ -204,6 +231,16 @@
     background-color: #fff;
     width: 180px;
     cursor: pointer;
+}
+
+.tipo-consulta-filter:focus {
+    outline: none;
+    border-color: #6c63ff;
+}
+
+.estado-filter:focus {
+    outline: none;
+    border-color: #6c63ff;
 }
 
 /* Contenedor del icono del calendario */
@@ -224,19 +261,30 @@
 }
 
 .icono-calendario-filter {
-    
+    font-size: 20px;
+    color: #667;
 }
 
+.icono-calendario-filter:hover {
+    font-size: 20px;
+    color: rgb(7, 7, 7);
+}
 /* Estilos para el rango de fechas */
 .fecha-rango {
-    font-size: 14px;
+    font-size: 15px;
     color: #777;
     margin-top: 5px;
     display: block;
 }
 
-/* Ajuste para mostrar el DatePicker de forma inline */
-.react-datepicker {
+.fecha-rango-container {
+    display: flex;
+    justify-content: center; /* Centra horizontalmente */
+    margin-bottom: 20px; /* Espacio entre los filtros y el texto */
+}
+
+/* Estilos específicos para el DatePicker dentro de MisReservas */
+.misreservas-container .react-datepicker {
     position: absolute;
     z-index: 100;
     margin-top: 5px;
@@ -248,4 +296,43 @@
     gap: 10px; /* Espacio entre el label y el icono */
 }
 
+.paginacion {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+    gap: 20px;
+}
+
+.boton-paginacion {
+    background: none;
+    border: none;
+    color: #392682;
+    cursor: pointer;
+    font-size: 1.5em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.3s, transform 0.2s;
+}
+
+.boton-paginacion:hover:not(:disabled) {
+    background: none;
+    border: none;
+    color: #332374;
+    transform: scale(1.1);
+}
+
+.boton-paginacion:disabled {
+    color: #ccc;
+    cursor: not-allowed;
+}
+
+.pagina-actual {
+    font-weight: bold;
+    font-size: 17px;
+    font-family: 'Inter', sans-serif;
+    color: #333;
+    margin-top: -18px;
+}
 

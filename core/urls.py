@@ -47,5 +47,6 @@ urlpatterns = [
     path('historial-consultas/', views.historial_consultas, name='historial_consultas'),
     path('generar-reporte/', views.generar_reporte, name='generar_reporte'),
     path('doctors/me/', get_authenticated_doctor, name='get_authenticated_doctor'),
+    path('consultas/<int:consulta_id>/cambiar_estado/', views.cambiar_estado_consulta, name='cambiar_estado_consulta'),
 
 ]

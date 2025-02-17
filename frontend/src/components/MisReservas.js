@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaCalendarAlt, FaClock, FaUserMd, FaHashtag } from 'react-icons/fa';
+import { FaCalendarAlt, FaClock, FaUserMd, FaHashtag, FaArrowLeft, FaArrowRight } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { FaFileDownload } from 'react-icons/fa';
 import DatePicker from 'react-datepicker';
@@ -18,6 +18,8 @@ const MisReservas = () => {
     const token = localStorage.getItem('token'); 
     const tipoUsuario = localStorage.getItem('tipo_usuario'); 
     const userId = localStorage.getItem('paciente_id'); 
+    const [currentPage, setCurrentPage] = useState(1);
+    const consultasPorPagina = 10;
 
     useEffect(() => {
         if (!token) {
@@ -71,6 +73,24 @@ const MisReservas = () => {
         return timeDifference <= 5 && timeDifference >= -60;
     };
 
+    const handleMarcarComoRealizada = (consultaId) => {
+        fetch(`http://localhost:8000/api/consultas/${consultaId}/cambiar_estado/`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Token ${token}`,
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+            setReservas(reservas.map(consulta => 
+                consulta.id === consultaId ? { ...consulta, estado: 'realizada' } : consulta
+            ));
+        })
+        .catch(error => console.error('Error al cambiar estado de la consulta:', error));
+    };    
+
     // Filtrar reservas según los filtros seleccionados
     const reservasFiltradas = reservas.filter(consulta => {
         const fechaConsulta = new Date(consulta.fecha);
@@ -81,6 +101,24 @@ const MisReservas = () => {
         );
     });
 
+    // Calcular la cantidad total de páginas
+    const totalPaginas = Math.ceil(reservasFiltradas.length / consultasPorPagina);
+
+    // Obtener las consultas de la página actual
+    const consultasPaginadas = reservasFiltradas.slice(
+        (currentPage - 1) * consultasPorPagina,
+        currentPage * consultasPorPagina
+    );
+
+    // Funciones para cambiar de página
+    const paginaAnterior = () => {
+        if (currentPage > 1) setCurrentPage(currentPage - 1);
+    };
+
+    const paginaSiguiente = () => {
+        if (currentPage < totalPaginas) setCurrentPage(currentPage + 1);
+    };
+
     return (
         <div className="reservas-container">
             <h2>Consultas médicas</h2>
@@ -88,64 +126,69 @@ const MisReservas = () => {
             {/* Filtros */}
             <div className="filtros-container">
                 <label>Tipo de consulta:</label>
-                <select value={tipoConsulta} onChange={(e) => setTipoConsulta(e.target.value)}>
+                <select value={tipoConsulta} onChange={(e) => setTipoConsulta(e.target.value)} className='tipo-consulta-filter'>
                     <option value="">Todas</option>
                     <option value="virtual">Virtual</option>
                     <option value="presencial">Presencial</option>
                 </select>
 
                 <label>Estado:</label>
-                <select value={estadoConsulta} onChange={(e) => setEstadoConsulta(e.target.value)}>
+                <select value={estadoConsulta} onChange={(e) => setEstadoConsulta(e.target.value)} className='estado-filter'>
                     <option value="">Todos</option>
                     <option value="pendiente">Pendiente</option>
                     <option value="realizada">Realizada</option>
                     <option value="cancelada">Cancelada</option>
                 </select>
 
-                <div className="filtro-item">
-                <div className="filtro-label-icon">
-                    <label>Filtrar por fecha:</label>
-                    <div className="icono-calendario-container" onClick={() => setOpenCalendar(!openCalendar)}>
-                        <FaCalendarAlt className="icono-calendario-filter" />
-                    </div>
+                <div className="misreservas-container">
+                    <div className="filtro-item">
+                        <div className="filtro-label-icon">
+                            <label>Fecha:</label>
+                            <div className="icono-calendario-container" onClick={() => setOpenCalendar(!openCalendar)}>
+                                <FaCalendarAlt className="icono-calendario-filter" />
+                            </div>
                         </div>
-                            {openCalendar && (
-                                <DatePicker
+                        {openCalendar && (
+                            <DatePicker
                                 selectsRange
                                 startDate={fechaInicio}
                                 endDate={fechaFin}
                                 onChange={(update) => {
                                     setRangoFechas(update);
-                                    if (update[0] && update[1]) { // Solo cerrar cuando ambas fechas estén seleccionadas
+                                    if (update[0] && update[1]) {
                                         setOpenCalendar(false);
                                     }
                                 }}
                                 isClearable
                                 inline
-                            />    
-                            )}
-                        </div>
-                            {fechaInicio && fechaFin && (
-                                <span className="fecha-rango">
-                                    Rango seleccionado: {fechaInicio.toLocaleDateString()} - {fechaFin.toLocaleDateString()}
-                                </span>
-                            )}
+                            />
+                        )}
+                    </div>
+                </div>
             </div>
 
-            {reservasFiltradas.length === 0 ? (
+            {fechaInicio && fechaFin && (
+                <div className="fecha-rango-container">
+                    <span className="fecha-rango">
+                        Rango seleccionado: {fechaInicio.toLocaleDateString()} - {fechaFin.toLocaleDateString()}
+                    </span>
+                </div>
+            )}
+
+            {consultasPaginadas.length === 0 ? (
                 <p>No tienes consultas reservadas.</p>
             ) : (
                 <ul className="reservas-list">
-                    {reservasFiltradas.map(consulta => (
+                    {consultasPaginadas.map(consulta => (
                         <li key={consulta.id}>
                             <div className="fila-superior">
                                 <div className="consulta-id">
                                     <FaHashtag className="icono-id" />
-                                    <span><strong>Consulta:</strong> {consulta.id} {consulta.tipo_consulta}</span>
+                                    <span><strong>Consulta:</strong> {consulta.id} {consulta.tipo_consulta.charAt(0).toUpperCase() + consulta.tipo_consulta.slice(1)}</span>
                                 </div>
                                 <div className="estado-consulta">
                                     <span className={`estado-label ${consulta.estado.toLowerCase()}`}>
-                                        {consulta.estado}
+                                        {consulta.estado.charAt(0).toUpperCase() + consulta.estado.slice(1)}
                                     </span>
                                 </div>
                                 {consulta.estado.toLowerCase() === 'realizada' && consulta.doc_receta && (
@@ -168,28 +211,61 @@ const MisReservas = () => {
                                 <FaClock className="icono-reloj" />
                                 <p><strong>Hora:</strong> {consulta.hora}</p>
                             </div>
-                            <div className="divider">
-                                {consulta.archivo_pdf && (
+                            
+                            {consulta.archivo_pdf && (
                                     <div className="descarga-pdf">
                                         <a href={`http://localhost:8000${consulta.archivo_pdf}`} download target="_blank" rel="noopener noreferrer">
                                             <FaFileDownload className="icono-descarga-pdf" /> Ver Análisis Adjunto
                                         </a>
                                     </div>
                                 )}
-                            </div>
+                            <div className="divider"></div>                            
                             <div className="button-group">
-                                <button
-                                    onClick={() => handleRealizarConsulta(consulta.id)}
-                                >
-                                    Realizar consulta
-                                </button>
-                                <button onClick={() => handleCancelarConsulta(consulta.id)}>
-                                    Cancelar consulta
-                                </button>
+                                {tipoUsuario === 'medico' && consulta.estado !== 'realizada' && (
+                                    <button className='button-realizado' onClick={() => handleMarcarComoRealizada(consulta.id)}>
+                                        Marcar como realizada
+                                    </button>
+                                )}
+                                <div className="botones-derecha">
+                                    {consulta.tipo_consulta !== 'presencial' && (
+                                        <button 
+                                            onClick={() => handleRealizarConsulta(consulta.id)} 
+                                            disabled={consulta.estado === 'realizada'}
+                                        >
+                                            Realizar consulta
+                                        </button>
+                                    )}
+                                    <button 
+                                        onClick={() => handleCancelarConsulta(consulta.id)} 
+                                        disabled={consulta.estado === 'realizada'}
+                                    >
+                                        Cancelar consulta
+                                    </button>
+                                </div>
                             </div>
                         </li>
                     ))}
                 </ul>
+            )}
+            {/* Controles de paginación */}
+            {reservasFiltradas.length > 10 && (
+                <div className="paginacion">
+                    <button 
+                        className="boton-paginacion" 
+                        onClick={paginaAnterior} 
+                        disabled={currentPage === 1}
+                    >
+                        <FaArrowLeft />
+                    </button>
+                    <span className="pagina-actual">Página {currentPage} de {totalPaginas}</span>
+                    <button 
+                        className="boton-paginacion" 
+                        onClick={paginaSiguiente} 
+                        disabled={currentPage === totalPaginas}
+                    >
+                        <FaArrowRight />
+                    </button>
+                </div>
             )}
         </div>
     );

@@ -51,6 +51,8 @@ import io
 import base64
 from rest_framework.decorators import api_view, parser_classes
 from rest_framework.parsers import MultiPartParser, FormParser
+from django.utils.dateparse import parse_date
+import random
 
 # API para crear un nuevo médico
 @api_view(['POST'])
@@ -239,7 +241,7 @@ def send_email(request):
 @api_view(['GET'])
 def consultas_paciente(request, paciente_id):
     consultas = Consulta.objects.filter(paciente_id=paciente_id).select_related('medico').prefetch_related('recetas')
-    archivo_pdf_url = f"{settings.MEDIA_URL}{consulta.archivo_pdf}" if consulta.archivo_pdf else None
+    
 
     data = []
     for consulta in consultas:
@@ -251,7 +253,7 @@ def consultas_paciente(request, paciente_id):
             'estado': consulta.estado,
             'medico_name': f'{consulta.medico.first_name} {consulta.medico.last_name}',
             'doc_receta': receta.doc_receta.url if receta and receta.doc_receta else None,  # URL del documento
-            'archivo_pdf': archivo_pdf_url,
+            
             "tipo_consulta": consulta.tipo_consulta,
         })
     
@@ -661,7 +663,7 @@ def historial_consultas(request):
 
     # Usamos list() para convertir el queryset a una lista de diccionarios
     consultas_data = list(consultas_paginadas.object_list.values(
-        'id', 'fecha', 'hora', 'estado', 'motivo_consulta', 'genero', 'tipo_sangre', 'edad', 'medico__first_name', 'medico__last_name'
+        'id', 'fecha', 'hora', 'estado', 'motivo_consulta', 'genero', 'tipo_sangre', 'edad', 'tipo_consulta', 'embarazo', 'medico__first_name', 'medico__last_name'
     ))
     recetas_data = list(recetas.values(
         'id', 'nombre_paciente', 'diagnostico', 'fecha_creacion', 'medico__first_name', 'medico__last_name'
@@ -678,7 +680,6 @@ def historial_consultas(request):
 
 
 def generar_reporte(request):
-    # Especialidades predefinidas
     especialidades = [
         'Alergología', 'Cardiología', 'Dermatología', 'Endocrinología', 'Fisioterapia',
         'Gastroenterología', 'Geriatría', 'Ginecología', 'Hematología', 'Infectología',
@@ -688,75 +689,96 @@ def generar_reporte(request):
         'Sexología', 'Traumatología', 'Urología', 'Otros'
     ]
 
-    # Recuperamos el tipo de reporte desde la URL
     reporte_tipo = request.GET.get('tipo', '')
+    fecha_inicio = request.GET.get('fecha_inicio')
+    fecha_fin = request.GET.get('fecha_fin')
+    grafico_tipo = request.GET.get('grafico_tipo', 'barras_verticales')
 
-    # Crear los gráficos basados en el tipo de reporte
+    # Filtrado base
+    consultas = Consulta.objects.all()
+
+    # Aplicar filtro por fechas si están presentes
+    if fecha_inicio:
+        consultas = consultas.filter(fecha__gte=parse_date(fecha_inicio))
+    if fecha_fin:
+        consultas = consultas.filter(fecha__lte=parse_date(fecha_fin))
+
+    # Generar el reporte según el tipo
     if reporte_tipo == 'estado':
-        consultas_por_estado = Consulta.objects.values('estado').annotate(count=Count('estado'))
+        consultas_por_estado = consultas.values('estado').annotate(count=Count('estado'))
         chart_data = consultas_por_estado
         title = 'Consultas por estado'
         xlabel = 'Estado'
         ylabel = 'Cantidad'
+
     elif reporte_tipo == 'genero':
-        consultas_por_genero = Consulta.objects.values('genero').annotate(count=Count('genero'))
+        consultas_por_genero = consultas.values('genero').annotate(count=Count('genero'))
         chart_data = consultas_por_genero
         title = 'Consultas por género'
         xlabel = 'Género'
         ylabel = 'Cantidad'
+
     elif reporte_tipo == 'especialidad':
-        consultas_por_especialidad = Consulta.objects.filter(medico__specialty__in=especialidades) \
+        consultas_por_especialidad = consultas.filter(medico__specialty__in=especialidades) \
             .values('medico__specialty').annotate(count=Count('medico__specialty'))
         chart_data = consultas_por_especialidad
         title = 'Consultas por especialidad'
         xlabel = 'Especialidad'
         ylabel = 'Cantidad'
+
+    elif reporte_tipo == 'edad':
+        consultas_por_edad = consultas.values('edad').annotate(count=Count('edad'))
+        chart_data = consultas_por_edad
+        title = 'Consultas por edad'
+        xlabel = 'Edad'
+        ylabel = 'Cantidad'
+
+    elif reporte_tipo == 'tipo_sangre':
+        consultas_por_tipo_sangre = consultas.values('tipo_sangre').annotate(count=Count('tipo_sangre'))
+        chart_data = consultas_por_tipo_sangre
+        title = 'Consultas por tipo de sangre'
+        xlabel = 'Tipo de sangre'
+        ylabel = 'Cantidad'
+
+    elif reporte_tipo == 'tipo_consulta':
+        consultas_por_tipo_consulta = consultas.values('tipo_consulta').annotate(count=Count('tipo_consulta'))
+        chart_data = consultas_por_tipo_consulta
+        title = 'Consultas por tipo de consulta'
+        xlabel = 'Tipo de consulta'
+        ylabel = 'Cantidad'
+
     else:
         chart_data = []
         title = 'Reporte no disponible'
         xlabel = ''
         ylabel = ''
 
-    def create_bar_chart(data, title, xlabel, ylabel):
-        labels = []
-        if data:
-            # Se verifica si la clave 'genero' está en los datos
-            if 'genero' in data[0]:
-                labels = [item['genero'] if 'genero' in item else 'Desconocido' for item in data]
-            # Se verifica si la clave 'estado' está en los datos
-            elif 'estado' in data[0]:
-                labels = [item['estado'] if 'estado' in item else 'Desconocido' for item in data]
-            # Se verifica si la clave 'medico__specialty' está en los datos
-            elif 'medico__specialty' in data[0]:
-                labels = [item['medico__specialty'] if 'medico__specialty' in item else 'Desconocido' for item in data]
-            else:
-                # Si ninguno de los campos esperados está presente, devolver 'Desconocido'
-                labels = ['Desconocido' for _ in data]
+    def create_chart(data, title, xlabel, ylabel, chart_type='barras_verticales'):
+        plt.clf()
+        labels = [str(item.get(list(item.keys())[0], 'Desconocido')) for item in data]
+        counts = [item.get('count', 0) for item in data]
 
-            counts = [item['count'] for item in data]
+        # Generar colores aleatorios
+        colores_aleatorios = ['#' + ''.join([random.choice('0123456789ABCDEF') for _ in range(6)]) for _ in labels]
 
-            # Filtrar las etiquetas y cuentas
-            filtered_labels = [label if label is not None else 'Desconocido' for label in labels]
-            filtered_counts = [count if count is not None else 0 for count in counts]
-
-            # Crear gráfico de barras
-            plt.bar(filtered_labels, filtered_counts)
-            plt.title(title)
-            plt.xlabel(xlabel)
-            plt.ylabel(ylabel)
-
-            with tempfile.NamedTemporaryFile(delete=False, suffix='.png') as tmpfile:
-                plt.savefig(tmpfile, format='png')
-                tmpfile.close()
-                return tmpfile.name
+        if chart_type == 'barras_horizontales':
+            plt.barh(labels, counts, color=colores_aleatorios)
+        elif chart_type == 'pastel':
+            plt.pie(counts, labels=labels, autopct='%1.1f%%', startangle=140, colors=colores_aleatorios)
         else:
-            # Si no hay datos, retornar un archivo vacío o algún valor por defecto
-            return None
+            plt.bar(labels, counts, color=colores_aleatorios)
 
-    # Generamos el gráfico solo con los datos relevantes
-    chart = create_bar_chart(chart_data, title, xlabel, ylabel)
+        plt.title(title)
+        plt.xlabel(xlabel if chart_type != 'pastel' else '')
+        plt.ylabel(ylabel if chart_type != 'pastel' else '')
 
-    # Crear el PDF con el gráfico correspondiente
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.png') as tmpfile:
+            plt.savefig(tmpfile, format='png')
+            tmpfile.close()
+            return tmpfile.name
+
+    chart = create_chart(chart_data, title, xlabel, ylabel, grafico_tipo)
+
     pdf = FPDF()
     pdf.add_page()
     pdf.set_font('Arial', 'B', 16)
@@ -772,6 +794,7 @@ def generar_reporte(request):
     response = HttpResponse(pdf_output, content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="reporte_consultas.pdf"'
     return response
+
 
 @api_view(['GET'])
 def get_authenticated_doctor(request):
@@ -821,3 +844,20 @@ def get_pdfs(request, chat_id):
     ]
 
     return JsonResponse(pdf_list, safe=False)
+
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+def cambiar_estado_consulta(request, consulta_id):
+    try:
+        consulta = Consulta.objects.get(id=consulta_id)
+        
+        if not hasattr(request.user, 'perfil') or request.user.perfil.tipo_usuario != 'medico':
+            return Response({'error': 'No autorizado'}, status=status.HTTP_403_FORBIDDEN)
+        
+        consulta.estado = 'realizada'
+        consulta.save()
+        
+        return Response({'message': 'Consulta marcada como realizada'}, status=status.HTTP_200_OK)
+    except Consulta.DoesNotExist:
+        return Response({'error': 'Consulta no encontrada'}, status=status.HTTP_404_NOT_FOUND)
+
