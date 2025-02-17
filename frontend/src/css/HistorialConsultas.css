@@ -8,7 +8,7 @@
     font-size: 24px;
   }
   .historial-consultas h3 {
-    text-align: center;
+    text-align: left;
     color: #392682;
     font-size: 20px;
   }
@@ -19,10 +19,42 @@
     margin-bottom: 20px;
   }
   
-  .filtros input, .filtros select {
-    padding: 10px;
-    margin-right: 10px;
-    width: 200px;
+  .filtros input {
+    padding: 9px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #333;
+    background-color: #fff;
+    width: auto;
+    height: 40px;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+
+  .filtros select {
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #333;
+    background-color: #fff;
+    width: auto;
+    height: auto;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.select-filtros:focus {
+    outline: none;
+    border-color: #6c63ff;
+}
+
+.filtros label {
+    font-size: 15px;
+    font-family: 'Inter', sans-serif;
+    margin-top: 20px;
+    margin-right: -15px;
   }
   
   button {
