@@ -328,6 +328,13 @@
     cursor: not-allowed;
 }
 
+.boton-paginacion:disabled:hover {
+    color: #ccc;
+    cursor: not-allowed;
+    background: none;
+    border: none;
+}
+
 .pagina-actual {
     font-weight: bold;
     font-size: 17px;
