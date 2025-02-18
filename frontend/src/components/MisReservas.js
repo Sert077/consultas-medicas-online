@@ -73,6 +73,24 @@ const MisReservas = () => {
         return timeDifference <= 5 && timeDifference >= -60;
     };
 
+    const handleMarcarComoRealizada = (consultaId) => {
+        fetch(`http://localhost:8000/api/consultas/${consultaId}/cambiar_estado/`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Token ${token}`,
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+            setReservas(reservas.map(consulta => 
+                consulta.id === consultaId ? { ...consulta, estado: 'realizada' } : consulta
+            ));
+        })
+        .catch(error => console.error('Error al cambiar estado de la consulta:', error));
+    };    
+
     // Filtrar reservas según los filtros seleccionados
     const reservasFiltradas = reservas.filter(consulta => {
         const fechaConsulta = new Date(consulta.fecha);
@@ -193,20 +211,34 @@ const MisReservas = () => {
                                 <FaClock className="icono-reloj" />
                                 <p><strong>Hora:</strong> {consulta.hora}</p>
                             </div>
-                            <div className="divider"></div>                            
-                            <div className="button-group">
-                                {consulta.archivo_pdf && (
+                            
+                            {consulta.archivo_pdf && (
                                     <div className="descarga-pdf">
                                         <a href={`http://localhost:8000${consulta.archivo_pdf}`} download target="_blank" rel="noopener noreferrer">
                                             <FaFileDownload className="icono-descarga-pdf" /> Ver Análisis Adjunto
                                         </a>
                                     </div>
                                 )}
-                                <div className="botones-derecha">
-                                    <button onClick={() => handleRealizarConsulta(consulta.id)}>
-                                        Realizar consulta
+                            <div className="divider"></div>                            
+                            <div className="button-group">
+                                {tipoUsuario === 'medico' && consulta.estado !== 'realizada' && (
+                                    <button className='button-realizado' onClick={() => handleMarcarComoRealizada(consulta.id)}>
+                                        Marcar como realizada
                                     </button>
-                                    <button onClick={() => handleCancelarConsulta(consulta.id)}>
+                                )}
+                                <div className="botones-derecha">
+                                    {consulta.tipo_consulta !== 'presencial' && (
+                                        <button 
+                                            onClick={() => handleRealizarConsulta(consulta.id)} 
+                                            disabled={consulta.estado === 'realizada'}
+                                        >
+                                            Realizar consulta
+                                        </button>
+                                    )}
+                                    <button 
+                                        onClick={() => handleCancelarConsulta(consulta.id)} 
+                                        disabled={consulta.estado === 'realizada'}
+                                    >
                                         Cancelar consulta
                                     </button>
                                 </div>

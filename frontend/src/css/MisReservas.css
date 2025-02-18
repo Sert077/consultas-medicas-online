@@ -73,11 +73,30 @@
     padding: 7px 10px; /* Reducir el tamaño del botón */
     border: none;
     border-radius: 5px;
-    background-color: #4CAF50;
+    background-color: #6c63ff;
     color: white;
     /*font-size: 0.97em; /* Reducir tamaño de la fuente en los botones */
     cursor: pointer;
     transition: background-color 0.3s ease;
+}
+
+.reservas-list button:hover{
+    background-color: #4e4ab7;
+}
+
+.reservas-list button.button-realizado{
+    padding: 7px 10px; /* Reducir el tamaño del botón */
+    border: none;
+    border-radius: 5px;
+    background-color: #6c63ff;
+    color: white;
+    /*font-size: 0.97em; /* Reducir tamaño de la fuente en los botones */
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.reservas-list button.button-realizado:hover{
+    background-color: #4e4ab7;
 }
 
 .reservas-list button:last-child {
@@ -86,10 +105,15 @@
 }
 
 .reservas-list button:last-child:hover {
-    background-color: #ff3333;
+    background-color: #c0392b;
 }
 
 .reservas-list button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.reservas-list button:disabled:hover {
     background-color: #ccc;
     cursor: not-allowed;
 }
@@ -164,7 +188,7 @@
 }
 
 .descarga-pdf {
-    margin-top: -10px;
+    margin-top: 20px;
 }
 
 .descarga-pdf a {
@@ -304,6 +328,13 @@
     cursor: not-allowed;
 }
 
+.boton-paginacion:disabled:hover {
+    color: #ccc;
+    cursor: not-allowed;
+    background: none;
+    border: none;
+}
+
 .pagina-actual {
     font-weight: bold;
     font-size: 17px;
@@ -311,4 +342,3 @@
     color: #333;
     margin-top: -18px;
 }
-

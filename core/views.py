@@ -241,7 +241,7 @@ def send_email(request):
 @api_view(['GET'])
 def consultas_paciente(request, paciente_id):
     consultas = Consulta.objects.filter(paciente_id=paciente_id).select_related('medico').prefetch_related('recetas')
-    archivo_pdf_url = f"{settings.MEDIA_URL}{consulta.archivo_pdf}" if consulta.archivo_pdf else None
+    
 
     data = []
     for consulta in consultas:
@@ -253,7 +253,7 @@ def consultas_paciente(request, paciente_id):
             'estado': consulta.estado,
             'medico_name': f'{consulta.medico.first_name} {consulta.medico.last_name}',
             'doc_receta': receta.doc_receta.url if receta and receta.doc_receta else None,  # URL del documento
-            'archivo_pdf': archivo_pdf_url,
+            
             "tipo_consulta": consulta.tipo_consulta,
         })
     
@@ -844,3 +844,19 @@ def get_pdfs(request, chat_id):
     ]
 
     return JsonResponse(pdf_list, safe=False)
+
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+def cambiar_estado_consulta(request, consulta_id):
+    try:
+        consulta = Consulta.objects.get(id=consulta_id)
+        
+        if not hasattr(request.user, 'perfil') or request.user.perfil.tipo_usuario != 'medico':
+            return Response({'error': 'No autorizado'}, status=status.HTTP_403_FORBIDDEN)
+        
+        consulta.estado = 'realizada'
+        consulta.save()
+        
+        return Response({'message': 'Consulta marcada como realizada'}, status=status.HTTP_200_OK)
+    except Consulta.DoesNotExist:
+        return Response({'error': 'Consulta no encontrada'}, status=status.HTTP_404_NOT_FOUND)
