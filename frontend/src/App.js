@@ -40,6 +40,8 @@ import VerifyEmail from './components/VerifyEmail';
 import EditPatient from './components/EditPatient';
 import HistorialConsultas from './components/HistorialConsultas';
 import Chatbot from './components/Chatbot';
+import ReprogramarConsulta from './components/ReprogramarConsulta';
+
 function App() {
     return (
         <div className="App">
@@ -59,6 +61,7 @@ function App() {
                     <Route path="/edit-patient" element={<EditPatient />} />
                     <Route path="/verify-email/:token" element={<VerifyEmail />} />
                     <Route path="/historial-consultas" element={<HistorialConsultas />} />
+                    <Route path="/reprogramar/:token" element={<ReprogramarConsulta />} />
                 </Routes>
                 <Footer />
                 <Chatbot /> {/* Agregar chatbot debajo del footer */}

@@ -1,4 +1,5 @@
 import tempfile
+import uuid
 from django.shortcuts import render
 from rest_framework import generics
 from django.contrib.auth import authenticate
@@ -860,3 +861,69 @@ def cambiar_estado_consulta(request, consulta_id):
         return Response({'message': 'Consulta marcada como realizada'}, status=status.HTTP_200_OK)
     except Consulta.DoesNotExist:
         return Response({'error': 'Consulta no encontrada'}, status=status.HTTP_404_NOT_FOUND)
+    
+@csrf_exempt
+def cancelar_consultas(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            consulta_ids = data.get("consultas", [])
+
+            consultas_canceladas = []
+            correos_notificados = []
+
+            for consulta_id in consulta_ids:
+                consulta = Consulta.objects.get(id=consulta_id)
+                consulta.estado = "cancelada"
+                consulta.token_reprogramacion = uuid.uuid4()  # Generar un token único
+                consulta.save()
+
+                # Enviar email con el enlace único de reprogramación
+                if consulta.paciente:
+                    email_paciente = consulta.paciente.email
+                    link_reprogramacion = f"http://localhost:3000/reprogramar/{consulta.token_reprogramacion}"
+
+                    subject = "Consulta médica cancelada - Reprogramación"
+                    message = f"Estimado/a {consulta.paciente.username},\n\n" \
+                              f"Su consulta programada para el {consulta.fecha} a las {consulta.hora} ha sido cancelada por motivos de fuerza mayor de parte del médico.\n" \
+                              f"Puede reprogramarla en el siguiente enlace:\n\n {link_reprogramacion}\n\n" \
+                              f"Atentamente,\nEquipo de MediTest."
+
+                    send_mail(subject, message, 'servesa07@gmail.com', [email_paciente])
+
+                    correos_notificados.append(email_paciente)
+
+                consultas_canceladas.append(consulta_id)
+
+            return JsonResponse({"success": True, "canceladas": consultas_canceladas, "notificados": correos_notificados}, status=200)
+        except Exception as e:
+            return JsonResponse({"success": False, "error": str(e)}, status=400)
+    else:
+        return JsonResponse({"success": False, "error": "Método no permitido"}, status=405)
+    
+@csrf_exempt
+def reprogramar_consulta(request, token):
+    if request.method == 'POST':
+        try:
+            consulta = Consulta.objects.get(token_reprogramacion=token)
+
+            data = json.loads(request.body)
+            nueva_fecha = data.get("fecha")
+            nueva_hora = data.get("hora")
+
+            if not nueva_fecha or not nueva_hora:
+                return JsonResponse({"success": False, "error": "Fecha y hora son obligatorias"}, status=400)
+
+            consulta.fecha = nueva_fecha
+            consulta.hora = nueva_hora
+            consulta.estado = "reprogramada"
+            consulta.token_reprogramacion = None  # Invalidar el token
+            consulta.save()
+
+            return JsonResponse({"success": True, "mensaje": "Consulta reprogramada exitosamente"}, status=200)
+
+        except Consulta.DoesNotExist:
+            return JsonResponse({"success": False, "error": "Token inválido o consulta no encontrada"}, status=404)
+
+    return JsonResponse({"success": False, "error": "Método no permitido"}, status=405)
+

@@ -418,21 +418,19 @@ const DoctorDetail = () => {
                         </div>
 
                         <div className="file-upload-container">
-    <label htmlFor="archivoPdf" className="modal-label">Adjuntar Análisis (PDF):</label>
-    <div className="custom-file-upload">
-        <label htmlFor="archivoPdf" className="upload-button">Seleccionar archivo</label>
-        <span className="file-name">{archivoPdf ? archivoPdf.name : "Ningún archivo seleccionado"}</span>
-    </div>
-    <input
-        type="file"
-        id="archivoPdf"
-        accept="application/pdf"
-        onChange={handleFileChange}
-        className="hidden-file-input"
-    />
-</div>
-
-
+                            <label htmlFor="archivoPdf" className="modal-label">Adjuntar Análisis (PDF):</label>
+                            <div className="custom-file-upload">
+                                <label htmlFor="archivoPdf" className="upload-button">Seleccionar archivo</label>
+                                <span className="file-name">{archivoPdf ? archivoPdf.name : "Ningún archivo seleccionado"}</span>
+                            </div>
+                            <input
+                                type="file"
+                                id="archivoPdf"
+                                accept="application/pdf"
+                                onChange={handleFileChange}
+                                className="hidden-file-input"
+                            />
+                        </div>
 
                         <div>
                         <label htmlFor="genero" className="modal-label">
@@ -519,41 +517,41 @@ const DoctorDetail = () => {
                             </div>
 
                             {tieneAlergias && (
-    <div>
-        <label htmlFor="descripcion-alergia" className="modal-label-alergias">
-            Describa sus alergias:<span style={{ color: 'red' }}>*</span>
-        </label>
-        <div className="textarea-container">
-            <textarea
-                id="descripcion-alergia"
-                value={descripcionAlergia}
-                onChange={handleDescripcionAlergiaChange}
-                className="input-field alergias-textarea"
-                placeholder="Describa sus alergias"
-                required
-            ></textarea>
-            <p className="char-count">{descripcionAlergia.length}/100</p>
-        </div>
-    </div>
-)}
+                                <div>
+                                    <label htmlFor="descripcion-alergia" className="modal-label-alergias">
+                                        Describa sus alergias:<span style={{ color: 'red' }}>*</span>
+                                    </label>
+                                    <div className="textarea-container">
+                                        <textarea
+                                            id="descripcion-alergia"
+                                            value={descripcionAlergia}
+                                            onChange={handleDescripcionAlergiaChange}
+                                            className="input-field alergias-textarea"
+                                            placeholder="Describa sus alergias"
+                                            required
+                                        ></textarea>
+                                        <p className="char-count">{descripcionAlergia.length}/100</p>
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                         <div>
-    <label htmlFor="motivo-consulta" className="modal-label-motivo">
-        Motivo de consulta:<span style={{ color: 'red' }}>*</span>
-    </label>
-    <div className="input-container-motivo">
-        <input
-            id="motivo-consulta"
-            value={motivoConsulta}
-            onChange={handleMotivoConsultaChange}
-            required
-            className="input-field-motivo"
-            placeholder="Escriba el motivo de su consulta"
-        />
-        <p className="char-count">{motivoConsulta.length}/150</p>
-    </div>
-</div>
+                            <label htmlFor="motivo-consulta" className="modal-label-motivo">
+                                Motivo de consulta:<span style={{ color: 'red' }}>*</span>
+                            </label>
+                            <div className="input-container-motivo">
+                                <input
+                                    id="motivo-consulta"
+                                    value={motivoConsulta}
+                                    onChange={handleMotivoConsultaChange}
+                                    required
+                                    className="input-field-motivo"
+                                    placeholder="Escriba el motivo de su consulta"
+                                />
+                                <p className="char-count">{motivoConsulta.length}/150</p>
+                            </div>
+                        </div>
                         {reservaError && <p className="error-message-consulta">{reservaError}</p>}
 
                         <div className="modal-buttons-container-outside">

@@ -12,7 +12,6 @@ const MisReservas = () => {
     const [rangoFechas, setRangoFechas] = useState([null, null]);
     const [fechaInicio, fechaFin] = rangoFechas;
     const [estadoConsulta, setEstadoConsulta] = useState('');
-    const [fechaConsulta, setFechaConsulta] = useState(''); // Filtro por fecha
     const [openCalendar, setOpenCalendar] = useState(false);
     const navigate = useNavigate();
     const token = localStorage.getItem('token'); 
@@ -20,6 +19,7 @@ const MisReservas = () => {
     const userId = localStorage.getItem('paciente_id'); 
     const [currentPage, setCurrentPage] = useState(1);
     const consultasPorPagina = 10;
+    const [consultasSeleccionadas, setConsultasSeleccionadas] = useState([]);
 
     useEffect(() => {
         if (!token) {
@@ -89,7 +89,30 @@ const MisReservas = () => {
             ));
         })
         .catch(error => console.error('Error al cambiar estado de la consulta:', error));
-    };    
+    };  
+    
+    const handleCancelarConsultasSeleccionadas = () => {
+        const confirmar = window.confirm(`¿Está seguro de cancelar ${consultasSeleccionadas.length} consulta(s)?`);
+        if (!confirmar) return;
+    
+        fetch("http://localhost:8000/api/consultas/cancelar/", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ consultas: consultasSeleccionadas })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                setReservas(reservas.filter(consulta => !consultasSeleccionadas.includes(consulta.id)));
+                setConsultasSeleccionadas([]);
+                alert(`Consultas canceladas correctamente.\nCorreos enviados a: ${data.notificados.join(", ")}`);
+            } else {
+                alert("Error cancelando consultas: " + data.error);
+            }
+        })
+        .catch(error => console.error("Error cancelando consultas:", error));
+    };
+    
 
     // Filtrar reservas según los filtros seleccionados
     const reservasFiltradas = reservas.filter(consulta => {
@@ -100,6 +123,14 @@ const MisReservas = () => {
             (!fechaInicio || !fechaFin || (fechaConsulta >= fechaInicio && fechaConsulta <= fechaFin))
         );
     });
+
+    const handleSeleccionarConsulta = (consultaId) => {
+        setConsultasSeleccionadas((prevSeleccionadas) =>
+            prevSeleccionadas.includes(consultaId)
+                ? prevSeleccionadas.filter((id) => id !== consultaId)
+                : [...prevSeleccionadas, consultaId]
+        );
+    };
 
     // Calcular la cantidad total de páginas
     const totalPaginas = Math.ceil(reservasFiltradas.length / consultasPorPagina);
@@ -165,6 +196,13 @@ const MisReservas = () => {
                         )}
                     </div>
                 </div>
+                {consultasSeleccionadas.length > 0 && (
+    <button className="boton-cancelar-seleccionadas" onClick={handleCancelarConsultasSeleccionadas}>
+        Cancelar {consultasSeleccionadas.length} consulta(s)
+    </button>
+)}
+
+
             </div>
 
             {fechaInicio && fechaFin && (
@@ -181,6 +219,11 @@ const MisReservas = () => {
                 <ul className="reservas-list">
                     {consultasPaginadas.map(consulta => (
                         <li key={consulta.id}>
+                            <input 
+        type="checkbox" 
+        checked={consultasSeleccionadas.includes(consulta.id)} 
+        onChange={() => handleSeleccionarConsulta(consulta.id)} 
+    />
                             <div className="fila-superior">
                                 <div className="consulta-id">
                                     <FaHashtag className="icono-id" />
