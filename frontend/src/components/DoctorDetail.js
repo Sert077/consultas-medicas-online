@@ -79,20 +79,20 @@ const DoctorDetail = () => {
         }
     
         const formData = new FormData();
-    formData.append('medico', id);
-    formData.append('paciente', pacienteId);
-    formData.append('fecha', formattedDate);
-    formData.append('hora', hora);
-    formData.append('tipo_consulta', tipoConsulta);
-    formData.append('motivo_consulta', motivoConsulta);
-    formData.append('genero', genero);
-    formData.append('tipo_sangre', tipoSangre);
-    formData.append('alergias', tieneAlergias ? descripcionAlergia : "no");
-    formData.append('embarazo', genero === "F" ? estaEmbarazada : null);
+        formData.append('medico', id);
+        formData.append('paciente', pacienteId);
+        formData.append('fecha', formattedDate);
+        formData.append('hora', hora);
+        formData.append('tipo_consulta', tipoConsulta);
+        formData.append('motivo_consulta', motivoConsulta);
+        formData.append('genero', genero);
+        formData.append('tipo_sangre', tipoSangre);
+        formData.append('alergias', tieneAlergias ? descripcionAlergia : "no");
+        formData.append('embarazo', genero === "F" ? estaEmbarazada : null);
 
-    if (archivoPdf) {
-        formData.append('archivo_pdf', archivoPdf);
-    }
+        if (archivoPdf) {
+            formData.append('archivo_pdf', archivoPdf);
+        }
 
     fetch('http://localhost:8000/api/consultas/create/', {
         method: 'POST',

@@ -112,6 +112,29 @@ const MisReservas = () => {
         })
         .catch(error => console.error("Error cancelando consultas:", error));
     };
+
+    const handleCancelarConsultaIndividual = (consultaId) => {
+        const confirmar = window.confirm("¿Está seguro de cancelar esta consulta?");
+        if (!confirmar) return;
+    
+        // Realiza la solicitud de cancelación para la consulta individual
+        fetch("http://localhost:8000/api/consultas/cancelar/", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ consultas: [consultaId] }) // Solo enviamos el id de la consulta
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Elimina la consulta cancelada de la lista
+                setReservas(reservas.filter(consulta => consulta.id !== consultaId));
+                alert(`Consulta cancelada correctamente.\nCorreo enviado a: ${data.notificados.join(", ")}`);
+            } else {
+                alert("Error cancelando consulta: " + data.error);
+            }
+        })
+        .catch(error => console.error("Error cancelando consulta:", error));
+    };    
     
 
     // Filtrar reservas según los filtros seleccionados
@@ -197,98 +220,98 @@ const MisReservas = () => {
                     </div>
                 </div>
                 {consultasSeleccionadas.length > 0 && (
-    <button className="boton-cancelar-seleccionadas" onClick={handleCancelarConsultasSeleccionadas}>
-        Cancelar {consultasSeleccionadas.length} consulta(s)
-    </button>
-)}
+                        <button className="boton-cancelar-seleccionadas" onClick={handleCancelarConsultasSeleccionadas}>
+                            Cancelar {consultasSeleccionadas.length} consulta(s)
+                        </button>
+                    )}
+                                </div>
+                                {fechaInicio && fechaFin && (
+                                    <div className="fecha-rango-container">
+                                        <span className="fecha-rango">
+                                            Rango seleccionado: {fechaInicio.toLocaleDateString()} - {fechaFin.toLocaleDateString()}
+                                        </span>
+                                    </div>
+                                )}
 
-
-            </div>
-
-            {fechaInicio && fechaFin && (
-                <div className="fecha-rango-container">
-                    <span className="fecha-rango">
-                        Rango seleccionado: {fechaInicio.toLocaleDateString()} - {fechaFin.toLocaleDateString()}
+                                {consultasPaginadas.length === 0 ? (
+                                    <p>No tienes consultas reservadas.</p>
+                                ) : (
+                                    <ul className="reservas-list">
+    {consultasPaginadas.map(consulta => (
+        <li key={consulta.id}>
+            {tipoUsuario === 'medico' && (
+                <input 
+                    type="checkbox" 
+                    checked={consultasSeleccionadas.includes(consulta.id)} 
+                    onChange={() => handleSeleccionarConsulta(consulta.id)} 
+                />
+            )}
+            <div className="fila-superior">
+                <div className="consulta-id">
+                    <FaHashtag className="icono-id" />
+                    <span><strong>Consulta:</strong> {consulta.id} {consulta.tipo_consulta.charAt(0).toUpperCase() + consulta.tipo_consulta.slice(1)}</span>
+                </div>
+                <div className="estado-consulta">
+                    <span className={`estado-label ${consulta.estado.toLowerCase()}`}>
+                        {consulta.estado.charAt(0).toUpperCase() + consulta.estado.slice(1)}
                     </span>
                 </div>
+                {consulta.estado.toLowerCase() === 'realizada' && consulta.doc_receta && (
+                    <div className="descarga-receta">
+                        <a href={`http://localhost:8000${consulta.doc_receta}`} download target="_blank" rel="noopener noreferrer">
+                            <FaFileDownload className="icono-descarga" /> Ver receta
+                        </a>
+                    </div>
+                )}
+            </div>
+            <div className="reserva-info">
+                <FaUserMd className="icono-doctor" />
+                <p><strong>{tipoUsuario === 'medico' ? 'Paciente:' : 'Doctor:'}</strong> {tipoUsuario === 'medico' ? consulta.paciente_name : consulta.medico_name}</p>
+            </div>
+            <div className="reserva-info">
+                <FaCalendarAlt className="icono-calendario" />
+                <p><strong>Fecha:</strong> {consulta.fecha}</p>
+            </div>
+            <div className="reserva-info">
+                <FaClock className="icono-reloj" />
+                <p><strong>Hora:</strong> {consulta.hora}</p>
+            </div>
+            {consulta.archivo_pdf && (
+                <div className="descarga-pdf">
+                    <a href={`http://localhost:8000${consulta.archivo_pdf}`} download target="_blank" rel="noopener noreferrer">
+                        <FaFileDownload className="icono-descarga-pdf" /> Ver Análisis Adjunto
+                    </a>
+                </div>
             )}
+            <div className="divider"></div>                            
+            <div className="button-group">
+                {tipoUsuario === 'medico' && consulta.estado !== 'realizada' && (
+                    <button className='button-realizado' onClick={() => handleMarcarComoRealizada(consulta.id)}>
+                        Marcar como realizada
+                    </button>
+                )}
+                <div className="botones-derecha">
+                    {consulta.tipo_consulta !== 'presencial' && (
+                        <button 
+                            onClick={() => handleRealizarConsulta(consulta.id)} 
+                            disabled={consulta.estado === 'realizada'}
+                        >
+                            Realizar consulta
+                        </button>
+                    )}
+                    <button 
+    onClick={() => handleCancelarConsultaIndividual(consulta.id)} 
+    disabled={consulta.estado === 'realizada'}
+>
+    Cancelar consulta
+</button>
 
-            {consultasPaginadas.length === 0 ? (
-                <p>No tienes consultas reservadas.</p>
-            ) : (
-                <ul className="reservas-list">
-                    {consultasPaginadas.map(consulta => (
-                        <li key={consulta.id}>
-                            <input 
-        type="checkbox" 
-        checked={consultasSeleccionadas.includes(consulta.id)} 
-        onChange={() => handleSeleccionarConsulta(consulta.id)} 
-    />
-                            <div className="fila-superior">
-                                <div className="consulta-id">
-                                    <FaHashtag className="icono-id" />
-                                    <span><strong>Consulta:</strong> {consulta.id} {consulta.tipo_consulta.charAt(0).toUpperCase() + consulta.tipo_consulta.slice(1)}</span>
-                                </div>
-                                <div className="estado-consulta">
-                                    <span className={`estado-label ${consulta.estado.toLowerCase()}`}>
-                                        {consulta.estado.charAt(0).toUpperCase() + consulta.estado.slice(1)}
-                                    </span>
-                                </div>
-                                {consulta.estado.toLowerCase() === 'realizada' && consulta.doc_receta && (
-                                    <div className="descarga-receta">
-                                        <a href={`http://localhost:8000${consulta.doc_receta}`} download target="_blank" rel="noopener noreferrer">
-                                            <FaFileDownload className="icono-descarga" /> Ver receta
-                                        </a>
-                                    </div>
-                                )}
-                            </div>
-                            <div className="reserva-info">
-                                <FaUserMd className="icono-doctor" />
-                                <p><strong>{tipoUsuario === 'medico' ? 'Paciente:' : 'Doctor:'}</strong> {tipoUsuario === 'medico' ? consulta.paciente_name : consulta.medico_name}</p>
-                            </div>
-                            <div className="reserva-info">
-                                <FaCalendarAlt className="icono-calendario" />
-                                <p><strong>Fecha:</strong> {consulta.fecha}</p>
-                            </div>
-                            <div className="reserva-info">
-                                <FaClock className="icono-reloj" />
-                                <p><strong>Hora:</strong> {consulta.hora}</p>
-                            </div>
-                            
-                            {consulta.archivo_pdf && (
-                                    <div className="descarga-pdf">
-                                        <a href={`http://localhost:8000${consulta.archivo_pdf}`} download target="_blank" rel="noopener noreferrer">
-                                            <FaFileDownload className="icono-descarga-pdf" /> Ver Análisis Adjunto
-                                        </a>
-                                    </div>
-                                )}
-                            <div className="divider"></div>                            
-                            <div className="button-group">
-                                {tipoUsuario === 'medico' && consulta.estado !== 'realizada' && (
-                                    <button className='button-realizado' onClick={() => handleMarcarComoRealizada(consulta.id)}>
-                                        Marcar como realizada
-                                    </button>
-                                )}
-                                <div className="botones-derecha">
-                                    {consulta.tipo_consulta !== 'presencial' && (
-                                        <button 
-                                            onClick={() => handleRealizarConsulta(consulta.id)} 
-                                            disabled={consulta.estado === 'realizada'}
-                                        >
-                                            Realizar consulta
-                                        </button>
-                                    )}
-                                    <button 
-                                        onClick={() => handleCancelarConsulta(consulta.id)} 
-                                        disabled={consulta.estado === 'realizada'}
-                                    >
-                                        Cancelar consulta
-                                    </button>
-                                </div>
-                            </div>
-                        </li>
-                    ))}
-                </ul>
+                </div>
+            </div>
+        </li>
+    ))}
+</ul>
+
             )}
             {/* Controles de paginación */}
             {reservasFiltradas.length > 10 && (

@@ -1,0 +1,576 @@
+.doctor-detail-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+}
+
+.doctor-info-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    max-width: 700px;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    padding: 20px;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+.doctor-image {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    margin-right: 20px;
+}
+
+.doctor-details {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.doctor-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.consult-button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.consult-button:hover {
+    background-color: #45a049;
+}
+.consult-button:last-child {
+    background-color: #6c63ff; /* Púrpura */
+}
+.consult-button:last-child:hover {
+    background-color: #4e4ab7;
+}
+
+.doctor-biography-container {
+    text-align: left;
+    width: 100%;
+    max-width: 700px;
+    border: 1px solid #ddd;
+    padding: 20px;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    margin-bottom: 20px;
+}
+
+.consultas-container {
+    text-align: left; /* Alinea el contenido a la izquierda */
+    width: 100%;
+    max-width: 700px;
+    border: 1px solid #ddd;
+    padding: 20px;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+.map-container {
+    flex: 1;
+    max-width: 720px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #f9f9f9;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+h3{
+    text-align: center;
+}
+
+.consultas-container ul {
+    list-style-position: inside; /* Asegura que el punto de la lista esté dentro */
+    padding-left: 0; /* Elimina el margen por defecto */
+}
+
+.consultas-container li {
+    margin-bottom: 10px; /* Añade espacio entre las consultas */
+    font-size: 1.1rem; /* Ajusta el tamaño del texto */
+    color: #333; /* Color de texto para mayor contraste */
+}
+
+.doctor-details p {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.1rem;
+    color: #333;
+    margin: 8px 0;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.doctor-details p i {
+    color: #4CAF50; /* Verde para íconos */
+    font-size: 1.2rem;
+}
+
+.doctor-details p:hover {
+    transform: scale(1.05); /* Aumenta ligeramente el tamaño al pasar el mouse */
+    opacity: 0.9;
+}
+
+.doctor-info-container {
+    animation: fadeIn 1s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.consultas-container, .doctor-biography-container {
+    animation: fadeIn 1.2s ease;
+}
+
+/* Ajustes generales para que los estilos sean responsivos */
+@media (max-width: 768px) {
+    .doctor-info-container {
+        flex-direction: column; /* Cambiar a disposición vertical */
+        align-items: center; /* Asegurar que los elementos estén centrados */
+    }
+
+    .doctor-image {
+        margin-right: 0; /* Eliminar el margen derecho en pantallas pequeñas */
+        margin-bottom: 15px; /* Añadir margen inferior para espacio */
+    }
+
+    .doctor-buttons {
+        flex-direction: column; /* Botones en una sola columna */
+        gap: 0px; /* Más espacio entre botones */
+        width: 100%; /* Asegurar que ocupen el ancho completo */
+    }
+
+    .doctor-biography-container,
+    .consultas-container {
+        max-width: 90%; /* Reducir el ancho en pantallas pequeñas */
+    }
+
+    .map-container {
+        max-width: 94.5%; /* Reducir el ancho en pantallas pequeñas */
+    }
+}
+
+/* Estilos para el modal */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+/* Animación del modal */
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Contenido del modal */
+.modal-content {
+    background-color: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    width: 90%;
+    max-width: 590px;
+    max-height: 80vh; /* Limita la altura del modal al 80% de la ventana */
+    overflow-y: auto; /* Activa el scroll vertical si el contenido es más alto que el modal */
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    animation: slideDown 0.3s ease; /* Aplicar animación */
+}
+
+/* Estilos responsivos para el formulario del modal */
+.modal-form {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* Dos columnas por defecto */
+    gap: 15px;
+    align-items: left;
+    width: 100%;
+}
+
+/* Para hacer el formulario de una sola columna en pantallas pequeñas */
+@media (max-width: 768px) {
+    .modal-form {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .seleccion-info {
+        grid-column: span 1; /* Ajusta el cuadro de selección en una sola columna */
+        margin-bottom: 20px;
+    }
+
+    .horarios-container {
+        grid-column: span 1; /* Ajusta el cuadro de selección en una sola columna */    
+    }
+    
+    .modal-buttons-container-outside {
+        grid-column: span 1; /* Asegura que los botones ocupen una sola columna */
+    }
+}
+
+.modal-content h3 {
+    margin-top: 0;
+    font-size: 1.4rem;
+    color: #4CAF50;
+}
+
+/* Etiquetas del formulario */
+.modal-label,
+.modal-label-calendary {
+    color: #301466;
+    margin-bottom: 5px; /* Separación entre la etiqueta y el campo */
+    text-align: left; /* Alinear texto a la izquierda */
+    width: 100%; /* Asegurar que ocupe todo el ancho del contenedor */
+    display: block; /* Evita comportamiento inline para un alineado correcto */
+}
+
+.modal-label-motivo{
+    color: #301466;
+    margin-bottom: -5px; /* Separación entre la etiqueta y el campo */
+    text-align: left; /* Alinear texto a la izquierda */
+    width: 100%; /* Asegurar que ocupe todo el ancho del contenedor */
+    display: block; /* Evita comportamiento inline para un alineado correcto */
+}
+
+.input-field-motivo{
+    color: #301466;
+    margin-bottom: 5px; /* Separación entre la etiqueta y el campo */
+    text-align: left; /* Alinear texto a la izquierda */
+    width: 100%; /* Asegurar que ocupe todo el ancho del contenedor */
+    height: 70px;
+    padding-bottom: 40px;
+}
+
+.calendario-horarios-container {
+    width: 100%;
+    max-width: 700px; /* Igual que .doctor-info-container */
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    padding: 20px;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+.reprogramar-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 700px;
+    border: 1px solid #ddd;
+    padding: 20px;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+.calendar-horarios-wrapper {
+    display: flex; 
+    flex-direction: row; /* Cambiar de column a row */
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0px; /* Espacio entre el calendario y la selección de horarios */
+}
+
+/* Calendario */
+.calendar-picker {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 8px;
+}
+
+.calendar-picker-container {
+    flex: 1;
+}
+
+/* Contenedor de horarios */
+.horarios-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    min-width: 200px; /* Ajusta según el ancho deseado */
+}
+
+  .horarios {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+}
+  
+  /* Botón de horario */
+  .horario-button {
+    border: 1px solid #4e4ab7; /* Borde morado */
+    color: #4e4ab7; /* Texto morado */
+    background-color: white; /* Fondo blanco para resaltar el contraste */
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 15px;
+    transition: all 0.3s ease;
+}
+
+.horario-button:hover {
+    background-color: #4e4ab7; /* Morado al pasar el cursor */
+    color: white; /* Texto blanco al pasar el cursor */
+}
+  
+  /* Cuando está seleccionado */
+  .horario-button.selected {
+    background-color: #4e4ab7;
+    color: white;
+    font-weight: bold;
+  }
+
+  .horario-button.disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.seleccione-fecha-mensaje {
+    color: #555;
+    font-size: 14px;
+}
+
+  /* Estilo del cuadro de selección */
+  .seleccion-info {
+    background-color: #4e4ab7;
+    border: 1px solid #ddd;
+    color: white;
+    padding: 0px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between; /* Espacia los elementos */
+    grid-column: span 2; /* Hace que ocupe ambas columnas */
+    align-items: center; /* Alinea verticalmente */
+    width: 100%;
+    margin-top: 15px
+}
+
+/* Contenedor del texto (Fecha y Hora) */
+.seleccion-texto {
+  text-align: left; /* Alinea el texto a la izquierda */
+  margin-bottom: -10px;
+  margin-top: -10px;
+  margin-left: 15px;
+}
+
+/* "Hora seleccionada" en negrita */
+.hora-seleccionada {
+    font-weight: bold;
+    margin-bottom: 0px; /* Elimina espacio extra debajo */
+  }
+  
+  /* Hora y fecha seleccionada */
+  .hora-detalle {
+    margin-top: 0px; /* Elimina espacio extra arriba */
+  }
+  
+  /* Botón de cancelar selección */
+  .button.cancelar-seleccion {
+    background-color: #cecece;
+    color: rgb(35, 35, 35);
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    margin-right: 15px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .button.cancelar-seleccion:hover {
+    background-color: #bcbcbc;
+  }
+  
+/* Separación entre tipo de consulta y hora */
+.input-field {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 8px;
+}
+/* Ajustar el espacio entre el tipo de consulta y la hora */
+.modal-form > .modal-label,
+.modal-form > .input-field {
+    margin-bottom: 8px; /* Un poco más de separación */
+}
+
+/* Para los campos de radio */
+.modal-form .input-field {
+    display: flex;
+    gap: 10px; /* Separación entre los botones de radio */
+    align-items: center;
+}
+
+/* Ajustar el espacio entre el campo de hora y tipo de consulta */
+.modal-label-calendary {
+    margin-bottom: 5px; /* Separación entre calendario y tipo consulta */
+}
+
+/* Botones en el modal */
+.modal-buttons-container {
+    display: flex;
+    justify-content: center; /* Centra los botones horizontalmente */
+    align-items: center; /* Centra los botones verticalmente */
+    width: 100%; /* Asegura que ocupe todo el ancho disponible */
+    gap: 10px; /* Espacio entre los botones */
+    margin-top: 16px;
+}
+
+.button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    color: white;
+    cursor: pointer;
+    width: auto; 
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+    box-sizing: border-box;
+    min-width: 150px;
+}
+
+.modal-buttons-container-outside {
+    grid-column: span 2; /* Ocupar ambas columnas del grid */
+    display: flex;
+    justify-content: center; /* Centrar horizontalmente */
+    align-items: center; /* Centrar verticalmente */
+    gap: 10px; /* Espacio entre los botones */
+    margin-top: 20px;
+    margin-bottom: -15px;
+}
+
+.button.reservar {
+    background-color: #6c63ff;
+}
+
+.button.close-modal {
+    background-color: #f44336;
+}
+
+.button:hover {
+    background-color: #4e4ab7;
+}
+
+.close-modal:hover {
+    background-color: #c0392b;
+}
+
+/* Estilo del modal de confirmación */
+.confirmation-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.confirmation-modal-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.confirmation-modal-content h3 {
+    margin-bottom: 20px;
+}
+
+button.confirmation-modal-content  {
+    padding: 10px 20px;
+    background-color: #6c63ff;
+    border: none;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 4px;
+    margin-bottom: auto;
+}
+
+.confirmation-modal-content button:hover {
+    background-color: #4e4ab7;
+}
+
+.error-message {
+    color: red;
+    font-size: 0.9em;
+    margin-top: 5px;
+}
+
+.error-message-consulta {
+    color: red;
+    grid-column: span 2; /* Ocupar ambas columnas del grid */
+    display: flex;
+    font-size: 0.9em;
+    margin-top: 5px;
+    text-align: center;
+}
+
+
+@media (max-width: 600px) {
+    .alergias-textarea {
+        max-width: 100%; /* Asegurar que el textarea no se salga del contenedor */
+    }
+}
+
+/* Confirmación modal responsivo */
+@media (max-width: 600px) {
+    .confirmation-modal-content {
+        padding: 15px; /* Ajustar padding */
+    }
+
+    .confirmation-modal-content button {
+        width: 100%; /* Botón ocupa todo el ancho */
+        font-size: 14px; /* Reducir tamaño del texto */
+    }
+}
