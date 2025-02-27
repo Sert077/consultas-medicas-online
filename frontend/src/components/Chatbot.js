@@ -69,7 +69,7 @@ const Chatbot = () => {
             }));
     
             const response = await axios.post(
-                "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent",
+                "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent", 
                 {
                     contents: [
                         { role: "user", parts: [{ text: instruction }] }, // Instrucción para el asistente
