@@ -25,6 +25,7 @@ const DoctorDetail = () => {
     const [horaError, setHoraError] = useState('');
     const [reservaError, setReservaError] = useState('');
     const [archivoPdf, setArchivoPdf] = useState(null);
+    const [loadingReserva, setLoadingReserva] = useState(false);
 
     useEffect(() => {
         fetch(`http://localhost:8000/api/doctores/${id}/`)
@@ -53,12 +54,29 @@ const DoctorDetail = () => {
         return !consultas.some(consulta => consulta.fecha === fecha && consulta.hora === hora);
     };
 
+    const resetForm = () => {
+        setFecha(null);
+        setHora("");
+        setTipoConsulta("");
+        setMotivoConsulta("");
+        setGenero("");
+        setTipoSangre("");
+        setTieneAlergias(false);
+        setDescripcionAlergia("");
+        setEstaEmbarazada(false);
+        setArchivoPdf(null);
+        setFechaError("");
+        setHoraError("");
+        setReservaError("");
+    };    
+
     const handleReserva = (e) => {
         e.preventDefault();
 
     setFechaError('');
     setHoraError('');
-
+    setReservaError('');
+    
     if (!fecha) {
         setFechaError('Por favor, seleccione una fecha para la consulta.');
         return;
@@ -68,6 +86,9 @@ const DoctorDetail = () => {
         setHoraError('Por favor, seleccione una hora para la consulta.');
         return;
     }
+
+    setLoadingReserva(true);
+    
         const formattedDate = fecha.toISOString().split('T')[0];
         const pacienteId = localStorage.getItem('paciente_id');
         const pacienteName = `${localStorage.getItem('first_name')} ${localStorage.getItem('last_name')}`;
@@ -75,6 +96,7 @@ const DoctorDetail = () => {
         
         if (!pacienteId) {
             alert('Error: No se ha encontrado un paciente válido. Inicie sesión para reservar.');
+            setLoadingReserva(false);
             return;
         }
     
@@ -117,10 +139,10 @@ const DoctorDetail = () => {
                 subject: 'Recordatorio de Consulta Médica',
                 message_paciente: `Estimado(a) ${pacienteName},\n\n` +
                                   `Tiene una consulta programada con el Dr(a). ${doctor.first_name} ${doctor.last_name}` +
-                                  ` el ${formattedDate} a las ${hora}.\n\nGracias por usar nuestro servicio.`,
+                                  ` el ${formattedDate} a las ${hora}.\n\nGracias por usar nuestro servicio. Equipo de MediTest.`,
                 message_medico: `Estimado(a) Dr(a). ${doctor.first_name} ${doctor.last_name},\n\n` +
                                 `Tiene una consulta programada con ${pacienteName}` +
-                                ` el ${formattedDate} a las ${hora}.\n\nGracias por usar nuestro servicio.`,
+                                ` el ${formattedDate} a las ${hora}.\n\nGracias por usar nuestro servicio. Equipo de MediTest.`,
                 recipient_list_paciente: [pacienteEmail],
                 recipient_list_medico: [doctor.email],
             };
@@ -171,8 +193,16 @@ const DoctorDetail = () => {
         .catch((error) => {
             setReservaError(error.message); 
             console.error('Error creando consulta:', error);
+        })
+        .finally(() => {
+            setLoadingReserva(false);  // Desactivar el spinner al finalizar
         });
-    };    
+    };
+    
+    const closeModal = () => {
+        resetForm();
+        setShowConfirmationModal(false);
+    };
 
     const getAvailableTimeSlots = () => {
         if (!doctor || !doctor.start_time || !doctor.end_time) return [];
@@ -555,7 +585,13 @@ const DoctorDetail = () => {
                         {reservaError && <p className="error-message-consulta">{reservaError}</p>}
 
                         <div className="modal-buttons-container-outside">
-                            <button type="submit" className="button reservar">Reservar</button>
+                        <button type="submit" className="button reservar" disabled={loadingReserva}>
+                            {loadingReserva ? (
+                                <div className="spinner"></div>
+                            ) : (
+                                "Reservar"
+                            )}
+                        </button>
                             <button type="button" className="button close-modal" onClick={() => setShowModal(false)}>Cerrar</button>
                         </div>
                                 </form>
@@ -569,7 +605,7 @@ const DoctorDetail = () => {
                             <div className="modal-content confirmation-modal" onClick={(e) => e.stopPropagation()}>
                                 <h3>¡Consulta Reservada Correctamente!</h3>
                                 <p>Tu consulta con el Dr(a): {doctor.first_name} {doctor.last_name} ha sido reservada para el {fecha?.toLocaleDateString()} a las {hora}.</p>
-                                <button className="button confirmation-modal-content" onClick={() => setShowConfirmationModal(false)}>Cerrar</button>
+                                <button className="button confirmation-modal-content" onClick={closeModal} >Cerrar</button>
                             </div>
                         </div>
                     )}

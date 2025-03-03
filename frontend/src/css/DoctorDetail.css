@@ -554,8 +554,9 @@ h3{
 }
 
 .file-name {
-    font-size: 12px;
+    font-size: 10px;
     color: #301466;
+    
 }
 
 .hidden-file-input {
@@ -618,6 +619,25 @@ button.confirmation-modal-content  {
     text-align: center;
 }
 
+.spinner {
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-top: 3px solid white;
+    border-radius: 50%;
+    width: 12px;
+    height: 12px;
+    animation: spin 0.8s linear infinite;
+    display: inline-block;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
 
 @media (max-width: 600px) {
     .alergias-textarea {

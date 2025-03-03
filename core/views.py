@@ -610,10 +610,10 @@ class GenerarRecetaView(APIView):
                             Correo Electrónico: servesa07@gmail.com
                             Teléfono: +591 68449128
 
-                            Agradecemos su confianza en MEDITEST. Trabajamos constantemente para brindar el mejor servicio de salud para usted y su familia.
+                            Agradecemos su confianza en MediTest. Trabajamos constantemente para brindar el mejor servicio de salud para usted y su familia.
 
                             Saludos cordiales,
-                            El Equipo de MEDITEST.
+                            El Equipo de MediTest.
                                         """
 
             # Enviar el correo con el PDF adjunto
@@ -931,8 +931,8 @@ def cancelar_consultas(request):
                     link_reprogramacion = f"http://localhost:3000/reprogramar/{consulta.token_reprogramacion}"
 
                     subject = "Consulta médica cancelada - Reprogramación"
-                    message = f"Estimado/a {consulta.paciente.username},\n\n" \
-                              f"Su consulta programada para el {consulta.fecha} a las {consulta.hora} ha sido cancelada por motivos de fuerza mayor de parte del médico.\n" \
+                    message = f"Estimado/a {consulta.paciente.first_name},\n\n" \
+                              f"Su consulta programada para el {consulta.fecha} a las {consulta.hora} ha sido cancelada.\n" \
                               f"Puede reprogramarla en el siguiente enlace:\n\n {link_reprogramacion}\n\n" \
                               f"Atentamente,\nEquipo de MediTest."
 
@@ -992,6 +992,3 @@ def reprogramar_consulta(request, token):
         return JsonResponse({"success": False, "error": "Token inválido o consulta no encontrada"}, status=404)
 
     return JsonResponse({"success": False, "error": "Método no permitido"}, status=405)
-
-
-
