@@ -79,20 +79,20 @@ const DoctorDetail = () => {
         }
     
         const formData = new FormData();
-    formData.append('medico', id);
-    formData.append('paciente', pacienteId);
-    formData.append('fecha', formattedDate);
-    formData.append('hora', hora);
-    formData.append('tipo_consulta', tipoConsulta);
-    formData.append('motivo_consulta', motivoConsulta);
-    formData.append('genero', genero);
-    formData.append('tipo_sangre', tipoSangre);
-    formData.append('alergias', tieneAlergias ? descripcionAlergia : "no");
-    formData.append('embarazo', genero === "F" ? estaEmbarazada : null);
+        formData.append('medico', id);
+        formData.append('paciente', pacienteId);
+        formData.append('fecha', formattedDate);
+        formData.append('hora', hora);
+        formData.append('tipo_consulta', tipoConsulta);
+        formData.append('motivo_consulta', motivoConsulta);
+        formData.append('genero', genero);
+        formData.append('tipo_sangre', tipoSangre);
+        formData.append('alergias', tieneAlergias ? descripcionAlergia : "no");
+        formData.append('embarazo', genero === "F" ? estaEmbarazada : null);
 
-    if (archivoPdf) {
-        formData.append('archivo_pdf', archivoPdf);
-    }
+        if (archivoPdf) {
+            formData.append('archivo_pdf', archivoPdf);
+        }
 
     fetch('http://localhost:8000/api/consultas/create/', {
         method: 'POST',
@@ -117,10 +117,10 @@ const DoctorDetail = () => {
                 subject: 'Recordatorio de Consulta Médica',
                 message_paciente: `Estimado(a) ${pacienteName},\n\n` +
                                   `Tiene una consulta programada con el Dr(a). ${doctor.first_name} ${doctor.last_name}` +
-                                  ` el ${formattedDate} a las ${hora}.\n\nGracias por usar nuestro servicio.`,
+                                  ` el ${formattedDate} a las ${hora}.\n\nGracias por usar nuestro servicio. Equipo de MediTest.`,
                 message_medico: `Estimado(a) Dr(a). ${doctor.first_name} ${doctor.last_name},\n\n` +
                                 `Tiene una consulta programada con ${pacienteName}` +
-                                ` el ${formattedDate} a las ${hora}.\n\nGracias por usar nuestro servicio.`,
+                                ` el ${formattedDate} a las ${hora}.\n\nGracias por usar nuestro servicio. Equipo de MediTest.`,
                 recipient_list_paciente: [pacienteEmail],
                 recipient_list_medico: [doctor.email],
             };
@@ -418,21 +418,19 @@ const DoctorDetail = () => {
                         </div>
 
                         <div className="file-upload-container">
-    <label htmlFor="archivoPdf" className="modal-label">Adjuntar Análisis (PDF):</label>
-    <div className="custom-file-upload">
-        <label htmlFor="archivoPdf" className="upload-button">Seleccionar archivo</label>
-        <span className="file-name">{archivoPdf ? archivoPdf.name : "Ningún archivo seleccionado"}</span>
-    </div>
-    <input
-        type="file"
-        id="archivoPdf"
-        accept="application/pdf"
-        onChange={handleFileChange}
-        className="hidden-file-input"
-    />
-</div>
-
-
+                            <label htmlFor="archivoPdf" className="modal-label">Adjuntar Análisis (PDF):</label>
+                            <div className="custom-file-upload">
+                                <label htmlFor="archivoPdf" className="upload-button">Seleccionar archivo</label>
+                                <span className="file-name">{archivoPdf ? archivoPdf.name : "Ningún archivo seleccionado"}</span>
+                            </div>
+                            <input
+                                type="file"
+                                id="archivoPdf"
+                                accept="application/pdf"
+                                onChange={handleFileChange}
+                                className="hidden-file-input"
+                            />
+                        </div>
 
                         <div>
                         <label htmlFor="genero" className="modal-label">
@@ -519,41 +517,41 @@ const DoctorDetail = () => {
                             </div>
 
                             {tieneAlergias && (
-    <div>
-        <label htmlFor="descripcion-alergia" className="modal-label-alergias">
-            Describa sus alergias:<span style={{ color: 'red' }}>*</span>
-        </label>
-        <div className="textarea-container">
-            <textarea
-                id="descripcion-alergia"
-                value={descripcionAlergia}
-                onChange={handleDescripcionAlergiaChange}
-                className="input-field alergias-textarea"
-                placeholder="Describa sus alergias"
-                required
-            ></textarea>
-            <p className="char-count">{descripcionAlergia.length}/100</p>
-        </div>
-    </div>
-)}
+                                <div>
+                                    <label htmlFor="descripcion-alergia" className="modal-label-alergias">
+                                        Describa sus alergias:<span style={{ color: 'red' }}>*</span>
+                                    </label>
+                                    <div className="textarea-container">
+                                        <textarea
+                                            id="descripcion-alergia"
+                                            value={descripcionAlergia}
+                                            onChange={handleDescripcionAlergiaChange}
+                                            className="input-field alergias-textarea"
+                                            placeholder="Describa sus alergias"
+                                            required
+                                        ></textarea>
+                                        <p className="char-count">{descripcionAlergia.length}/100</p>
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                         <div>
-    <label htmlFor="motivo-consulta" className="modal-label-motivo">
-        Motivo de consulta:<span style={{ color: 'red' }}>*</span>
-    </label>
-    <div className="input-container-motivo">
-        <input
-            id="motivo-consulta"
-            value={motivoConsulta}
-            onChange={handleMotivoConsultaChange}
-            required
-            className="input-field-motivo"
-            placeholder="Escriba el motivo de su consulta"
-        />
-        <p className="char-count">{motivoConsulta.length}/150</p>
-    </div>
-</div>
+                            <label htmlFor="motivo-consulta" className="modal-label-motivo">
+                                Motivo de consulta:<span style={{ color: 'red' }}>*</span>
+                            </label>
+                            <div className="input-container-motivo">
+                                <input
+                                    id="motivo-consulta"
+                                    value={motivoConsulta}
+                                    onChange={handleMotivoConsultaChange}
+                                    required
+                                    className="input-field-motivo"
+                                    placeholder="Escriba el motivo de su consulta"
+                                />
+                                <p className="char-count">{motivoConsulta.length}/150</p>
+                            </div>
+                        </div>
                         {reservaError && <p className="error-message-consulta">{reservaError}</p>}
 
                         <div className="modal-buttons-container-outside">

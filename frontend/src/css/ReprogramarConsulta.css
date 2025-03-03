@@ -95,6 +95,7 @@
 h3{
     text-align: center;
 }
+
 .consultas-container ul {
     list-style-position: inside; /* Asegura que el punto de la lista esté dentro */
     padding-left: 0; /* Elimina el margen por defecto */
@@ -277,6 +278,36 @@ h3{
     padding-bottom: 40px;
 }
 
+.calendario-horarios-container {
+    width: 100%;
+    max-width: 700px; /* Igual que .doctor-info-container */
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    padding: 20px;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+.reprogramar-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 700px;
+    border: 1px solid #ddd;
+    padding: 20px;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+.calendar-horarios-wrapper {
+    display: flex; 
+    flex-direction: row; /* Cambiar de column a row */
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0px; /* Espacio entre el calendario y la selección de horarios */
+}
+
 /* Calendario */
 .calendar-picker {
     width: 100%;
@@ -286,16 +317,18 @@ h3{
     margin-bottom: 8px;
 }
 
+.calendar-picker-container {
+    flex: 1;
+}
+
 /* Contenedor de horarios */
 .horarios-container {
+    flex: 1;
     display: flex;
-    flex-wrap: wrap;
-    gap: 5px;
-    justify-content: center;
-    margin-bottom: -10px;
-    text-align: center;
-    margin-top: 20px;
-  }
+    flex-direction: column;
+    align-items: flex-start;
+    min-width: 200px; /* Ajusta según el ancho deseado */
+}
 
   .horarios {
     display: flex;
@@ -350,6 +383,8 @@ h3{
     justify-content: space-between; /* Espacia los elementos */
     grid-column: span 2; /* Hace que ocupe ambas columnas */
     align-items: center; /* Alinea verticalmente */
+    width: 100%;
+    margin-top: 15px
 }
 
 /* Contenedor del texto (Fecha y Hora) */
@@ -416,11 +451,6 @@ h3{
     margin-bottom: 5px; /* Separación entre calendario y tipo consulta */
 }
 
-.input-field:focus {
-    outline: none;
-    border-color: #6c63ff;
-}
-
 /* Botones en el modal */
 .modal-buttons-container {
     display: flex;
@@ -444,13 +474,13 @@ h3{
     min-width: 150px;
 }
 
-/* Contenedor para los botones fuera de las columnas */
 .modal-buttons-container-outside {
     grid-column: span 2; /* Ocupar ambas columnas del grid */
     display: flex;
     justify-content: center; /* Centrar horizontalmente */
     align-items: center; /* Centrar verticalmente */
     gap: 10px; /* Espacio entre los botones */
+    margin-top: 20px;
     margin-bottom: -15px;
 }
 
@@ -468,99 +498,6 @@ h3{
 
 .close-modal:hover {
     background-color: #c0392b;
-}
-
-/* Ajustar tamaño de los campos relacionados con alergias */
-.modal-label-alergias {
-    color: #301466;
-    margin-bottom: 5px; /* Separación entre la etiqueta y el campo */
-    text-align: left; /* Alinear texto a la izquierda */
-    width: 100%; /* Asegurar que ocupe todo el ancho del contenedor */
-    display: block; /* Evita comportamiento inline para un alineado correcto */
-}
-
-.alergias-input-field {
-    display: flex;
-    gap: 15px; /* Espacio entre los botones */
-    justify-content: start;
-    align-items: center; /* Asegura que los radios y los textos estén alineados verticalmente */
-    width: 94.5%; /* Asegura que ocupe todo el ancho disponible */
-    font-size: 15px;
-    border: none; /* Elimina cualquier borde */
-}
-
-.alergias-input-field label {
-    display: flex;
-    align-items: center; /* Alinear verticalmente los radios y el texto */
-    gap: 5px; /* Espacio entre el radio y el texto */
-}
-
-.alergias-textarea {
-    width: 95.5%; /* Reducir el ancho */
-    height: 60px; /* Ajustar la altura */
-    padding: 6px; /* Reducir el padding interno */
-    border: 1px solid #ddd; /* Mantener el estilo */
-    border-radius: 8px;
-}
-
-.radio-alergias {
-    margin: 0; /* Eliminar márgenes innecesarios */
-}
-
-.textarea-container,
-.input-container-motivo {
-    position: relative;
-    display: flex;
-    align-items: center;
-}
-
-.char-count {
-    position: absolute;
-    bottom: 5px;
-    right: 10px;
-    font-size: 12px;
-    color: rgba(0, 0, 0, 0.3); /* Color tenue */
-    pointer-events: none; /* No interfiere con la escritura */
-}
-
-.file-upload-container {
-    display: flex;
-    flex-direction: column;
-    gap: 0px;
-}
-
-.custom-file-upload {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.upload-button {
-    background-color: #4e4ab7;
-    color: white;
-    padding: 9px 12px;
-    border-radius: 10px;
-    cursor: pointer;
-    border: 2px solid ;
-    transition: background-color 0.3s;
-    font-size: 12px;
-    font-weight: normal;
-    margin-top: -1px;
-    white-space: nowrap; /* Evita que el texto se divida en dos líneas */
-}
-
-.upload-button:hover {
-    background-color: #413e99;
-}
-
-.file-name {
-    font-size: 10px;
-    color: #301466;
-    
-}
-
-.hidden-file-input {
-    display: none;
 }
 
 /* Estilo del modal de confirmación */

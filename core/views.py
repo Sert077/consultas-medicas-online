@@ -1,4 +1,5 @@
 import tempfile
+import uuid
 from django.shortcuts import render
 from rest_framework import generics
 from django.contrib.auth import authenticate
@@ -43,7 +44,7 @@ from reportlab.platypus import Image
 from reportlab.platypus import HRFlowable
 from django.core.mail import EmailMessage
 from django.core.paginator import Paginator
-from django.db.models import Count
+from django.db.models import Count, Avg
 from datetime import datetime
 from fpdf import FPDF
 import matplotlib.pyplot as plt
@@ -53,6 +54,7 @@ from rest_framework.decorators import api_view, parser_classes
 from rest_framework.parsers import MultiPartParser, FormParser
 from django.utils.dateparse import parse_date
 import random
+from django.utils.timezone import now
 
 # API para crear un nuevo médico
 @api_view(['POST'])
@@ -608,10 +610,10 @@ class GenerarRecetaView(APIView):
                             Correo Electrónico: servesa07@gmail.com
                             Teléfono: +591 68449128
 
-                            Agradecemos su confianza en MEDITEST. Trabajamos constantemente para brindar el mejor servicio de salud para usted y su familia.
+                            Agradecemos su confianza en MediTest. Trabajamos constantemente para brindar el mejor servicio de salud para usted y su familia.
 
                             Saludos cordiales,
-                            El Equipo de MEDITEST.
+                            El Equipo de MediTest.
                                         """
 
             # Enviar el correo con el PDF adjunto
@@ -697,27 +699,29 @@ def generar_reporte(request):
     # Filtrado base
     consultas = Consulta.objects.all()
 
-    # Aplicar filtro por fechas si están presentes
     if fecha_inicio:
-        consultas = consultas.filter(fecha__gte=parse_date(fecha_inicio))
+        consultas = consultas.filter(fecha__gte=fecha_inicio)
     if fecha_fin:
-        consultas = consultas.filter(fecha__lte=parse_date(fecha_fin))
+        consultas = consultas.filter(fecha__lte=fecha_fin)
 
-    # Generar el reporte según el tipo
+    total_consultas = consultas.count()
+    promedio_edad = consultas.aggregate(promedio_edad=Avg('edad'))['promedio_edad']
+    promedio_edad = round(promedio_edad, 2) if promedio_edad else "No disponible"
+
+    fecha_generacion = now().strftime("%Y-%m-%d %H:%M:%S")
+
     if reporte_tipo == 'estado':
         consultas_por_estado = consultas.values('estado').annotate(count=Count('estado'))
         chart_data = consultas_por_estado
         title = 'Consultas por estado'
         xlabel = 'Estado'
         ylabel = 'Cantidad'
-
     elif reporte_tipo == 'genero':
         consultas_por_genero = consultas.values('genero').annotate(count=Count('genero'))
         chart_data = consultas_por_genero
         title = 'Consultas por género'
         xlabel = 'Género'
         ylabel = 'Cantidad'
-
     elif reporte_tipo == 'especialidad':
         consultas_por_especialidad = consultas.filter(medico__specialty__in=especialidades) \
             .values('medico__specialty').annotate(count=Count('medico__specialty'))
@@ -725,28 +729,24 @@ def generar_reporte(request):
         title = 'Consultas por especialidad'
         xlabel = 'Especialidad'
         ylabel = 'Cantidad'
-
     elif reporte_tipo == 'edad':
         consultas_por_edad = consultas.values('edad').annotate(count=Count('edad'))
         chart_data = consultas_por_edad
         title = 'Consultas por edad'
         xlabel = 'Edad'
         ylabel = 'Cantidad'
-
     elif reporte_tipo == 'tipo_sangre':
         consultas_por_tipo_sangre = consultas.values('tipo_sangre').annotate(count=Count('tipo_sangre'))
         chart_data = consultas_por_tipo_sangre
         title = 'Consultas por tipo de sangre'
         xlabel = 'Tipo de sangre'
         ylabel = 'Cantidad'
-
     elif reporte_tipo == 'tipo_consulta':
         consultas_por_tipo_consulta = consultas.values('tipo_consulta').annotate(count=Count('tipo_consulta'))
         chart_data = consultas_por_tipo_consulta
         title = 'Consultas por tipo de consulta'
         xlabel = 'Tipo de consulta'
         ylabel = 'Cantidad'
-
     else:
         chart_data = []
         title = 'Reporte no disponible'
@@ -758,7 +758,6 @@ def generar_reporte(request):
         labels = [str(item.get(list(item.keys())[0], 'Desconocido')) for item in data]
         counts = [item.get('count', 0) for item in data]
 
-        # Generar colores aleatorios
         colores_aleatorios = ['#' + ''.join([random.choice('0123456789ABCDEF') for _ in range(6)]) for _ in labels]
 
         if chart_type == 'barras_horizontales':
@@ -781,18 +780,67 @@ def generar_reporte(request):
 
     pdf = FPDF()
     pdf.add_page()
+
+    # Fecha de generación como encabezado (alineada a la derecha)
+    pdf.set_font('Arial', 'I', 10)
+    pdf.cell(0, 10, f'Fecha de Generación: {fecha_generacion}', ln=True, align='R')
+
+    # Título del reporte
     pdf.set_font('Arial', 'B', 16)
     pdf.cell(200, 10, 'Reporte de Consultas', ln=True, align='C')
 
+    # Título del gráfico
     pdf.set_font('Arial', '', 12)
-    pdf.ln(10)
+    pdf.ln(10)  # Espacio antes del título
     pdf.cell(200, 10, title, ln=True, align='C')
+    
+    # Incluir el gráfico
     if chart:
         pdf.image(chart, x=10, y=30, w=180)
+
+    # Estadísticas adicionales
+    consultas_por_estado = consultas.values('estado').annotate(count=Count('estado'))
+    estado_consultas = {estado['estado']: estado['count'] for estado in consultas_por_estado}
+    canceladas = estado_consultas.get('cancelada', 0)
+    realizadas = estado_consultas.get('realizada', 0)
+    pendientes = estado_consultas.get('pendiente', 0)
+
+    # Promedio de Edad por Género
+    promedio_edad_genero = consultas.values('genero').annotate(promedio_edad=Avg('edad'))
+    promedio_edad_genero = {item['genero']: item['promedio_edad'] for item in promedio_edad_genero}
+
+    # Agregar los datos al reporte PDF
+    pdf.ln(120)  # Espacio adicional antes de la sección
+    pdf.set_font('Arial', 'B', 12)
+    pdf.cell(0, 10, 'Datos Adicionales:', ln=True)
+
+    pdf.set_font('Arial', '', 12)
+    pdf.cell(0, 10, f'Total de Consultas: {total_consultas}', ln=True)
+    pdf.cell(0, 10, f'Promedio de Edad de los Pacientes: {promedio_edad}', ln=True)
+
+    # Rango de Fechas
+    if fecha_inicio and fecha_fin:
+        pdf.cell(0, 10, f'Rango de Fechas: {fecha_inicio} - {fecha_fin}', ln=True)
+    else:
+        pdf.cell(0, 10, 'Rango de Fechas: No disponible', ln=True)
+
+    # Consultas por Estado
+    pdf.cell(0, 10, f'Consultas Realizadas: {realizadas} ({(realizadas/total_consultas)*100:.2f}%)', ln=True)
+    pdf.cell(0, 10, f'Consultas Pendientes: {pendientes} ({(pendientes/total_consultas)*100:.2f}%)', ln=True)
+    pdf.cell(0, 10, f'Consultas Canceladas: {canceladas} ({(canceladas/total_consultas)*100:.2f}%)', ln=True)
+
+    # Promedio de Edad por Género
+    for genero, edad in promedio_edad_genero.items():
+        pdf.cell(0, 10, f'Promedio de Edad de {genero}: {edad:.2f}', ln=True)
+
+    pdf.ln(6.99)  # Espacio para el pie de página
+    pdf.set_font('Arial', 'I', 10)
+    pdf.cell(0, 10, 'Equipo de MediTest', ln=True, align='L')
 
     pdf_output = pdf.output(dest='S').encode('latin1')
     response = HttpResponse(pdf_output, content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="reporte_consultas.pdf"'
+    
     return response
 
 
@@ -860,4 +908,90 @@ def cambiar_estado_consulta(request, consulta_id):
         return Response({'message': 'Consulta marcada como realizada'}, status=status.HTTP_200_OK)
     except Consulta.DoesNotExist:
         return Response({'error': 'Consulta no encontrada'}, status=status.HTTP_404_NOT_FOUND)
+    
+@csrf_exempt
+def cancelar_consultas(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            consulta_ids = data.get("consultas", [])
+
+            consultas_canceladas = []
+            correos_notificados = []
+
+            for consulta_id in consulta_ids:
+                consulta = Consulta.objects.get(id=consulta_id)
+                consulta.estado = "cancelada"
+                consulta.token_reprogramacion = uuid.uuid4()  # Generar un token único
+                consulta.save()
+
+                # Enviar email con el enlace único de reprogramación
+                if consulta.paciente:
+                    email_paciente = consulta.paciente.email
+                    link_reprogramacion = f"http://localhost:3000/reprogramar/{consulta.token_reprogramacion}"
+
+                    subject = "Consulta médica cancelada - Reprogramación"
+                    message = f"Estimado/a {consulta.paciente.first_name},\n\n" \
+                              f"Su consulta programada para el {consulta.fecha} a las {consulta.hora} ha sido cancelada.\n" \
+                              f"Puede reprogramarla en el siguiente enlace:\n\n {link_reprogramacion}\n\n" \
+                              f"Atentamente,\nEquipo de MediTest."
+
+                    send_mail(subject, message, 'servesa07@gmail.com', [email_paciente])
+
+                    correos_notificados.append(email_paciente)
+
+                consultas_canceladas.append(consulta_id)
+
+            return JsonResponse({"success": True, "canceladas": consultas_canceladas, "notificados": correos_notificados}, status=200)
+        except Exception as e:
+            return JsonResponse({"success": False, "error": str(e)}, status=400)
+    else:
+        return JsonResponse({"success": False, "error": "Método no permitido"}, status=405)
+    
+@csrf_exempt
+def reprogramar_consulta(request, token):
+    try:
+        consulta = Consulta.objects.get(token_reprogramacion=token)
+
+        if request.method == 'GET':
+            return JsonResponse({
+                "success": True,
+                "doctor": {
+                    "start_time": consulta.medico.start_time.strftime("%H:%M"),
+                    "end_time": consulta.medico.end_time.strftime("%H:%M"),
+                    "doctor_id": consulta.medico.id,
+                    "fecha_consulta": consulta.fecha,
+                    "days": consulta.medico.days,
+                    "first_name": consulta.medico.first_name,
+                    "last_name": consulta.medico.last_name,
+                    "specialty": consulta.medico.specialty,
+                    "email": consulta.medico.email,
+                    "phone_number": consulta.medico.phone_number,
+                    "address": consulta.medico.address,
+                    "profile_picture": consulta.medico.profile_picture.url if consulta.medico.profile_picture else None,
+                }
+            })
+
+        elif request.method == 'POST':
+            data = json.loads(request.body)
+            nueva_fecha = data.get("fecha")
+            nueva_hora = data.get("hora")
+
+            if not nueva_fecha or not nueva_hora:
+                return JsonResponse({"success": False, "error": "Fecha y hora son obligatorias"}, status=400)
+
+            consulta.fecha = nueva_fecha
+            consulta.hora = nueva_hora
+            consulta.estado = "reprogramada"
+            consulta.token_reprogramacion = None  # Invalidar el token
+            consulta.save()
+
+            return JsonResponse({"success": True, "mensaje": "Consulta reprogramada exitosamente"}, status=200)
+
+    except Consulta.DoesNotExist:
+        return JsonResponse({"success": False, "error": "Token inválido o consulta no encontrada"}, status=404)
+
+    return JsonResponse({"success": False, "error": "Método no permitido"}, status=405)
+
+
 

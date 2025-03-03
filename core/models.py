@@ -1,4 +1,5 @@
 from datetime import date
+import uuid
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
@@ -52,6 +53,7 @@ class Consulta(models.Model):
     )
     embarazo = models.BooleanField(null=True, blank=True)
     archivo_pdf = models.FileField(upload_to='profile_pictures/pdf_adjunt_consultas/', null=True, blank=True)
+    token_reprogramacion = models.UUIDField(default=uuid.uuid4, unique=True, null=True, blank=True)
     
     def __str__(self):
         return f"Consulta con {self.medico} el {self.fecha} a las {self.hora}"

@@ -35,7 +35,8 @@ const Chatbot = () => {
         location.pathname === "/" || 
         location.pathname === "/login" || 
         location.pathname.startsWith("/register") || 
-        location.pathname.startsWith("/chat") || 
+        location.pathname.startsWith("/chat") ||
+        location.pathname.startsWith("/historial-consultas") || 
         /^\/doctores\/\d+$/.test(location.pathname)
     ) {
         return null;
@@ -68,7 +69,7 @@ const Chatbot = () => {
             }));
     
             const response = await axios.post(
-                "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent",
+                "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent", 
                 {
                     contents: [
                         { role: "user", parts: [{ text: instruction }] }, // Instrucción para el asistente
