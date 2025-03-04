@@ -217,6 +217,8 @@ const reservasFiltradas = reservas.filter(consulta => {
                         className="checkbox-global"
                     />
                     <label htmlFor="checkbox-global"></label>
+                    {/* Texto "Marcar todas" solo en responsive */}
+        <span className="marcar-todas-text">Marcar todas</span>
                 </div>
                 )}
                 {/* Filtros */}
@@ -229,15 +231,13 @@ const reservasFiltradas = reservas.filter(consulta => {
                 </select>
 
                 <label>Estado:</label>
-<select value={estadoConsulta} onChange={(e) => setEstadoConsulta(e.target.value)} className='estado-filter'>
-    <option value="">Pendiente y Reprogramadas (Por defecto)</option>
-    <option value="pendiente">Pendiente y Reprogramadas</option>
-    <option value="realizada">Realizada</option>
-    <option value="cancelada">Cancelada</option>
-    <option value="todos">Todos</option>
-</select>
-
-
+                    <select value={estadoConsulta} onChange={(e) => setEstadoConsulta(e.target.value)} className='estado-filter'>
+                        <option value="">Pendiente y Reprogramadas (Por defecto)</option>
+                        <option value="pendiente">Pendiente y Reprogramadas</option>
+                        <option value="realizada">Realizada</option>
+                        <option value="cancelada">Cancelada</option>
+                        <option value="todos">Todos</option>
+                    </select>
                 <div className="misreservas-container">
                     <div className="filtro-item">
                         <div className="filtro-label-icon">
@@ -350,7 +350,7 @@ const reservasFiltradas = reservas.filter(consulta => {
                                                         )}
                                                         <button 
                                                             onClick={() => handleCancelarConsultaIndividual(consulta.id)} 
-                                                            disabled={consulta.estado === 'realizada'}
+                                                            disabled={consulta.estado === 'realizada' || consulta.estado === 'cancelada'}
                                                         >
                                                             Cancelar consulta
                                                         </button>
@@ -361,46 +361,46 @@ const reservasFiltradas = reservas.filter(consulta => {
                                     ))}
                                 </ul>
                                 )}
-            {/* Controles de paginación */}
-            {reservasFiltradas.length > 10 && (
-                <div className="paginacion">
-                    <button 
-                        className="boton-paginacion" 
-                        onClick={paginaAnterior} 
-                        disabled={currentPage === 1}
-                    >
-                        <FaArrowLeft />
-                    </button>
-                    <span className="pagina-actual">Página {currentPage} de {totalPaginas}</span>
-                    <button 
-                        className="boton-paginacion" 
-                        onClick={paginaSiguiente} 
-                        disabled={currentPage === totalPaginas}
-                    >
-                        <FaArrowRight />
-                    </button>
-                </div>
-            )}
+                                {/* Controles de paginación */}
+                                {reservasFiltradas.length > 10 && (
+                                    <div className="paginacion">
+                                        <button 
+                                            className="boton-paginacion" 
+                                            onClick={paginaAnterior} 
+                                            disabled={currentPage === 1}
+                                        >
+                                            <FaArrowLeft />
+                                        </button>
+                                        <span className="pagina-actual">Página {currentPage} de {totalPaginas}</span>
+                                        <button 
+                                            className="boton-paginacion" 
+                                            onClick={paginaSiguiente} 
+                                            disabled={currentPage === totalPaginas}
+                                        >
+                                            <FaArrowRight />
+                                        </button>
+                                    </div>
+                                )}
 
-            {/* Modal de confirmación */}
-            {modalAbierto && (
-                <div className="confirmation-modal-overlay">
-                    <div className="confirmation-modal-content">
-                        <p>¿Está seguro de cancelar {consultasSeleccionadas.length} consulta(s)?</p>
-                        <button onClick={confirmarCancelacion}>Sí, cancelar</button>
-                        <button onClick={cerrarModal} className="boton-rojo">No, mantener</button>
-                    </div>
-                </div>
-            )}
-            {/* Mensaje de éxito */}
-            {mensajeExito && (
-                <div className="success-message-overlay">
-                    <div className="success-message-content">
-                        <p>{mensajeExito}</p>
-                        <button onClick={() => setMensajeExito(null)}>Cerrar</button>
-                    </div>
-                </div>
-            )}
+                                {/* Modal de confirmación */}
+                                {modalAbierto && (
+                                    <div className="confirmation-modal-overlay">
+                                        <div className="confirmation-modal-content">
+                                            <p>¿Está seguro de cancelar {consultasSeleccionadas.length} consulta(s)?</p>
+                                            <button onClick={confirmarCancelacion}>Sí, cancelar</button>
+                                            <button onClick={cerrarModal} className="boton-rojo">No, mantener</button>
+                                        </div>
+                                    </div>
+                                )}
+                                {/* Mensaje de éxito */}
+                                {mensajeExito && (
+                                    <div className="success-message-overlay">
+                                        <div className="success-message-content">
+                                            <p>{mensajeExito}</p>
+                                            <button onClick={() => setMensajeExito(null)}>Cerrar</button>
+                                        </div>
+                                    </div>
+                                )}
         </div>
     );
 };

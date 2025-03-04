@@ -61,6 +61,28 @@
     
 }
 
+.marcar-todas-text {
+    display: none;
+}
+
+/* En pantallas pequeñas, centramos el checkbox y lo movemos debajo del filtro de fecha */
+@media (max-width: 768px) {
+    .checkbox-global-container {
+        justify-content: center;
+        margin: 10px 0; /* Añadimos margen para separar los elementos */
+        width: 100%;
+        order: 1; /* Se posiciona después de los filtros */
+    }
+
+    .marcar-todas-text {
+        display: inline-block;
+        font-size: 14px;
+        color: #333;
+        font-weight: 500;
+        margin-top: 9px;
+    }
+}
+
 .reserva-info {
     display: flex;
     align-items: center;
@@ -127,6 +149,7 @@
     /*font-size: 0.97em; /* Reducir tamaño de la fuente en los botones */
     cursor: pointer;
     transition: background-color 0.3s ease;
+    margin-bottom: 15px;
 }
 
 .reservas-list button.button-realizado:hover{
@@ -150,6 +173,32 @@
 .reservas-list button:disabled:hover {
     background-color: #ccc;
     cursor: not-allowed;
+}
+
+/* 🔹 Responsividad: En móviles (menos de 768px) */
+@media (max-width: 768px) {
+    .button-group {
+        flex-direction: column; /* Apilamos los botones verticalmente */
+        align-items: center;
+        gap: 5px;
+        width: 100%;
+    }
+    .botones-derecha {
+        flex-direction: column; /* Apilamos también los botones de la derecha */
+        align-items: center;
+        gap: 0px;
+        width: 100%;
+    }
+    .reservas-list button {
+        width: 100%; /* Hacemos que ocupen el ancho completo */
+        font-size: 0.85em; /* Reducimos un poco el tamaño del texto */
+        padding: 10px;
+    }
+    .reservas-list button.button-realizado {
+        width: 100%; /* Hacemos que ocupen el ancho completo */
+        font-size: 0.85em; /* Reducimos un poco el tamaño del texto */
+        padding: 10px;
+    }
 }
 
 .divider {
@@ -183,6 +232,14 @@
     display: flex;
     justify-content: flex-end;
 }
+/* 🔹 Ajustes para el estado en pantallas pequeñas */
+@media (max-width: 768px) {
+    .estado-consulta {
+        justify-content: center; /* Centramos el estado en móviles */
+        margin-left: -15px;
+        margin-top: -2px;
+    }
+}
 
 .estado-label {
     font-weight: bold;
@@ -199,6 +256,15 @@
 .estado-label.realizada {
     color: #008000; /* Verde */
     background-color: #E5FFE5; /* Fondo suave */
+}
+
+.estado-label.cancelada {
+    color: #bd2626; /* Verde */
+    background-color: #ffe5e5; /* Fondo suave */
+}
+.estado-label.reprogramada {
+    color: rgb(71, 71, 71); /* Verde */
+    background-color: #cfcfcf; /* Fondo suave */
 }
 
 .descarga-receta {
@@ -218,7 +284,25 @@
 
 .icono-descarga {
     margin-right: 5px;
-    margin-top: -5px;
+    margin-top: -4px;
+}
+
+/* 🔹 Ajustes solo en móviles */
+@media (max-width: 768px) {
+    .descarga-receta {
+        text-align: center; /* Centramos el botón en móviles */
+        margin-top: 5px; /* Ajustamos el margen para que no se vea separado */
+    }
+
+    .descarga-receta a {
+        justify-content: center; /* Centramos el contenido del botón */
+    }
+
+    .icono-descarga {
+        margin-right: -5px; /* Reducimos el espacio entre el icono y el texto */
+        margin-top: 0px; /* Ajustamos la alineación vertical */
+        margin-left: 15px;
+    }
 }
 
 .descarga-pdf {
@@ -242,10 +326,23 @@
 
 .filtros-container {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: center;
     gap: 15px;
     margin-bottom: 20px;
+}
+
+/* En pantallas pequeñas, apilamos los filtros en columna */
+@media (max-width: 768px) {
+    .filtros-container {
+        flex-direction: column;
+        align-items: stretch; /* Asegura que los filtros ocupen el ancho disponible */
+        gap: 10px;
+    }
+    .filtros-container select {
+        width: 100%; /* Los filtros ocupan el 100% en móviles */
+    }
 }
 
 .filtros-container label {
@@ -394,6 +491,16 @@
     background-color: #c82333;
     color: white;
     
+}
+
+@media (max-width: 480px) {
+    .icono-calendario-filter {
+        font-size: 18px;
+    }
+    .boton-cancelar-seleccionadas {
+        width: 100%;
+        margin-right: 0;
+    }
 }
 
 /* Estilos del modal de confirmación */
