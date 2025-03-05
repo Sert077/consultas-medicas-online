@@ -503,7 +503,7 @@
     }
 }
 
-/* Estilos del modal de confirmación */
+/* Estilos para el overlay del modal */
 .confirmation-modal-overlay {
     position: fixed;
     top: 0;
@@ -512,82 +512,180 @@
     bottom: 0;
     background-color: rgba(0, 0, 0, 0.5);
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
     z-index: 1000;
-}
-
-.confirmation-modal-content {
+    padding: 1rem;
+  }
+  
+  /* Estilos para el contenido del modal */
+  .confirmation-modal-content {
     background-color: white;
-    padding: 20px;
-    border-radius: 8px;
-    text-align: center;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.confirmation-modal-content h3 {
-    margin-bottom: 20px;
-}
-
-.confirmation-modal-content button {
-    padding: 10px 20px;
-    background-color: #6c63ff;
+    border-radius: 0.5rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+    padding: 1.9rem;
+    animation: modalFadeIn 0.3s ease;
+  }
+  
+  /* Título del modal */
+  .confirmation-modal-content h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    margin-top: 10px;
+    color: #333;
+  }
+  
+  /* Mensaje del modal */
+  .confirmation-modal-content p {
+    margin-bottom: 1.8rem;
+    color: #555;
+  }
+  
+  /* Contenedor de botones */
+  .confirmation-modal-buttons {
+    display: flex;
+    min-width: 120px;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: -1rem;
+  }
+  
+  /* Estilos generales para los botones */
+  .confirmation-modal-content button {
+    padding: 0.5rem 1rem;
     border: none;
-    color: white;
-    font-size: 16px;
+    border-radius: 0.25rem;
+    font-size: 1rem;
     cursor: pointer;
-    border-radius: 4px;
-    margin: 0 10px; /* Espacio entre botones */
+    transition: background-color 0.2s;
+  }
+  
+  /* Botón de confirmación */
+  .confirmation-modal-content button:first-of-type {
+    background-color: white;
+    color: #4f46e5;
+    border: 2px solid #5e51f0;
+    transition: background-color 0.2s, border-color 0.2s;
+  }
+  
+  .confirmation-modal-content button:first-of-type:hover {
+    background-color: #f0f0ff;
+    border-color: #4338ca;
+  }
+
+  .spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #4f46e5;
+    border-top: 2px solid transparent;
+    border-radius: 50%;
+    animation: spin 0.5s linear infinite;
+    margin-right: 5px;
 }
 
-.confirmation-modal-content button:hover {
-    background-color: #4e4ab7;
+@keyframes spin {
+    0% {
+      transform: translateY(10%) rotate(0deg);
+    }
+    100% {
+      transform: translateY(10%) rotate(360deg);
+    }
+  }
+  
+  /* Botón de cancelación */
+.confirmation-modal-content button.boton-cancelacion {
+    background-color: white;
+    color: #dc2626; /* Un tono de rojo que coincide con el esquema de colores de Tailwind */
+    border: 2px solid #fecaca; /* Un borde tenue de color rojo claro */
+    transition: background-color 0.2s, border-color 0.2s;
+  }
+  
+  .confirmation-modal-content button.boton-cancelacion:hover {
+    background-color: #fee2e2; /* Un fondo rojo muy claro al pasar el mouse */
+    border-color: #fca5a5; /* Un borde un poco más oscuro al pasar el mouse */
+  }
+  
+  .confirmation-modal-content button.boton-cancelacion:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px #fecaca; /* Un efecto de enfoque sutil */
+  }
+
+  /* Botón de cancelación deshabilitado */
+.confirmation-modal-content button.boton-cancelacion:disabled {
+    background-color: #f3f4f6; /* Un color de fondo gris claro */
+    color: #9ca3af; /* Un color de texto gris */
+    border: 2px solid #e5e7eb; /* Un borde gris */
+    cursor: not-allowed; /* Cambia el cursor a "no permitido" */
 }
 
+.confirmation-modal-content button.boton-cancelacion:disabled:hover {
+    background-color: #f3f4f6; /* Mantén el mismo color de fondo al pasar el mouse */
+    border-color: #e5e7eb; /* Mantén el mismo color de borde al pasar el mouse */
+}
+  
+  /* Animación de entrada del modal */
+  @keyframes modalFadeIn {
+    from {
+      opacity: 0;
+      transform: scale(0.9);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  
 /* Estilos para el mensaje de éxito (similar al modal) */
 .success-message-overlay {
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+  }
+  
+  .success-message-content {
+    background-color: #34d399;
+    color: #064e3b;
+    padding: 12px 24px;
+    border-radius: 25px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     display: flex;
-    justify-content: center;
     align-items: center;
-    z-index: 1001; /* Asegura que esté por encima del modal */
-}
-
-.success-message-content {
-    background-color: white;
-    padding: 20px;
-    border-radius: 8px;
-    text-align: center;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.success-message-content h3 {
-    margin-bottom: 20px;
-}
-
-.success-message-content button {
-    padding: 10px 20px;
-    background-color: #6c63ff;
+    justify-content: center;
+    max-width: 300px;
+    animation: fadeInUp 0.4s ease-out;
+  }
+  
+  .success-message-content p {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 500;
+  }
+  
+  .success-message-content button {
+    background: #064e3b;
     border: none;
     color: white;
-    font-size: 16px;
     cursor: pointer;
-    border-radius: 4px;
-}
+    font-size: 12px;
+    margin-left: 15px;
+    padding: 4px 8px;
+    border-radius: 20px;
+  }
+  
+  @keyframes fadeInUp {
+    from {
+      transform: translate(-50%, 20px);
+      opacity: 0;
+    }
+    to {
+      transform: translate(-50%, 0);
+      opacity: 1;
+    }
+  }
 
-.success-message-content button:hover {
-    background-color: #4e4ab7;
-}
-
-.confirmation-modal-content button.boton-rojo {
-    background-color: #FF4C4C; /* Rojo Bootstrap (puedes usar el rojo que prefieras) */
-}
-
-.confirmation-modal-content button.boton-rojo:hover {
-    background-color: #c82333; /* Un rojo un poco más oscuro para el hover */
-}

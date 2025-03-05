@@ -324,7 +324,6 @@ const DoctorDetail = () => {
                     </div>
                 </div>
             </div>
-
             <div className="map-container">
                     <h3>Ubicación del Consultorio</h3>
                     <iframe
@@ -336,8 +335,7 @@ const DoctorDetail = () => {
                         allowFullScreen=""
                         loading="lazy"
                     ></iframe>
-                </div>
-                
+                </div>       
             <div className="doctor-biography-container">
                 <h3>Biografía</h3>
                 <p>{doctor.biography}</p>
@@ -357,7 +355,6 @@ const DoctorDetail = () => {
                     <p>No hay consultas reservadas.</p>
                 )}
             </div>
-
            {/* Modal para reserva de consulta */}
            {showModal && (
             <div className="modal-overlay" onClick={() => setShowModal(false)}>
@@ -381,7 +378,6 @@ const DoctorDetail = () => {
                         />
                         {fechaError && <div className="error-message">{fechaError}</div>}
                     </div>
-
                     <div>
                         <label className="modal-label">Hora:<span style={{ color: 'red' }}>*</span>
                         </label>
@@ -411,7 +407,6 @@ const DoctorDetail = () => {
                             {horaError && <p className="error-message">{horaError}</p>}
                         </div>
                     </div>
-
                         {/* Mostrar la fecha y hora seleccionada */}
                         {fecha && hora && (
                         <div className="seleccion-info">
@@ -545,7 +540,6 @@ const DoctorDetail = () => {
                                     No
                                 </label>
                             </div>
-
                             {tieneAlergias && (
                                 <div>
                                     <label htmlFor="descripcion-alergia" className="modal-label-alergias">
@@ -598,7 +592,6 @@ const DoctorDetail = () => {
                             </div>
                         </div>
                     )}
-
                     {/* Modal de confirmación */}
                     {showConfirmationModal && (
                         <div className="modal-overlay" onClick={() => setShowConfirmationModal(false)}>

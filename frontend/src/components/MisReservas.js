@@ -22,10 +22,13 @@ const MisReservas = () => {
     const [consultasSeleccionadas, setConsultasSeleccionadas] = useState([]);
     const [modalAbierto, setModalAbierto] = useState(false);
     const [mensajeExito, setMensajeExito] = useState(null);
-
+    const [consultaIndividualCancelar, setConsultaIndividualCancelar] = useState(null);
+    const [cancelarDeshabilitado, setCancelarDeshabilitado] = useState(false);
+    const [loading, setLoading] = useState(false);
     const abrirModal = () => setModalAbierto(true);
     const cerrarModal = () => setModalAbierto(false);
     const [seleccionarTodas, setSeleccionarTodas] = useState(false);
+    const [confirmacionMarcarRealizada, setConfirmacionMarcarRealizada] = useState(null);
 
     useEffect(() => {
         if (!token) {
@@ -81,79 +84,80 @@ const MisReservas = () => {
 
     const handleMarcarComoRealizada = (consultaId) => {
         fetch(`http://localhost:8000/api/consultas/${consultaId}/cambiar_estado/`, {
-            method: 'PATCH',
+            method: "PATCH",
             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Token ${token}`,
+                "Content-Type": "application/json",
+                Authorization: `Token ${token}`,
             },
         })
-        .then(response => response.json())
-        .then(data => {
-            alert(data.message);
-            setReservas(reservas.map(consulta => 
-                consulta.id === consultaId ? { ...consulta, estado: 'realizada' } : consulta
-            ));
-        })
-        .catch(error => console.error('Error al cambiar estado de la consulta:', error));
-    };  
+            .then((response) => response.json())
+            .then((data) => {
+                setReservas(
+                    reservas.map((consulta) =>
+                        consulta.id === consultaId ? { ...consulta, estado: "realizada" } : consulta
+                    )
+                );
+                mostrarMensajeExito(data.message); // Muestra el mensaje de éxito
+            })
+            .catch((error) => {
+                console.error("Error al cambiar estado de la consulta:", error);
+                mostrarMensajeExito("Error al marcar la consulta como realizada."); // Mensaje de error
+            });
+    };
     
     const mostrarMensajeExito = (mensaje) => {
         setMensajeExito(mensaje);
-        setTimeout(() => setMensajeExito(null), 3000); // Oculta el mensaje después de 3 segundos
+        setTimeout(() => setMensajeExito(null), 5000); // Oculta el mensaje después de 3 segundos
     };
 
     const handleCancelarConsultasSeleccionadas = () => {
         abrirModal();
     };
 
+    const handleCancelarConsultaIndividual = (consultaId) => {
+        setConsultaIndividualCancelar(consultaId);
+        abrirModal();
+    };
+
     const confirmarCancelacion = () => {
+        setLoading(true); // Muestra un spinner de carga
+        setCancelarDeshabilitado(true); // Deshabilita el botón de "Cancelar"
+
+        const consultasACancelar = consultaIndividualCancelar ? [consultaIndividualCancelar] : consultasSeleccionadas;
+
         fetch("http://localhost:8000/api/consultas/cancelar/", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ consultas: consultasSeleccionadas })
+            body: JSON.stringify({ consultas: consultasACancelar })
         })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                setReservas(reservas.filter(consulta => !consultasSeleccionadas.includes(consulta.id)));
-                setConsultasSeleccionadas([]);
-                mostrarMensajeExito(`Consultas canceladas correctamente.\nCorreos enviados a: ${data.notificados.join(", ")}`);
+                setReservas(reservas.filter(consulta => !consultasACancelar.includes(consulta.id)));
+                if (consultaIndividualCancelar) {
+                    setConsultaIndividualCancelar(null);
+                } else {
+                    setConsultasSeleccionadas([]);
+                }
+                mostrarMensajeExito(`Consulta(s) cancelada(s) correctamente.\nCorreos enviados a: ${data.notificados.join(", ")}`);
             } else {
-                alert("Error cancelando consultas: " + data.error);
+                alert("Error cancelando consulta(s): " + data.error);
             }
             cerrarModal();
         })
         .catch(error => {
-            console.error("Error cancelando consultas:", error);
+            console.error("Error cancelando consulta(s):", error);
+            cerrarModal();
+        })
+        .finally(() => {
+            setLoading(false); // Desactivamos el spinner
+            setCancelarDeshabilitado(false); // Rehabilita el botón de "Cancelar"
             cerrarModal();
         });
     };
 
-    const handleCancelarConsultaIndividual = (consultaId) => {
-        const confirmar = window.confirm("¿Está seguro de cancelar esta consulta?");
-        if (!confirmar) return;
-    
-        // Realiza la solicitud de cancelación para la consulta individual
-        fetch("http://localhost:8000/api/consultas/cancelar/", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ consultas: [consultaId] }) // Solo enviamos el id de la consulta
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Elimina la consulta cancelada de la lista
-                setReservas(reservas.filter(consulta => consulta.id !== consultaId));
-                alert(`Consulta cancelada correctamente.\nCorreo enviado a: ${data.notificados.join(", ")}`);
-            } else {
-                alert("Error cancelando consulta: " + data.error);
-            }
-        })
-        .catch(error => console.error("Error cancelando consulta:", error));
-    };    
-
     // Filtrar reservas según los filtros seleccionados
-const reservasFiltradas = reservas.filter(consulta => {
+    const reservasFiltradas = reservas.filter(consulta => {
     const fechaConsulta = new Date(consulta.fecha);
     const estadoLowerCase = consulta.estado.toLowerCase();
 
@@ -167,7 +171,6 @@ const reservasFiltradas = reservas.filter(consulta => {
         (!fechaInicio || !fechaFin || (fechaConsulta >= fechaInicio && fechaConsulta <= fechaFin))
     );
 });
-
 
     const handleSeleccionarConsulta = (consultaId) => {
         setConsultasSeleccionadas((prevSeleccionadas) =>
@@ -386,9 +389,24 @@ const reservasFiltradas = reservas.filter(consulta => {
                                 {modalAbierto && (
                                     <div className="confirmation-modal-overlay">
                                         <div className="confirmation-modal-content">
-                                            <p>¿Está seguro de cancelar {consultasSeleccionadas.length} consulta(s)?</p>
-                                            <button onClick={confirmarCancelacion}>Sí, cancelar</button>
-                                            <button onClick={cerrarModal} className="boton-rojo">No, mantener</button>
+                                            <h3>Confirmar Acción</h3>
+                                            <p>¿Está seguro de cancelar {consultaIndividualCancelar ? "esta consulta" : `${consultasSeleccionadas.length} consulta(s)`}?</p>
+                                            <div className="confirmation-modal-buttons">
+                                                <button onClick={confirmarCancelacion} disabled={loading}>
+                                                    {loading ? (
+                                                        <>
+                                                            <span className="spinner"></span> Procesando...
+                                                        </>
+                                                    ) : "Confirmar"}
+                                                </button>
+                                                <button 
+                                                    onClick={cerrarModal} 
+                                                    className="boton-cancelacion" 
+                                                    disabled={loading || cancelarDeshabilitado}
+                                                >
+                                                    Cancelar
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 )}
