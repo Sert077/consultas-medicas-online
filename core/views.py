@@ -905,7 +905,7 @@ def cambiar_estado_consulta(request, consulta_id):
         consulta.estado = 'realizada'
         consulta.save()
         
-        return Response({'message': 'Consulta marcada como realizada'}, status=status.HTTP_200_OK)
+        return Response({'message': 'Consulta Realizada \nCorrectamente'}, status=status.HTTP_200_OK)
     except Consulta.DoesNotExist:
         return Response({'error': 'Consulta no encontrada'}, status=status.HTTP_404_NOT_FOUND)
     
@@ -992,6 +992,3 @@ def reprogramar_consulta(request, token):
         return JsonResponse({"success": False, "error": "Token inválido o consulta no encontrada"}, status=404)
 
     return JsonResponse({"success": False, "error": "Método no permitido"}, status=405)
-
-
-
