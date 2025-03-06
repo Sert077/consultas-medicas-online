@@ -129,7 +129,7 @@ const ReprogramarConsulta = () => {
 
     return (
         <div className="doctor-detail-container">
-            <h2>Reprogramar Consulta</h2>
+            <h3>Reprogramar Consulta</h3>
             <div className="doctor-info-container">
                 <img src={`http://localhost:8000${doctor.profile_picture}`} alt={`${doctor.first_name} ${doctor.last_name}`} className="doctor-image" />
                 <div className="doctor-details">

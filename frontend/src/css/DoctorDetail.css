@@ -566,7 +566,7 @@ h3{
 }
 
 /* Estilo del modal de confirmación */
-.confirmation-modal-overlay {
+.modal-overlay-confirmation {
     position: fixed;
     top: 0;
     left: 0;
@@ -577,34 +577,149 @@ h3{
     justify-content: center;
     align-items: center;
     z-index: 1000;
-}
-
-.confirmation-modal-content {
+  }
+  
+  /* Modal container */
+  .modal-content-confirmation {
     background-color: white;
-    padding: 20px;
-    border-radius: 8px;
+    border-radius: 12px;
+    overflow: hidden;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    animation: modalSlideIn 0.3s ease-out;
+  }
+  
+  /* Header section with icon */
+  .modal-header-confirmation {
+    background-color: #4CAF50;
+    padding: 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+  }
+  
+  /* Animated checkmark container */
+  .checkmark-circle {
+    width: 80px;
+    height: 80px;
+    position: relative;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  /* Animated checkmark */
+  .checkmark {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    stroke-width: 3;
+    stroke: #4CAF50;
+    stroke-miterlimit: 10;
+    animation: checkmark 0.4s ease-in-out 0.4s forwards;
+    opacity: 0;
+  }
+  
+  /* Content section */
+  .modal-body-confirmation {
+    padding: 2rem;
     text-align: center;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.confirmation-modal-content h3 {
-    margin-bottom: 20px;
-}
-
-button.confirmation-modal-content  {
-    padding: 10px 20px;
-    background-color: #6c63ff;
-    border: none;
-    color: white;
-    font-size: 16px;
-    cursor: pointer;
-    border-radius: 4px;
+  }
+  
+  .modal-body-confirmation h3 {
+    color: #4CAF50;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    margin-top: auto;
+  }
+  
+  .modal-body-confirmation p {
+    color: #4b5563;
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+  }
+  
+  /* Button styles */
+  .modal-button {
+    padding: 10px 20px; 
+    background-color: white; 
+    border: 1px solid #4CAF50; 
+    color: #4CAF50; 
+    font-size: 16px; 
+    cursor: pointer; 
+    border-radius: 4px; 
     margin-bottom: auto;
-}
-
-.confirmation-modal-content button:hover {
-    background-color: #4e4ab7;
-}
+  }
+  
+  .modal-button:hover {
+    background-color: #d3f3d5;
+    border-color: #47b44d;
+  }
+  
+  /* Animations */
+  @keyframes modalSlideIn {
+    from {
+      transform: translateY(20px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+  
+  @keyframes checkmark {
+    0% {
+      opacity: 0;
+      transform: scale(0.8);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  
+  /* Responsive styles */
+  @media (max-width: 600px) {
+    .modal-content-confirmation {
+      width: 95%;
+      margin: 1rem;
+    }
+  
+    .modal-header-confirmation {
+      padding: 1.5rem;
+    }
+  
+    .checkmark-circle {
+      width: 60px;
+      height: 60px;
+    }
+  
+    .checkmark {
+      width: 30px;
+      height: 30px;
+    }
+  
+    .modal-body-confirmation {
+      padding: 1.5rem;
+    }
+  
+    .modal-body-confirmation h3 {
+      font-size: 1.25rem;
+    }
+  
+    .modal-button {
+      width: 100%;
+      padding: 0.75rem;
+    }
+  }
+  
+  
 
 .error-message {
     color: red;
@@ -621,7 +736,7 @@ button.confirmation-modal-content  {
     text-align: center;
 }
 
-.spinner {
+.spinner-reserva {
     border: 3px solid rgba(255, 255, 255, 0.3);
     border-top: 3px solid white;
     border-radius: 50%;
@@ -644,17 +759,5 @@ button.confirmation-modal-content  {
 @media (max-width: 600px) {
     .alergias-textarea {
         max-width: 100%; /* Asegurar que el textarea no se salga del contenedor */
-    }
-}
-
-/* Confirmación modal responsivo */
-@media (max-width: 600px) {
-    .confirmation-modal-content {
-        padding: 15px; /* Ajustar padding */
-    }
-
-    .confirmation-modal-content button {
-        width: 100%; /* Botón ocupa todo el ancho */
-        font-size: 14px; /* Reducir tamaño del texto */
     }
 }

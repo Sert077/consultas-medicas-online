@@ -581,7 +581,7 @@ const DoctorDetail = () => {
                         <div className="modal-buttons-container-outside">
                         <button type="submit" className="button reservar" disabled={loadingReserva}>
                             {loadingReserva ? (
-                                <div className="spinner"></div>
+                                <div className="spinner-reserva"></div>
                             ) : (
                                 "Reservar"
                             )}
@@ -592,15 +592,30 @@ const DoctorDetail = () => {
                             </div>
                         </div>
                     )}
-                    {/* Modal de confirmación */}
+                    {/* Modal de mensaje de exito de reserva*/}
                     {showConfirmationModal && (
-                        <div className="modal-overlay" onClick={() => setShowConfirmationModal(false)}>
-                            <div className="modal-content confirmation-modal" onClick={(e) => e.stopPropagation()}>
-                                <h3>¡Consulta Reservada Correctamente!</h3>
-                                <p>Tu consulta con el Dr(a): {doctor.first_name} {doctor.last_name} ha sido reservada para el {fecha?.toLocaleDateString()} a las {hora}.</p>
-                                <button className="button confirmation-modal-content" onClick={closeModal} >Cerrar</button>
+                        <div className="modal-overlay-confirmation" onClick={() => setShowConfirmationModal(false)}>
+                        <div className="modal-content-confirmation" onClick={(e) => e.stopPropagation()}>
+                          <div className="modal-header-confirmation">
+                            <div className="checkmark-circle">
+                              <svg className="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                                <circle className="checkmark-circle" cx="26" cy="26" r="25" fill="none" />
+                                <path className="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" />
+                              </svg>
                             </div>
+                          </div>
+                          <div className="modal-body-confirmation">
+                            <h3>¡Consulta Reservada Correctamente!</h3>
+                            <p>
+                              Tu consulta con el Dr(a): {doctor.first_name} {doctor.last_name} ha sido reservada para el{" "}
+                              {fecha?.toLocaleDateString()} a las {hora} Hrs.
+                            </p>
+                            <button className="modal-button" onClick={closeModal}>
+                              Aceptar
+                            </button>
+                          </div>
                         </div>
+                      </div>
                     )}
                 </div>
     );
