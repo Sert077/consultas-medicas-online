@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import MapModal from './MapModal';
+
+import "leaflet/dist/leaflet.css";
 
 const RegisterDoctor = () => {
   
@@ -42,6 +45,8 @@ const RegisterDoctor = () => {
     customSpecialty: '', // Para guardar el valor de la especialidad personalizada
     phoneNumber: '',
     address: '',
+    lat: null, // Latitud
+    lng: null, // Longitud
     profilePicture: null,
     biography: '',
     days: [],
@@ -50,6 +55,8 @@ const RegisterDoctor = () => {
     username: '',
     password: '',
   });
+
+  const [showMap, setShowMap] = useState(false); // Controla la visibilidad del modal con el mapa
 
   const handleChange = (e) => {
     setFormData({
@@ -87,6 +94,8 @@ const RegisterDoctor = () => {
     // Determinar la especialidad final
     const finalSpecialty = formData.specialty === 'Otros' ? formData.customSpecialty : formData.specialty;
 
+    const formattedAddress = `${formData.address} (${formData.lat}, ${formData.lng})`;
+
     const formDataToSend = new FormData();
     formDataToSend.append('username', formData.username);
     formDataToSend.append('password', formData.password);
@@ -99,7 +108,8 @@ const RegisterDoctor = () => {
     formDataToSend.append('doctor.email', formData.email);
     formDataToSend.append('doctor.specialty', finalSpecialty); // Enviar la especialidad final
     formDataToSend.append('doctor.phone_number', formData.phoneNumber);
-    formDataToSend.append('doctor.address', formData.address);
+    formDataToSend.append('doctor.address', formattedAddress);
+    
     formDataToSend.append('doctor.biography', formData.biography);
     formDataToSend.append('doctor.days', formData.days);
     formDataToSend.append('doctor.start_time', formData.horarioInicio);
@@ -204,17 +214,27 @@ const RegisterDoctor = () => {
         </div>
 
         <div className="form-group">
-          <label htmlFor="address">Dirección:</label>
-          <input
-            type="text"
-            id="address"
-            name="address"
-            value={formData.address}
-            onChange={handleChange}
-            placeholder="Dirección del consultorio"
-            required
-          />
-        </div>
+          <label htmlFor="address">Dirección del Consultorio:</label>
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <input
+              type="text"
+              id="address"
+              name="address"
+              value={formData.address}
+              onChange={handleChange}
+              placeholder="Seleccione en el mapa"
+              required
+              readOnly
+            />
+            <button
+              type="button"
+              className="location-btn"
+              onClick={() => setShowMap(true)}
+            >
+              📍
+            </button>
+          </div>
+        </div> 
 
         <div className="form-group">
           <label htmlFor="specialty">Especialidad:</label>
@@ -244,7 +264,6 @@ const RegisterDoctor = () => {
             />
           )}
         </div>
-
         <div className="form-group">
           <label htmlFor="profilePicture">Foto de perfil:</label>
           <input
@@ -366,8 +385,17 @@ const RegisterDoctor = () => {
           Registrar
         </button>
       </form>
+      {showMap && (
+        <MapModal
+          setShowMap={setShowMap}
+          setFormData={setFormData}
+          formData={formData}
+        />
+      )}
     </div>
   );
 };
+
+
 
 export default RegisterDoctor;

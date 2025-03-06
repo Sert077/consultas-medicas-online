@@ -94,6 +94,12 @@
 
 h3{
     text-align: center;
+    color: #392682;
+    font-size: 25px;
+}
+
+h2{
+    text-align: center;
 }
 
 .consultas-container ul {

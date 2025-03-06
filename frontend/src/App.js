@@ -33,6 +33,7 @@ import Register from './components/Register';
 import Login from './components/Login';
 import EmailForm from './components/EmailForm';
 import './css/style.css';
+import "leaflet/dist/leaflet.css";
 //import ChatComponent from './components/ChatComponent';
 import MisReservas from './components/MisReservas';
 import Chat from './components/Chat';

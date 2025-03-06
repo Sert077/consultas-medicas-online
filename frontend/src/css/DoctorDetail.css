@@ -647,9 +647,9 @@ h3{
   /* Button styles */
   .modal-button {
     padding: 10px 20px; 
-    background-color: #4CAF50; 
-    border: none; 
-    color: white; 
+    background-color: white; 
+    border: 1px solid #4CAF50; 
+    color: #4CAF50; 
     font-size: 16px; 
     cursor: pointer; 
     border-radius: 4px; 
@@ -657,7 +657,8 @@ h3{
   }
   
   .modal-button:hover {
-    background-color: #45a049;
+    background-color: #d3f3d5;
+    border-color: #47b44d;
   }
   
   /* Animations */
@@ -760,4 +761,3 @@ h3{
         max-width: 100%; /* Asegurar que el textarea no se salga del contenedor */
     }
 }
-
