@@ -126,6 +126,10 @@ pip install fpdf
 en front
 npm install axios
 
+para mapas en registrar docotor:
+npm install react-leaflet@4.2.0 leaflet@1.9.4
+npm i --save-dev @types/leaflet
+
 
 
 
