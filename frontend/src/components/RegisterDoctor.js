@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
+import { FaMapMarkerAlt } from "react-icons/fa";
 import MapModal from './MapModal';
-
 import "leaflet/dist/leaflet.css";
 
 const RegisterDoctor = () => {
@@ -41,6 +41,7 @@ const RegisterDoctor = () => {
     firstName: '',
     lastName: '',
     email: '',
+    id_card: '',
     specialty: '',
     customSpecialty: '', // Para guardar el valor de la especialidad personalizada
     phoneNumber: '',
@@ -52,17 +53,30 @@ const RegisterDoctor = () => {
     days: [],
     horarioInicio: '',
     horarioFin: '',
+    consultaDuracion: '',
     username: '',
     password: '',
+    repeatPassword: '',
   });
 
+  const [showPassword, setShowPassword] = useState(false);
+  const [showRepeatPassword, setShowRepeatPassword] = useState(false);
+  const [passwordError, setPasswordError] = useState('');
   const [showMap, setShowMap] = useState(false); // Controla la visibilidad del modal con el mapa
 
   const handleChange = (e) => {
+    const { name, value } = e.target;
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value,
+      [name]: value,
     });
+  
+    // Validar si las contraseñas coinciden
+    if (name === 'repeatPassword' && value !== formData.password) {
+      setPasswordError('Las contraseñas no coinciden');
+    } else {
+      setPasswordError('');
+    }
   };
 
   const handleFileChange = (e) => {
@@ -88,6 +102,13 @@ const RegisterDoctor = () => {
     });
   };
 
+  const handleConsultaDuracion = (duracion) => {
+    setFormData({
+      ...formData,
+      consultaDuracion: formData.consultaDuracion === duracion ? '' : duracion,
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -102,6 +123,7 @@ const RegisterDoctor = () => {
     formDataToSend.append('first_name', formData.firstName);
     formDataToSend.append('last_name', formData.lastName);
     formDataToSend.append('email', formData.email);
+    formDataToSend.append('perfil.id_card', formData.id_card);
     formDataToSend.append('perfil.tipo_usuario', 'medico');
     formDataToSend.append('doctor.first_name', formData.firstName);
     formDataToSend.append('doctor.last_name', formData.lastName);
@@ -109,7 +131,7 @@ const RegisterDoctor = () => {
     formDataToSend.append('doctor.specialty', finalSpecialty); // Enviar la especialidad final
     formDataToSend.append('doctor.phone_number', formData.phoneNumber);
     formDataToSend.append('doctor.address', formattedAddress);
-    
+    formDataToSend.append('doctor.consulta_duracion', formData.consultaDuracion); // Nuevo campo
     formDataToSend.append('doctor.biography', formData.biography);
     formDataToSend.append('doctor.days', formData.days);
     formDataToSend.append('doctor.start_time', formData.horarioInicio);
@@ -188,6 +210,20 @@ const RegisterDoctor = () => {
         </div>
 
         <div className="form-group">
+          <label htmlFor="id_card">Cedula de Identidad:</label>
+          <input
+            type="text"
+            id="id_card"
+            name="id_card"
+            value={formData.id_card}
+            onChange={handleChange}
+            placeholder="Ingrese su cédula de identidad"
+            maxLength="20"
+            required
+          />
+        </div>
+
+        <div className="form-group">
           <label htmlFor="email">Email:</label>
           <input
             type="email"
@@ -196,19 +232,6 @@ const RegisterDoctor = () => {
             value={formData.email}
             onChange={handleChange}
             placeholder="Escriba un email válido"
-            required
-          />
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="phoneNumber">Teléfono:</label>
-          <input
-            type="text"
-            id="phoneNumber"
-            name="phoneNumber"
-            value={formData.phoneNumber}
-            onChange={handleChange}
-            placeholder="Número telefónico"
             required
           />
         </div>
@@ -231,10 +254,24 @@ const RegisterDoctor = () => {
               className="location-btn"
               onClick={() => setShowMap(true)}
             >
-              📍
+              <FaMapMarkerAlt />
             </button>
           </div>
         </div> 
+
+        <div className="form-group">
+          <label htmlFor="phoneNumber">Teléfono:</label>
+          <input
+            type="number"
+            id="phoneNumber"
+            name="phoneNumber"
+            value={formData.phoneNumber}
+            onChange={handleChange}
+            placeholder="Número telefónico"
+            maxLength="10"
+            required
+          />
+        </div>
 
         <div className="form-group">
           <label htmlFor="specialty">Especialidad:</label>
@@ -270,19 +307,9 @@ const RegisterDoctor = () => {
             type="file"
             id="profilePicture"
             name="profilePicture"
+            accept="image/*"
             onChange={handleFileChange}
-          />
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="biography">Biografía:</label>
-          <textarea
-            id="biography"
-            name="biography"
-            value={formData.biography}
-            onChange={handleChange}
-            placeholder="Breve descripción"
-            rows="3"
+            required
           />
         </div>
 
@@ -354,7 +381,37 @@ const RegisterDoctor = () => {
             onChange={handleChange} 
             required /> 
           </div> 
+        
+
+        
+          <label>Duración de la Consulta:</label>
+          <div className="predefined-options">
+            {["15 min", "30 min", "45 min", "1 hora"].map((duracion, index) => (
+              <button
+                key={index}
+                type="button"
+                className={`day-button ${formData.consultaDuracion === duracion ? "selected" : ""}`}
+                onClick={() => handleConsultaDuracion(duracion)}
+              >
+                {duracion}
+              </button>
+            ))}
+          </div>
         </div>
+
+        <div className="form-group">
+          <label htmlFor="biography">Biografía:</label>
+          <textarea
+            id="biography"
+            name="biography"
+            value={formData.biography}
+            onChange={handleChange}
+            placeholder="Breve descripción"
+            rows="3"
+            required
+          />
+        </div>
+
         <div className="form-group">
           <label htmlFor="username">Usuario:</label>
           <input
@@ -369,17 +426,44 @@ const RegisterDoctor = () => {
         </div>
 
         <div className="form-group">
-          <label htmlFor="password">Contraseña:</label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            placeholder="Cree una contraseña"
-            required
-          />
-        </div>
+      <label htmlFor="password">Contraseña:</label>
+      <div className="password-container">
+        <input
+          type={showPassword ? 'text' : 'password'}
+          id="password"
+          name="password"
+          value={formData.password}
+          onChange={handleChange}
+          placeholder="Cree una contraseña"
+          required
+        />
+        <i 
+          className={showPassword ? 'fa fa-eye-slash' : 'fa fa-eye'}
+          onClick={() => setShowPassword(!showPassword)}
+        ></i>
+      </div>
+    </div>
+
+    {/* Campo de Repetir Contraseña */}
+    <div className="form-group">
+      <label htmlFor="repeatPassword">Repetir contraseña:</label>
+      <div className="password-container">
+        <input
+          type={showRepeatPassword ? 'text' : 'password'}
+          id="repeatPassword"
+          name="repeatPassword"
+          value={formData.repeatPassword}
+          onChange={handleChange}
+          placeholder="Repita su contraseña"
+          required
+        />
+        <i 
+          className={showRepeatPassword ? 'fa fa-eye-slash' : 'fa fa-eye'}
+          onClick={() => setShowRepeatPassword(!showRepeatPassword)}
+        ></i>
+      </div>
+      {passwordError && <p className="error-text">{passwordError}</p>}
+    </div>
 
         <button type="submit" className="btn btn-primary">
           Registrar
@@ -395,7 +479,5 @@ const RegisterDoctor = () => {
     </div>
   );
 };
-
-
 
 export default RegisterDoctor;

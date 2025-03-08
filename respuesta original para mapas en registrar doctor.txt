@@ -1,0 +1,254 @@
+Sí, se puede hacer. Para lograrlo, vamos a usar **React Leaflet** con OpenStreetMap para que el usuario pueda seleccionar la ubicación en un mapa y guardar las coordenadas (latitud y longitud) en el campo `address`.  
+
+### 🚀 ¿Cómo lo haremos?
+1. **Instalar React Leaflet y sus dependencias**  
+2. **Añadir un botón al lado del input de dirección** para abrir un modal con el mapa  
+3. **Crear un modal con el mapa interactivo**  
+4. **Guardar las coordenadas seleccionadas en el estado**  
+5. **Enviar las coordenadas junto con el formulario**
+
+---
+
+### 1️⃣ **Instalar React Leaflet y dependencias**
+Ejecuta este comando en la terminal dentro de tu proyecto:  
+```sh
+npm install react-leaflet leaflet
+```
+
+**IMPORTANTE**: También debes importar los estilos de Leaflet en tu `index.css` o en el `App.js`:
+```css
+@import "leaflet/dist/leaflet.css";
+```
+
+---
+
+### 2️⃣ **Modificar el formulario `RegisterDoctor.js`**
+Añadiremos un botón al lado del input de dirección para abrir el mapa y seleccionar la ubicación.
+
+#### 📝 **Código actualizado (`RegisterDoctor.js`):**
+```jsx
+import React, { useState } from "react";
+import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
+import L from "leaflet";
+
+const RegisterDoctor = () => {
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    specialty: "",
+    customSpecialty: "",
+    phoneNumber: "",
+    address: "", // Aquí guardaremos la dirección como coordenadas
+    lat: null, // Latitud
+    lng: null, // Longitud
+    profilePicture: null,
+    biography: "",
+    days: [],
+    horarioInicio: "",
+    horarioFin: "",
+    username: "",
+    password: "",
+  });
+
+  const [showMap, setShowMap] = useState(false); // Controla la visibilidad del modal con el mapa
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleFileChange = (e) => {
+    setFormData({
+      ...formData,
+      profilePicture: e.target.files[0],
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const formDataToSend = new FormData();
+    formDataToSend.append("username", formData.username);
+    formDataToSend.append("password", formData.password);
+    formDataToSend.append("first_name", formData.firstName);
+    formDataToSend.append("last_name", formData.lastName);
+    formDataToSend.append("email", formData.email);
+    formDataToSend.append("doctor.address", formData.address);
+    formDataToSend.append("doctor.lat", formData.lat);
+    formDataToSend.append("doctor.lng", formData.lng);
+
+    try {
+      const response = await fetch("http://localhost:8000/api/register/", {
+        method: "POST",
+        body: formDataToSend,
+      });
+
+      if (response.ok) {
+        alert("Doctor registrado exitosamente");
+      } else {
+        alert("Error al registrar el doctor");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert("Error en el registro");
+    }
+  };
+
+  return (
+    <div className="container">
+      <h2>Registrar Doctor</h2>
+      <form onSubmit={handleSubmit} className="form-grid">
+        <div className="form-group">
+          <label htmlFor="address">Dirección del Consultorio:</label>
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <input
+              type="text"
+              id="address"
+              name="address"
+              value={formData.address}
+              onChange={handleChange}
+              placeholder="Seleccione en el mapa"
+              required
+              readOnly
+            />
+            <button
+              type="button"
+              className="location-btn"
+              onClick={() => setShowMap(true)}
+            >
+              📍
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" className="btn btn-primary">
+          Registrar
+        </button>
+      </form>
+
+      {showMap && (
+        <MapModal
+          setShowMap={setShowMap}
+          setFormData={setFormData}
+          formData={formData}
+        />
+      )}
+    </div>
+  );
+};
+
+// ✅ Componente para mostrar el mapa en un modal
+const MapModal = ({ setShowMap, setFormData, formData }) => {
+  const [position, setPosition] = useState([0, 0]);
+
+  function LocationMarker() {
+    useMapEvents({
+      click(e) {
+        const { lat, lng } = e.latlng;
+        setPosition([lat, lng]);
+        setFormData((prevData) => ({
+          ...prevData,
+          address: `Lat: ${lat}, Lng: ${lng}`,
+          lat,
+          lng,
+        }));
+      },
+    });
+
+    return position ? <Marker position={position} icon={customIcon} /> : null;
+  }
+
+  return (
+    <div className="map-modal">
+      <div className="map-container">
+        <button className="close-btn" onClick={() => setShowMap(false)}>
+          ✖ Cerrar
+        </button>
+        <MapContainer
+          center={[0, 0]}
+          zoom={2}
+          style={{ height: "400px", width: "100%" }}
+        >
+          <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+          <LocationMarker />
+        </MapContainer>
+      </div>
+    </div>
+  );
+};
+
+// 🎨 Icono personalizado para el marcador
+const customIcon = new L.Icon({
+  iconUrl: "https://cdn-icons-png.flaticon.com/512/684/684908.png",
+  iconSize: [30, 30],
+});
+
+export default RegisterDoctor;
+```
+
+---
+
+### 3️⃣ **Estilos para mejorar la interfaz (`RegisterDoctor.css`)**
+Añade estos estilos para mejorar la apariencia del modal y el botón de ubicación:
+
+```css
+.map-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.map-container {
+  background: white;
+  padding: 15px;
+  border-radius: 10px;
+  position: relative;
+}
+
+.close-btn {
+  background: red;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+.location-btn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  margin-left: 10px;
+}
+```
+
+---
+
+### 🚀 **¿Cómo funciona?**
+1. **El usuario presiona el botón 📍 junto al input de dirección**
+2. **Se abre un modal con un mapa interactivo**
+3. **El usuario hace clic en el mapa para seleccionar la ubicación**
+4. **Las coordenadas (latitud y longitud) se guardan en el estado**
+5. **El input de dirección muestra las coordenadas seleccionadas**
+6. **Al enviar el formulario, se envían las coordenadas al backend**
+
+---
+
+### ✅ **Beneficios**
+✔ Permite seleccionar la ubicación de forma visual  
+✔ No requiere escribir manualmente la dirección  
+✔ Usa OpenStreetMap, que es gratuito y sin límites de uso  
+
+Prueba esto y dime si necesitas algún ajuste. 🚀😃
