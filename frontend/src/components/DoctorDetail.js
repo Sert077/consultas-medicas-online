@@ -50,6 +50,18 @@ const DoctorDetail = () => {
         return availableDays.includes(date.getDay()) && !isDayFullyBooked(date);
     };
 
+    const getCoordinatesFromAddress = (address) => {
+        const regex = /Lat:\s*([-+]?\d*\.\d+),\s*Lng:\s*([-+]?\d*\.\d+)/;
+        const match = address?.match(regex);
+
+        if (match) {
+            return { lat: match[1], lng: match[2] };
+        }
+        return null;
+    };
+
+    const coordinates = doctor ? getCoordinatesFromAddress(doctor.address) : null;
+
     const isAvailable = (fecha, hora) => {
         return !consultas.some(consulta => consulta.fecha === fecha && consulta.hora === hora);
     };
@@ -313,7 +325,7 @@ const DoctorDetail = () => {
             <p><i className="fas fa-stethoscope"></i> Especialidad: {doctor.specialty}</p>
             <p><i className="fas fa-envelope"></i> Correo: {doctor.email}</p>
             <p><i className="fas fa-phone"></i> Teléfono: {doctor.phone_number}</p>
-            <p><i className="fas fa-map-marker-alt"></i> Dirección: {doctor.address}</p>
+            <p><i className="fas fa-map-marker-alt"></i> Dirección: {doctor?.address}</p>
             <p><i className="fas fa-calendar-alt"></i> Días de Atención: {formatDays(doctor.days)}</p>
             <p><i className="fas fa-clock"></i> Horario de Atención: {formatTime(doctor.start_time)} a {formatTime(doctor.end_time)} Hrs.</p>
             <div className="doctor-buttons">
@@ -325,17 +337,21 @@ const DoctorDetail = () => {
                 </div>
             </div>
             <div className="map-container">
-                    <h3>Ubicación del Consultorio</h3>
+                <h3><i className="fas fa-map-marker-alt"></i> Ubicación del Consultorio</h3>
+                {coordinates ? (
                     <iframe
                         title="map"
-                        src={`https://www.google.com/maps?q=${encodeURIComponent(doctor.address)}&output=embed`}
+                        src={`https://www.google.com/maps?q=${coordinates.lat},${coordinates.lng}&output=embed`}
                         width="100%"
                         height="250"
                         style={{ border: 0 }}
                         allowFullScreen=""
                         loading="lazy"
                     ></iframe>
-                </div>       
+                ) : (
+                    <p>Ubicación no disponible</p>
+                )}
+            </div>      
             <div className="doctor-biography-container">
                 <h3>Biografía</h3>
                 <p>{doctor.biography}</p>
