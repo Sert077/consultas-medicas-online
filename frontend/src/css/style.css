@@ -19,6 +19,21 @@ h2 {
   gap: 20px;
 }
 
+.form-dias-horarios {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-dias-horarios label {
+  font-weight: bold;
+  margin-bottom: 15px;
+}
+
+.custom-days label {
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
 .form-group {
   display: flex;
   flex-direction: column;
@@ -30,12 +45,27 @@ h2 {
 }
 
 .form-group input,
-.form-group select,
 .form-group textarea {
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 4px;
   font-size: 12px;
+}
+
+.form-group textarea {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 12px;
+  margin-top: 10px;
+}
+
+.form-group select{
+  padding: 9px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 12px;
+  margin-top: auto;
 }
 
 textarea {
@@ -83,14 +113,14 @@ footer {
 
 .predefined-options {
   display: flex;
-  gap: 1rem;
-  margin-bottom: 1rem;
+  gap: 0.7rem;
+  margin-bottom: auto;
 }
 
-.day-buttons-group {
+.predefined-options-consultas {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
+  gap: 0.7rem;
+  margin-top: 15px;
 }
 
 .day-button {
@@ -102,6 +132,26 @@ footer {
   font-size: 11px;
   cursor: pointer;
   transition: background-color 0.3s, color 0.3s;
+  margin-bottom: 25px;
+}
+
+.day-buttons-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: -15px;
+}
+
+.day-button-custom {
+  padding: 0.5rem 1rem;
+  border: 2px solid #4caf50;
+  border-radius: 8px;
+  background-color: #fff;
+  color: #4caf50;
+  font-size: 11px;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+  margin-top: 15px;
 }
 
 .day-button:hover {
@@ -114,7 +164,15 @@ footer {
   color: #fff;
 }
 
+.day-button-custom:hover {
+  background-color: #4caf50;
+  color: #fff;
+}
 
+.day-button-custom.selected {
+  background-color: #4caf50;
+  color: #fff;
+}
 .custom-days {
   margin-top: -0.2rem;
 }
@@ -140,22 +198,33 @@ footer {
   display: flex;
   flex-direction: column;
   gap: 10px; /* Ajusta el espacio entre los elementos dentro del grupo */
+  margin-bottom: auto;
+}
+
+.time-fields-wrapper label {
+  margin-bottom: -10px;
+  margin-top: auto;
 }
 
 .time-fields {
   display: flex;
   align-items: center;
-  gap: 10px; /* Espacio entre el label/input de horario inicio y el label/input de horario fin */
+  gap: 15px; /* Espacio entre el label/input de horario inicio y el label/input de horario fin */
 }
 
 .time-fields label {
-  margin-right: 10px; /* Ajusta el margen derecho del label */
+  margin-right: 0px; /* Ajusta el margen derecho del label */
+  margin-top: -5px;
+  font-weight: normal;
 }
 
 .time-fields input {
   width: 100px; /* Asegura un tamaño uniforme para los inputs */
   padding: 8px; /* Ajusta el espacio interno de los campos */
   font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  margin-bottom: 10px;
 }
 
 .map-modal {
@@ -178,7 +247,7 @@ footer {
 }
 
 .close-btn {
-  background: none;
+  background: #4caf50;
   color: white;
   border: none;
   padding: 5px 10px;
@@ -189,7 +258,7 @@ footer {
 }
 
 .close-btn:hover {
-  background: rgba(0, 0, 0, 0.5);
+  background: #45a049;
 }
 
 .location-btn {
@@ -198,8 +267,8 @@ footer {
   font-size: 15px;
   cursor: pointer;
   margin-left: 10px;
-  margin-bottom: -8px;
-  padding: 8px 12px;
+  margin-bottom: -9px;
+  padding: 7.5px 12px;
 }
 
 .suggestions {
@@ -288,6 +357,210 @@ footer {
   }
 }
 
+.password-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
 
+.password-container input {
+  flex: 1;
+  padding-right: 35px;
+}
 
+.password-container i {
+  position: absolute;
+  right: 10px;
+  top: 20px;
+  cursor: pointer;
+}
+
+.error-text {
+  color: red;
+  font-size: 0.9rem;
+}
+
+.file-input {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 7px;
+}
+
+.custom-file-label {
+  background-color: #f1f1f1;
+  color: #6A1B9A;
+  padding: 8px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  border: 2px solid #ccc;
+  transition: background-color 0.3s;
+  font-size: 11px;
+  font-weight: normal;
+  display: inline-block;
+}
+
+.custom-file-label:hover {
+  background-color: #e0e0e0;
+}
+
+/* Ocultar el input nativo */
+.file-input-field {
+  display: none;
+}
+
+/* Estilos de la imagen de previsualización */
+.preview-image-custom {
+  max-width: 150px; /* Tamaño máximo de la imagen */
+  max-height: 150px; /* Tamaño máximo de la imagen */
+  border-radius: 10px; /* Bordes redondeados */
+  border: 2px solid #ccc; /* Borde sutil */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra suave */
+  transition: transform 0.3s ease; /* Efecto de transición */
+}
+.preview-image-custom:hover {
+  transform: scale(1.05); /* Efecto de zoom al pasar el mouse */
+}
+
+/* Estilos del botón para eliminar la imagen */
+.remove-picture-button {
+  background-color: #D32F2F;
+  color: white;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.remove-picture-button:hover {
+  background-color: #B71C1C;
+}
+
+/* 📱 RESPONSIVE: En pantallas pequeñas, ocupa casi todo el ancho */
+@media (max-width: 768px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .btn-primary {
+    grid-column: span 1;
+  }
+}
+
+/* 📱 RESPONSIVE: Inputs más grandes en móviles */
+@media (max-width: 480px) {
+  .form-group input,
+  .form-group textarea,
+  .form-group select {
+    font-size: 16px;
+    padding: 14px;
+  }
+  .btn-primary {
+    width: 100%;
+    font-size: 18px;
+    padding: 14px;
+  }
+  
+  .day-button {
+    font-size: 14px;
+    padding: 10px;
+    text-align: center;
+  }
+
+  .day-button-custom {
+    font-size: 14px;
+    padding: 10px;
+    text-align: center;
+  }
+  
+  .custom-file-label {
+    font-size: 14px;
+    padding: 12px;
+    text-align: center;
+  }
+  .preview-image-custom {
+    max-width: 250px;
+    max-height: 250px;
+  }
+  .remove-picture-button {
+    font-size: 14px;
+    padding: 10px;
+  }
+  .password-container i {
+    position: absolute;
+    right: 10px;
+    top: 28px;
+    cursor: pointer;
+  }
+}
+
+.spinner-register {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #fff;
+  border-top: 2px solid transparent;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  display: inline-block;
+  margin-right: 8px;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.success-message-overlay {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+}
+
+.success-message-content {
+  background-color: #34d399;
+  color: #064e3b;
+  padding: 12px 24px;
+  border-radius: 25px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 300px;
+  animation: fadeInUp 0.4s ease-out;
+}
+
+.success-message-content p {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.success-message-content button {
+  background: #064e3b;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: 12px;
+  margin-left: 15px;
+  padding: 4px 8px;
+  border-radius: 20px;
+}
+
+@keyframes fadeInUp {
+  from {
+    transform: translate(-50%, 20px);
+    opacity: 0;
+  }
+  to {
+    transform: translate(-50%, 0);
+    opacity: 1;
+  }
+}
 

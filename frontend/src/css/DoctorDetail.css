@@ -67,6 +67,12 @@
     margin-bottom: 20px;
 }
 
+.doctor-biography-container h3{
+    text-align: center;
+    font-size: 18px;
+    color: #555;
+}
+
 .consultas-container {
     text-align: left; /* Alinea el contenido a la izquierda */
     width: 100%;
@@ -92,9 +98,18 @@
     margin-bottom: 20px;
 }
 
-h3{
+.map-container h3{
     text-align: center;
+    font-size: 18px;
+    color: #555;
 }
+
+.consultas-container h3{
+    text-align: center;
+    font-size: 18px;
+    color: #555;
+}
+
 .consultas-container ul {
     list-style-position: inside; /* Asegura que el punto de la lista esté dentro */
     padding-left: 0; /* Elimina el margen por defecto */

@@ -130,7 +130,7 @@ const MapModal = ({ setShowMap, setFormData, formData }) => {
   return (
     <div className="map-modal">
       <div className="map-container">
-        <button className="close-btn" onClick={() => setShowMap(false)}>✖ Cerrar</button>
+        <button className="close-btn" onClick={() => setShowMap(false)}> Seleccionar y Cerrar</button>
 
         {/* 🔍 Input de búsqueda */}
         <input
