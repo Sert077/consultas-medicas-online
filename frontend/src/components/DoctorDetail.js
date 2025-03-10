@@ -26,6 +26,7 @@ const DoctorDetail = () => {
     const [reservaError, setReservaError] = useState('');
     const [archivoPdf, setArchivoPdf] = useState(null);
     const [loadingReserva, setLoadingReserva] = useState(false);
+    const [direccionReal, setDireccionReal] = useState('Cargando dirección...');
 
     useEffect(() => {
         fetch(`http://localhost:8000/api/doctores/${id}/`)
@@ -61,6 +62,25 @@ const DoctorDetail = () => {
     };
 
     const coordinates = doctor ? getCoordinatesFromAddress(doctor.address) : null;
+
+    useEffect(() => {
+        if (coordinates) {
+            const { lat, lng } = coordinates;
+            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.display_name) {
+                        setDireccionReal(data.display_name); // Almacenar la dirección real
+                    } else {
+                        setDireccionReal("Dirección no disponible");
+                    }
+                })
+                .catch(error => {
+                    console.error("Error obteniendo la dirección:", error);
+                    setDireccionReal("Error obteniendo la dirección");
+                });
+        }
+    }, [coordinates]);
 
     const isAvailable = (fecha, hora) => {
         return !consultas.some(consulta => consulta.fecha === fecha && consulta.hora === hora);
@@ -325,7 +345,7 @@ const DoctorDetail = () => {
             <p><i className="fas fa-stethoscope"></i> Especialidad: {doctor.specialty}</p>
             <p><i className="fas fa-envelope"></i> Correo: {doctor.email}</p>
             <p><i className="fas fa-phone"></i> Teléfono: {doctor.phone_number}</p>
-            <p><i className="fas fa-map-marker-alt"></i> Dirección: {doctor?.address}</p>
+            <p><i className="fas fa-map-marker-alt"></i> Dirección: {direccionReal}</p>
             <p><i className="fas fa-calendar-alt"></i> Días de Atención: {formatDays(doctor.days)}</p>
             <p><i className="fas fa-clock"></i> Horario de Atención: {formatTime(doctor.start_time)} a {formatTime(doctor.end_time)} Hrs.</p>
             <div className="doctor-buttons">
