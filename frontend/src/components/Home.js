@@ -1,11 +1,21 @@
 "use client"
-
-import { useEffect } from "react"
+import { useEffect, useState  } from "react"
 import { Link } from "react-router-dom"
 import HeroSection from "./HeroSection" // Importa el nuevo componente
+import MedicosSection from "./MedicosSection"
 import "../css/Home.css"
 
 const Home = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  
+  // Verificar si hay un token en localStorage
+  useEffect(() => {
+    const token = localStorage.getItem("token")
+    if (token) {
+      setIsAuthenticated(true)
+    }
+  }, [])
+
   // Función para manejar las animaciones al hacer scroll
   useEffect(() => {
     const observerOptions = {
@@ -43,7 +53,7 @@ const Home = () => {
       <section className="stats-section">
         <div className="stat-item animate-on-scroll">
           <span className="stat-number">1000+</span>
-          <span className="stat-label">Consultas Realizadas</span>
+          <span className="stat-label">Capacidad Consultas</span>
         </div>
         <div className="stat-item animate-on-scroll">
           <span className="stat-number">50+</span>
@@ -51,7 +61,7 @@ const Home = () => {
         </div>
         <div className="stat-item animate-on-scroll">
           <span className="stat-number">98%</span>
-          <span className="stat-label">Pacientes Satisfechos</span>
+          <span className="stat-label">Eficiencia en Atención</span>
         </div>
       </section>
 
@@ -87,7 +97,7 @@ const Home = () => {
             <div className="feature-icon-container">
               <img src={"/images/historialll.png" || "/placeholder.svg"} alt="Receta Médica" className="feature-icon" />
             </div>
-            <h3 className="feature-title">Recetas y Seguimiento</h3>
+            <h3 className="feature-title">Receta Médica</h3>
             <p className="feature-description">
               Recibe recetas médicas digitales y lleva un seguimiento de tu historial médico de manera segura y
               confidencial.
@@ -121,7 +131,7 @@ const Home = () => {
             <div className="step-number">4</div>
             <h3 className="step-title">Recibe Atención</h3>
             <p className="step-description">
-              Conéctate a la videollamada en el horario programado y recibe atención médica personalizada.
+              Conéctate a la consulta en el horario programado y recibe atención médica personalizada.
             </p>
           </div>
         </div>
@@ -185,6 +195,9 @@ const Home = () => {
         </div>
       </section>
 
+      {/* Reemplazamos la sección de testimonios por la sección para médicos */}
+      <MedicosSection />
+
       {/* FAQ Section */}
       <section className="faq-section">
         <h2 className="section-title animate-on-scroll">Preguntas Frecuentes</h2>
@@ -192,7 +205,7 @@ const Home = () => {
           <div className="faq-item animate-on-scroll">
             <h3 className="faq-question">¿Cómo funciona la consulta online?</h3>
             <p className="faq-answer">
-              Las consultas se realizan a través de videollamada en nuestra plataforma. Solo necesitas un dispositivo
+              Las consultas se realizan a través de chat médico/paciente en nuestra plataforma. Solo necesitas un dispositivo
               con conexión a internet y una cámara.
             </p>
           </div>
@@ -214,7 +227,7 @@ const Home = () => {
             <h3 className="faq-question">¿Cómo recibo mi receta médica?</h3>
             <p className="faq-answer">
               Las recetas médicas se envían de forma digital a tu correo electrónico al finalizar la consulta y también
-              quedan disponibles en tu perfil.
+              quedan disponibles en la seccion "Mis Consultas" de tu perfil.
             </p>
           </div>
         </div>
@@ -226,8 +239,8 @@ const Home = () => {
         <p className="cta-description">
           Accede a atención médica de calidad desde cualquier lugar y en cualquier momento.
         </p>
-        <Link to="/login" className="cta-button">
-          Crear Cuenta Gratis
+        <Link to={isAuthenticated ? "/doctores" : "/login"} className="cta-button">
+          {isAuthenticated ? "Ver Médicos Disponibles" : "Crear Cuenta Gratis"}
         </Link>
       </section>
     </div>

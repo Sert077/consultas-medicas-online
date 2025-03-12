@@ -1,0 +1,131 @@
+/* Sección para Médicos */
+.medicos-section {
+    padding: 5rem 2rem;
+    background-color: #f5f5f5;
+  }
+  
+  .medicos-intro {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto 3rem;
+  }
+  
+  .medicos-intro h3 {
+    font-size: 1.8rem;
+    color: #6e55e0;
+    margin-bottom: 1rem;
+  }
+  
+  .medicos-intro p {
+    font-size: 1.1rem;
+    color: #333333;
+    line-height: 1.6;
+  }
+  
+  .medicos-benefits {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    margin-bottom: 4rem;
+  }
+  
+  .benefit-card {
+    background-color: white;
+    border-radius: 10px;
+    padding: 2rem;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .benefit-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  }
+  
+  .benefit-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 70px;
+    height: 70px;
+    background-color: rgba(108, 99, 255, 0.1);
+    border-radius: 50%;
+    margin-bottom: 1.5rem;
+  }
+  
+  .benefit-icon svg {
+    color: #6e55e0;
+  }
+  
+  .benefit-card h4 {
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+    color: #6e55e0;
+  }
+  
+  .benefit-card p {
+    color: #666666;
+    line-height: 1.5;
+  }
+  
+  .medicos-cta {
+    text-align: center;
+    background-color: #6e55e0;
+    color: white;
+    padding: 3rem;
+    border-radius: 10px;
+    margin-top: 2rem;
+  }
+  
+  .medicos-cta h3 {
+    color: #f8f9fa;
+    font-size: 1.6rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .medicos-button {
+    display: inline-block;
+    background-color: #7bb86f;
+    color: white;
+    padding: 0.8rem 2rem;
+    border-radius: 8px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+  }
+  
+  .medicos-button:hover {
+    background-color: #5e9d52;
+    color: white;
+    transform: translateY(-3px);
+  }
+  
+  /* Animaciones */
+  .medicos-section .animate-on-scroll {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  
+  .medicos-section .animate-on-scroll.animate {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  /* Media Queries */
+  @media (max-width: 768px) {
+    .medicos-benefits {
+      grid-template-columns: 1fr;
+    }
+  
+    .medicos-cta {
+      padding: 2rem;
+    }
+  
+    .medicos-cta h3 {
+      font-size: 1.4rem;
+    }
+  }
+  
+  

@@ -63,6 +63,8 @@
     max-width: 1000px;
     margin-left: auto;
     margin-right: auto;
+    margin-top: -25px;
+    margin-bottom: auto;
     position: relative;
     z-index: 10;
   }
@@ -89,6 +91,7 @@
   .features-section {
     padding: 6rem 2rem 4rem;
     background-color: var(--background-light);
+    margin-top: -25px;
   }
   
   .features-container {
@@ -350,7 +353,7 @@
     }
   
     .cta-button {
-      width: 50%;
+      width: 60%;
     }
   }
   

@@ -9,10 +9,18 @@ const carouselImages = [
   "/images/doctor-image.jpg",
   "/images/doctor-image2.jpg", // Añade más imágenes
   "/images/doctor-image3.jpg",
+  "/images/doctor-image4.jpg",
 ]
 
 const HeroSection = () => {
   const [currentImage, setCurrentImage] = useState(0)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+
+  // Verificar si hay un token en el localStorage
+  useEffect(() => {
+    const token = localStorage.getItem("token")
+    setIsAuthenticated(!!token) // Si hay token, isAuthenticated será true
+  }, [])
 
   // Cambiar imagen automáticamente cada 5 segundos
   useEffect(() => {
@@ -70,10 +78,10 @@ const HeroSection = () => {
           <p className="hero-subtitle">Atención médica de calidad desde la comodidad de tu hogar</p>
           <div className="hero-buttons">
             <Link to="/doctores" className="hero-button primary">
-              Ver Médicos
+             Consulta un Médico
             </Link>
-            <Link to="/consultas" className="hero-button secondary">
-              Reservar Consulta
+            <Link to={isAuthenticated ? "/misreservas" : "/nosotros"} className="hero-button secondary">
+              {isAuthenticated ? "Mis Consultas" : "¿Eres Médico?"}
             </Link>
           </div>
         </div>
