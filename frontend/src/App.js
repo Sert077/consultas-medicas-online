@@ -42,6 +42,8 @@ import EditPatient from './components/EditPatient';
 import HistorialConsultas from './components/HistorialConsultas';
 import Chatbot from './components/Chatbot';
 import ReprogramarConsulta from './components/ReprogramarConsulta';
+import Conocenos from "./components/Conocenos"
+import MediTestLogoOptions from './components/meditest-logo-vanilla';
 
 function App() {
     return (
@@ -50,6 +52,7 @@ function App() {
                 <Header /> {/* Aquí agregas el Header para que aparezca en todas las rutas */}
                 <Routes>
                     <Route path="/" element={<Home />} />
+                    <Route path="/conocenos" element={<Conocenos />} />
                     <Route path="/registerdoctor" element={<RegisterDoctor />} />
                     <Route path="/doctores" element={<Doctores />} /> 
                     <Route path="/doctores/:id" element={<DoctorDetail />} /> {/* Detalles de doctor */}
@@ -63,6 +66,7 @@ function App() {
                     <Route path="/verify-email/:token" element={<VerifyEmail />} />
                     <Route path="/historial-consultas" element={<HistorialConsultas />} />
                     <Route path="/reprogramar/:token" element={<ReprogramarConsulta />} />
+                    <Route path="/meditest-logo" element={<MediTestLogoOptions />} />
                 </Routes>
                 <Footer />
                 <Chatbot /> {/* Agregar chatbot debajo del footer */}

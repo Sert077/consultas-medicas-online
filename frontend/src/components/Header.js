@@ -124,7 +124,7 @@ const Header = () => {
     return (
         <header className="header">
             <div className="logo">
-                <img src="/images/logo.png" alt="Logo" />
+                <img src="/images/logo1.png" alt="Logo" />
                 <div className="logo-text">
                     <span className="main-title">MEDITEST</span>
                     <span className="subtitle">Consultas médicas online</span>
@@ -160,7 +160,7 @@ const Header = () => {
                     )}
     
                     <li>
-                        <Link to="#!" className="disabled">
+                        <Link to="/conocenos" className="disabled">
                             <IconHelpCircle className="icon-help" />
                             Conoce más!
                         </Link>

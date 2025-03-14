@@ -70,7 +70,7 @@
   
   .medicos-cta {
     text-align: center;
-    background-color: #6e55e0;
+    background: linear-gradient(135deg, #6e55e0 0%, #5842c3 100%);
     color: white;
     padding: 3rem;
     border-radius: 10px;

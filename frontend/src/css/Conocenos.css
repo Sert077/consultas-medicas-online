@@ -1,0 +1,512 @@
+/* Estilos generales */
+.conocenos-container {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+    color: #333333;
+    overflow: hidden;
+  }
+  
+  .section-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+  }
+  
+  .section-title {
+    font-size: 2.5rem;
+    color: #333333;
+    text-align: center;
+    margin-bottom: 3rem;
+    position: relative;
+  }
+  
+  .section-title::after {
+    content: "";
+    position: absolute;
+    bottom: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 4px;
+    background-color: #5842c3;
+    border-radius: 2px;
+  }
+  
+  /* Header Section */
+  .conocenos-header {
+    background: linear-gradient(135deg, #392682 55%, #28ADA8 100%);
+    color: #f1f1f1;
+    padding: 5rem 2rem;
+    text-align: center;
+  }
+  
+  .header-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .logo-container {
+    margin-bottom: 2rem;
+  }
+  
+  .conocenos-logo {
+    max-width: 500px;
+    height: auto;
+  }
+  
+  .header-text h1 {
+    font-size: 3.0rem;
+    margin-bottom: 1rem;
+    font-weight: 700;
+  }
+  
+  .header-text p {
+    font-size: 1.5rem;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+  
+  /* Quiénes Somos Section */
+  .quienes-somos-section {
+    padding: 5rem 0;
+    background-color: white;
+  }
+  
+  .quienes-somos-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: center;
+  }
+  
+  .quienes-somos-text p {
+    margin-bottom: 1.5rem;
+    font-size: 1.1rem;
+    line-height: 1.6;
+  }
+  
+  .quienes-somos-image img {
+    width: 100%;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Misión Section */
+  .mision-section {
+    padding: 5rem 0;
+    background-color: #f8f9fa;
+  }
+  
+  .mision-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: center;
+  }
+  
+  .mision-text p {
+    margin-bottom: 1.5rem;
+    font-size: 1.1rem;
+    line-height: 1.6;
+  }
+  
+  .mision-text ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .mision-text li {
+    margin-bottom: 1rem;
+    padding-left: 30px;
+    position: relative;
+    font-size: 1.1rem;
+  }
+  
+  .mision-text li::before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: #7bb86f;
+    font-weight: bold;
+  }
+  
+  .mision-image img {
+    width: 100%;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Características Section */
+  .caracteristicas-section {
+    padding: 5rem 0;
+    background-color: white;
+  }
+  
+  .caracteristicas-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+  }
+  
+  .caracteristica-card {
+    background-color: white;
+    border-radius: 10px;
+    padding: 2rem;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    text-align: center;
+  }
+  
+  .caracteristica-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+  }
+  
+  .caracteristica-icon {
+    font-size: 2.5rem;
+    color: var(--primary-color);
+    margin-bottom: 1.5rem;
+  }
+  
+  .caracteristica-card h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: #5842c3;
+  }
+  
+  .caracteristica-card p {
+    color: #333333;
+    line-height: 1.5;
+  }
+  
+  /* Para Médicos Section */
+  .para-medicos-section {
+    padding: 5rem 0;
+    background-color: #f8f9fa;
+  }
+  
+  .para-medicos-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: start;
+  }
+  
+  .para-medicos-text h3 {
+    font-size: 1.8rem;
+    color: #5842c3;
+    margin-bottom: 1.5rem;
+  }
+  
+  .para-medicos-text p {
+    margin-bottom: 1.5rem;
+    font-size: 1.1rem;
+    line-height: 1.6;
+  }
+  
+  .beneficios-medicos {
+    list-style-type: none;
+    padding: 0;
+    margin-bottom: 2rem;
+  }
+  
+  .beneficios-medicos li {
+    margin-bottom: 0.8rem;
+    padding-left: 30px;
+    position: relative;
+    font-size: 1.1rem;
+  }
+  
+  .beneficios-medicos li::before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: #7bb86f;
+    font-weight: bold;
+  }
+  
+  .contacto-medicos {
+    font-weight: 500;
+  }
+  
+  .contacto-medicos a {
+    color: #6e55e0;
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+  
+  .contacto-medicos a:hover {
+    color: #5842c3;
+    text-decoration: underline;
+  }
+  
+  /* Formulario para médicos */
+  .para-medicos-form {
+    background-color: white;
+    border-radius: 10px;
+    padding: 2rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  }
+  
+  .para-medicos-form h3 {
+    font-size: 1.5rem;
+    color: var(--primary-color);
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+  
+  .medicos-form .form-group {
+    margin-bottom: 1.5rem;
+  }
+  
+  .medicos-form label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #5842c3;
+  }
+  
+  .medicos-form input {
+    width: 100%;
+    padding: 0.8rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+  }
+
+  .medicos-form textarea {
+    width: 93.7%;
+    padding: 0.8rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+  }
+  
+  .medicos-form input:focus,
+  .medicos-form textarea:focus {
+    border-color: #6e55e0;
+    outline: none;
+  }
+  
+  .submit-btn {
+    background-color: #6e55e0;
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    width: 100%;
+  }
+  
+  .submit-btn:hover {
+    background-color: #5842c3;
+  }
+  
+  /* Contacto Section */
+  .contacto-section {
+    padding: 5rem 0;
+    background-color: white;
+  }
+  
+  .contacto-content {
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+  }
+  
+  .contacto-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  
+  .contacto-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    font-size: 1.1rem;
+    margin-bottom: -15px;
+  }
+  
+  .contacto-item i {
+    font-size: 1.5rem;
+    color: #6e55e0;
+  }
+  
+  .contacto-item a {
+    color: #6e55e0;
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+  
+  .contacto-item a:hover {
+    color: #5842c3;
+    text-decoration: underline;
+  }
+  
+  .contacto-social {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-top: 4rem;
+  }
+  
+  .social-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    background-color: #6e55e0;
+    color: white;
+    border-radius: 50%;
+    font-size: 1.5rem;
+    transition: all 0.3s ease;
+  }
+  
+  .social-icon:hover {
+    background-color: #3F86BC;
+    transform: translateY(-5px);
+  }
+  
+  /* CTA Section */
+  .cta-section {
+    background: linear-gradient(135deg, #6e55e0 0%, #5842c3 100%);
+    color: white;
+    text-align: center;
+    padding: 5rem 2rem;
+  }
+  
+  .cta-title {
+    font-size: 2.5rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .cta-description {
+    font-size: 1.2rem;
+    max-width: 700px;
+    margin: 0 auto 2.5rem;
+  }
+  
+  .cta-button {
+    display: inline-block;
+    background-color: #7bb86f;
+    color: white;
+    padding: 1rem 2.5rem;
+    font-size: 1.2rem;
+    font-weight: 600;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+  }
+  
+  .cta-button:hover {
+    background-color: #5e9d52;
+    transform: translateY(-5px);
+  }
+  
+  /* Animaciones */
+  .animate-on-scroll {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  
+  .animate-on-scroll.animate {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  /* Media Queries */
+  @media (max-width: 1024px) {
+    .section-title {
+      font-size: 2.2rem;
+    }
+  
+    .header-text h1 {
+      font-size: 3rem;
+    }
+  
+    .header-text p {
+      font-size: 1.3rem;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .quienes-somos-content,
+    .mision-content,
+    .para-medicos-content {
+      grid-template-columns: 1fr;
+    }
+  
+    .header-text h1 {
+      font-size: 2.5rem;
+    }
+  
+    .header-text p {
+      font-size: 1.2rem;
+    }
+  
+    .section-title {
+      font-size: 2rem;
+    }
+  
+    .caracteristicas-grid {
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    }
+
+    .conocenos-logo {
+      max-width: 370px;
+      height: auto;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .header-text h1 {
+      font-size: 2rem;
+    }
+  
+    .header-text p {
+      font-size: 1.1rem;
+    }
+  
+    .section-title {
+      font-size: 1.8rem;
+    }
+  
+    .conocenos-logo {
+      max-width: 150px;
+    }
+  
+    .cta-title {
+      font-size: 2rem;
+    }
+  
+    .cta-description {
+      font-size: 1.1rem;
+    }
+  
+    .cta-button {
+      padding: 0.8rem 2rem;
+      font-size: 1.1rem;
+    }
+
+    .conocenos-logo {
+      max-width: 320px;
+      height: auto;
+    }
+  }
+  
+  

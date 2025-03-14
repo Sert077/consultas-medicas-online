@@ -80,7 +80,7 @@ const HeroSection = () => {
             <Link to="/doctores" className="hero-button primary">
              Consulta un Médico
             </Link>
-            <Link to={isAuthenticated ? "/misreservas" : "/nosotros"} className="hero-button secondary">
+            <Link to={isAuthenticated ? "/misreservas" : "/conocenos"} className="hero-button secondary">
               {isAuthenticated ? "Mis Consultas" : "¿Eres Médico?"}
             </Link>
           </div>

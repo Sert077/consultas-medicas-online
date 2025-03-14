@@ -107,13 +107,13 @@ const Chatbot = () => {
                 <div className="chatbot-hint">Si necesitas ayuda con la elección del médico, pregunta aquí 😊</div>
             )}
             <button className="chatbot-button" onClick={() => setIsOpen(!isOpen)}>
-                <img src="/images/logo-ia.png" alt="Chatbot MEDITEST" className="chatbot-icon" />
+                <img src="/images/logo-ia2.png" alt="Chatbot MEDITEST" className="chatbot-icon" />
             </button>
 
             {isOpen && (
                 <div className="chatbot-window">
                     <div className="chatbot-header">
-                        <img src="/images/logo.png" alt="MEDITEST Logo" className="chatbot-logo" />
+                        <img src="/images/logo1.png" alt="MEDITEST Logo" className="chatbot-logo" />
                         <h3>Chat de Ayuda</h3>
                         <button className="chatbot-close" onClick={() => setIsOpen(false)}>✖</button>
                     </div>
