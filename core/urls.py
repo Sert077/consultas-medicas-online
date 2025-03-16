@@ -4,7 +4,7 @@ from .views import UserRegistrationView, login_user
 from . import views
 from .views import send_email
 from .views import get_chat_messages, get_doctor_by_chat, consulta_detail, user_detail, patient_profile, upload_pdf, get_pdfs
-from .views import VerifyEmailView, GenerarRecetaView, get_authenticated_doctor, cancelar_consultas, reprogramar_consulta
+from .views import VerifyEmailView, GenerarRecetaView, get_authenticated_doctor, cancelar_consultas, reprogramar_consulta, enviar_solicitud_medico
 
 urlpatterns = [
     # Rutas comentadas, puedes descomentarlas si las necesitas
@@ -50,5 +50,6 @@ urlpatterns = [
     path('consultas/<int:consulta_id>/cambiar_estado/', views.cambiar_estado_consulta, name='cambiar_estado_consulta'),
     path('consultas/cancelar/', cancelar_consultas, name='cancelar_consultas'),
     path("consultas/reprogramar/<uuid:token>/", reprogramar_consulta, name="reprogramar_consulta"),
+    path('enviar-solicitud-medico/', enviar_solicitud_medico, name='enviar_solicitud_medico'),
 
 ]

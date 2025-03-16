@@ -281,7 +281,7 @@
   }
 
   .medicos-form textarea {
-    width: 93.7%;
+    width: 94.7%;
     padding: 0.8rem;
     border: 1px solid #ddd;
     border-radius: 5px;
@@ -508,5 +508,12 @@
       height: auto;
     }
   }
+
+  @media (max-width: 380px) {
+    .conocenos-logo {
+      max-width: 250px;
+      height: auto;
+    }
+  } 
   
   

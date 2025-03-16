@@ -32,6 +32,7 @@ from rest_framework.permissions import IsAuthenticated
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image, Table, TableStyle
 from reportlab.lib.styles import ParagraphStyle
+from reportlab.pdfgen import canvas
 from io import BytesIO
 import os
 import qrcode
@@ -55,6 +56,8 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from django.utils.dateparse import parse_date
 import random
 from django.utils.timezone import now
+from django.core.mail import EmailMultiAlternatives 
+from email.mime.image import MIMEImage
 
 # API para crear un nuevo médico
 @api_view(['POST'])
@@ -992,3 +995,148 @@ def reprogramar_consulta(request, token):
         return JsonResponse({"success": False, "error": "Token inválido o consulta no encontrada"}, status=404)
 
     return JsonResponse({"success": False, "error": "Método no permitido"}, status=405)
+
+
+@csrf_exempt
+def enviar_solicitud_medico(request):
+    if request.method == 'POST':
+        try:
+            # Obtener los datos del formulario en JSON
+            data = json.loads(request.body)
+            nombre = data.get("nombre", "")
+            especialidad = data.get("especialidad", "")
+            email = data.get("email", "")
+            telefono = data.get("telefono", "")
+            mensaje = data.get("mensaje", "")
+
+            # Verificar que los campos requeridos estén completos
+            if not (nombre and especialidad and email and telefono):
+                return JsonResponse({"success": False, "error": "Todos los campos obligatorios deben estar llenos."}, status=400)
+
+            # 📌 1️⃣ Enviar correo a la empresa con los datos del médico
+            subject_empresa = "Nueva solicitud de información de un médico"
+            message_empresa = (
+                f"Nombre: {nombre}\n"
+                f"Especialidad: {especialidad}\n"
+                f"Correo Electrónico: {email}\n"
+                f"Teléfono: {telefono}\n"
+                f"Mensaje:\n\n{mensaje if mensaje else 'Sin mensaje adicional.'}\n"
+            )
+            destinatario_empresa = "servesa07@gmail.com"
+            send_mail(subject_empresa, message_empresa, 'servesa07@gmail.com', [destinatario_empresa])
+
+            # 📌 2️⃣ Enviar respuesta automática al médico solicitante con imagen adjunta
+
+            # Ruta de la imagen del logo
+            logo_path = os.path.join(settings.MEDIA_ROOT, "profile_pictures/logos/logo1.png")
+
+            # Estructura del correo en HTML con referencia a la imagen adjunta
+            message_medico_html = """
+            <html>
+            <head>
+                <style>
+                    .email-container {{
+                        font-family: Arial, sans-serif;
+                        max-width: 800px;
+                        margin: 0 auto;
+                        border: 1px solid #ddd;
+                        border-radius: 8px;
+                        overflow: hidden;
+                        box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.1);
+                    }}
+                    .email-header {{
+                        background: linear-gradient(135deg, #392682 55%, #28ADA8 100%);
+                        color: white;
+                        text-align: center;
+                        padding: 20px;
+                    }}
+                    .email-header img {{
+                        max-width: 120px;
+                    }}
+                    .email-body {{
+                        padding: 20px;
+                        color: #333;
+                    }}
+                    .email-body h2 {{
+                        color: #392682;
+                    }}
+                    .email-footer {{
+                        background: #f1f1f1;
+                        padding: 15px;
+                        text-align: center;
+                        font-size: 12px;
+                        color: #666;
+                    }}
+                </style>
+            </head>
+            <body>
+                <div class="email-container">
+                    <div class="email-header">
+                        <img src="cid:logo_meditest" alt="MediTest Logo">
+                    </div>
+                    <div class="email-body">
+                        <h2>¡Gracias por tu interés en MediTest!</h2>
+                        <p>Estimado/a <strong>{nombre}</strong>,</p>
+                        <p>Nos complace saber que estás interesado en unirte a nuestra plataforma.</p>
+                        <p>Para completar tu registro, necesitamos los siguientes documentos:</p>
+                        <ul>
+                            <li>✅ Certificado de especialidad médica</li>
+                            <li>✅ Copia de tu licencia médica</li>
+                            <li>✅ Identificación oficial</li>
+                            <li>✅ Experiencia y referencias profesionales</li>
+                        </ul>
+                        <p><strong>Beneficios de unirte a MediTest:</strong></p>
+                        <ul>
+                            <li>🔹 Flexibilidad para gestionar tu agenda</li>
+                            <li>🔹 Acceso a pacientes de distintas ubicaciones</li>
+                            <li>🔹 Herramientas digitales para recetas y diagnósticos</li>
+                            <li>🔹 Soporte técnico y administrativo continuo</li>
+                        </ul>
+                        <p>Adjunto encontrarás un contrato en borrador con más detalles sobre nuestra colaboración.</p>
+                        <p>Si tienes preguntas, contáctanos al <strong>+591 68449128</strong> o responde a este correo.</p>
+                        <p>Atentamente,<br><strong>Equipo de MediTest</strong></p>
+                    </div>
+                    <div class="email-footer">
+                        © 2025 MediTest. Todos los derechos reservados.
+                    </div>
+                </div>
+            </body>
+            </html>
+            """
+
+            # Ruta del contrato en PDF
+            contrato_path = os.path.join(settings.MEDIA_ROOT, "profile_pictures/contracts/Contrato_MediTest.pdf")
+
+            # Crear el correo en formato HTML usando EmailMultiAlternatives
+            email_medico = EmailMultiAlternatives(
+                subject="Gracias por tu interés en MediTest",
+                body="Este es un correo en formato HTML. Si ves esto, tu cliente de correo no soporta HTML.",
+                from_email='servesa07@gmail.com',
+                to=[email]
+            )
+            email_medico.attach_alternative(message_medico_html.format(nombre=nombre), "text/html")  # Adjuntar HTML
+
+            # Adjuntar el logo con una Content ID (cid)
+            if os.path.exists(logo_path):
+                with open(logo_path, 'rb') as f:
+                    logo_data = f.read()
+                    logo_mime = MIMEImage(logo_data)  # Crear un objeto MIMEImage
+                    logo_mime.add_header('Content-ID', '<logo_meditest>')  # Asignar Content-ID
+                    logo_mime.add_header('Content-Disposition', 'inline', filename='logo1.png')  # Marcar como inline
+                    email_medico.attach(logo_mime)  # Adjuntar la imagen
+
+            # Adjuntar contrato si existe
+            if os.path.exists(contrato_path):
+                email_medico.attach_file(contrato_path)
+
+            # Enviar el correo
+            email_medico.send()
+
+            return JsonResponse({"success": True, "message": "Solicitud enviada correctamente con imagen y contrato adjuntos"}, status=200)
+
+        except Exception as e:
+            print(f"Error en enviar_solicitud_medico: {e}")
+            return JsonResponse({"success": False, "error": str(e)}, status=400)
+
+    return JsonResponse({"success": False, "error": "Método no permitido"}, status=405)
+

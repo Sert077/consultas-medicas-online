@@ -6,6 +6,42 @@ import "../css/Conocenos.css"
 
 const Conocenos = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [formData, setFormData] = useState({
+    nombre: "",
+    especialidad: "",
+    email: "",
+    telefono: "",
+    mensaje: "",
+  });
+  const [message, setMessage] = useState("");
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setMessage("Enviando solicitud...");
+
+    try {
+      const response = await fetch("http://localhost:8000/api/enviar-solicitud-medico/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setMessage("Solicitud enviada correctamente.");
+        setFormData({ nombre: "", especialidad: "", email: "", telefono: "", mensaje: "" });
+      } else {
+        setMessage("Error al enviar la solicitud: " + data.error);
+      }
+    } catch (error) {
+      setMessage("Error al enviar la solicitud.");
+    }
+  };
   
   // Verificar si hay un token en localStorage
   useEffect(() => {
@@ -42,6 +78,19 @@ const Conocenos = () => {
     }
   }, [])
 
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (hash) {
+      const targetElement = document.querySelector(hash);
+      if (targetElement) {
+        setTimeout(() => {
+          targetElement.scrollIntoView({ behavior: "smooth" });
+        }, 100);
+      }
+    }
+  }, []);
+  
+
   return (
     <div className="conocenos-container">
       {/* Header Section */}
@@ -64,7 +113,7 @@ const Conocenos = () => {
           <div className="quienes-somos-content">
             <div className="quienes-somos-text animate-on-scroll">
               <p>
-                <strong>MediTest</strong> es una plataforma innovadora de consultas médicas en línea que conecta a
+                <strong>MediTest ©</strong> es una plataforma innovadora de consultas médicas en línea que conecta a
                 pacientes con profesionales de la salud de manera rápida, segura y eficiente.
               </p>
               <p>
@@ -180,7 +229,7 @@ const Conocenos = () => {
       </section>
 
       {/* Para Médicos Section */}
-      <section className="para-medicos-section">
+      <section id="doctor-form" className="para-medicos-section">
         <div className="section-container">
           <h2 className="section-title animate-on-scroll">¿Eres Profesional Médico?</h2>
           <div className="para-medicos-content">
@@ -205,35 +254,34 @@ const Conocenos = () => {
             </div>
             <div className="para-medicos-form animate-on-scroll">
               <h3>Solicitud de Información</h3>
-              <form className="medicos-form">
-                <div className="form-group">
-                  <label htmlFor="nombre">Nombre completo:</label>
-                  <input type="text" id="nombre" name="nombre" required />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="especialidad">Especialidad:</label>
-                  <input type="text" id="especialidad" name="especialidad" required />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="email">Correo electrónico:</label>
-                  <input type="email" id="email" name="email" required />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="telefono">Teléfono:</label>
-                  <input type="tel" id="telefono" name="telefono" required />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="mensaje">Mensaje (opcional)</label>
-                  <textarea id="mensaje" name="mensaje" rows="4"></textarea>
-                </div>
-                <button type="submit" className="submit-btn">
-                  Enviar Solicitud
-                </button>
-              </form>
-            </div>
+              <form className="medicos-form" onSubmit={handleSubmit}>
+              <div className="form-group">
+                <label htmlFor="nombre">Nombre completo:</label>
+                <input type="text" id="nombre" name="nombre" value={formData.nombre} onChange={handleChange} required />
+              </div>
+              <div className="form-group">
+                <label htmlFor="especialidad">Especialidad:</label>
+                <input type="text" id="especialidad" name="especialidad" value={formData.especialidad} onChange={handleChange} required />
+              </div>
+              <div className="form-group">
+                <label htmlFor="email">Correo electrónico:</label>
+                <input type="email" id="email" name="email" value={formData.email} onChange={handleChange} required />
+              </div>
+              <div className="form-group">
+                <label htmlFor="telefono">Teléfono:</label>
+                <input type="tel" id="telefono" name="telefono" value={formData.telefono} onChange={handleChange} required />
+              </div>
+              <div className="form-group">
+                <label htmlFor="mensaje">Mensaje (opcional):</label>
+                <textarea id="mensaje" name="mensaje" value={formData.mensaje} onChange={handleChange} rows="4"></textarea>
+              </div>
+              <button type="submit" className="submit-btn">Enviar Solicitud</button>
+            </form>
+            {message && <p className="mensaje">{message}</p>}
           </div>
         </div>
-      </section>
+      </div>
+    </section>
 
       {/* Contacto Section */}
       <section className="contacto-section">

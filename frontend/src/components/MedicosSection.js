@@ -51,7 +51,7 @@ const MedicosSection = () => {
 
       <div className="medicos-cta animate-on-scroll">
         <h3>¿Eres profesional médico y quieres formar parte de MediTest?</h3>
-        <Link to="/registro-medicos" className="medicos-button">
+        <Link to="/conocenos#doctor-form" className="medicos-button">
           Únete como Especialista
         </Link>
       </div>
