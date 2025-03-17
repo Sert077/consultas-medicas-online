@@ -286,16 +286,27 @@ def consultas_medico(request, user_id):
             doc_receta_url = f"{settings.MEDIA_URL}{receta.doc_receta}" if receta and receta.doc_receta else None
             archivo_pdf_url = f"{settings.MEDIA_URL}{consulta.archivo_pdf}" if consulta.archivo_pdf else None
 
+             # Buscar el perfil del paciente y obtener su foto
+            paciente_perfil = Perfil.objects.filter(user=consulta.paciente).first()
+            paciente_foto_url = f"{settings.MEDIA_URL}{paciente_perfil.user_picture}" if paciente_perfil and paciente_perfil.user_picture else None
+
             # Crear el diccionario de datos
             consultas_data.append({
                 "id": consulta.id,
                 "paciente_name": f"{consulta.paciente.first_name} {consulta.paciente.last_name}",
+                "paciente_foto": paciente_foto_url,
                 "fecha": consulta.fecha,
                 "hora": consulta.hora,
                 "estado": consulta.estado,  # Incluir el estado de la consulta
                 "doc_receta": doc_receta_url,  # Incluir la URL de la receta si existe
                 "archivo_pdf": archivo_pdf_url,
                 "tipo_consulta": consulta.tipo_consulta,
+                "embarazo": consulta.embarazo,
+                "tipo_sangre": consulta.tipo_sangre,
+                "alergias": consulta.alergias,
+                "edad": consulta.edad,
+                "genero": consulta.genero,
+                "motivo_consulta": consulta.motivo_consulta,
             })
 
         return JsonResponse(consultas_data, safe=False)

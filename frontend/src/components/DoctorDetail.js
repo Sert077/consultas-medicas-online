@@ -445,7 +445,7 @@ const DoctorDetail = () => {
                     </div>
                         {/* Mostrar la fecha y hora seleccionada */}
                         {fecha && hora && (
-                        <div className="seleccion-info">
+                        <div className="seleccionado-info">
                             <div className="seleccion-texto">
                             <p className="hora-seleccionada">
                                 <strong>📅 Hora seleccionada</strong>
@@ -454,7 +454,7 @@ const DoctorDetail = () => {
                             </div>
                             <button
                             type="button"
-                            className="button cancelar-seleccion"
+                            className="button cancelar-seleccionado"
                             onClick={() => { setFecha(null); setHora(""); }}
                             required
                             >

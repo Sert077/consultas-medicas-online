@@ -355,7 +355,7 @@
 }
 
   /* Estilo del cuadro de selección */
-  .seleccion-info {
+  .seleccionado-info {
     background-color: #4e4ab7;
     border: 1px solid #ddd;
     color: white;
@@ -387,11 +387,12 @@
   }
   
   /* Botón de cancelar selección */
-  .button.cancelar-seleccion {
+  .button.cancelar-seleccionado {
     background-color: #cecece;
     color: rgb(35, 35, 35);
     border: none;
     padding: 8px 12px;
+    max-width: 0px;
     border-radius: 6px;
     margin-top: 15px;
     margin-bottom: 15px;
@@ -456,7 +457,7 @@
     font-size: 1rem;
     transition: background-color 0.3s ease;
     box-sizing: border-box;
-    min-width: 150px;
+    min-width: 1500px;
 }
 
 /* Contenedor para los botones fuera de las columnas */
@@ -471,10 +472,28 @@
 
 .button.reservar {
     background-color: #6c63ff;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    color: white;
+    cursor: pointer;
+    width: auto; 
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+    box-sizing: border-box;
 }
 
 .button.close-modal {
     background-color: #f44336;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    color: white;
+    cursor: pointer;
+    width: auto; 
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+    box-sizing: border-box;
 }
 
 .button:hover {
