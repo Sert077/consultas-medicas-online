@@ -364,10 +364,10 @@ const MisReservas = () => {
                                                         </button>
                                                     )}
                                                     {tipoUsuario === 'medico' && (
-    <button className="button-detalles" onClick={() => abrirModalDetalle(consulta)}>
-        Ver detalles
-    </button>
-)}
+                                                        <button className="button-detalles" onClick={() => abrirModalDetalle(consulta)}>
+                                                            Historia Clinica
+                                                        </button>
+                                                    )}
 
                                                     <div className="botones-derecha">
                                                         {consulta.tipo_consulta !== 'presencial' && (

@@ -44,6 +44,7 @@ import Chatbot from './components/Chatbot';
 import ReprogramarConsulta from './components/ReprogramarConsulta';
 import Conocenos from "./components/Conocenos"
 import MediTestLogoOptions from './components/meditest-logo-vanilla';
+import PacientesAtendidos from './components/PacientesAtendidos';
 
 function App() {
     return (
@@ -66,6 +67,7 @@ function App() {
                     <Route path="/verify-email/:token" element={<VerifyEmail />} />
                     <Route path="/historial-consultas" element={<HistorialConsultas />} />
                     <Route path="/reprogramar/:token" element={<ReprogramarConsulta />} />
+                    <Route path="/pacientes" element={<PacientesAtendidos />} />
                     <Route path="/meditest-logo" element={<MediTestLogoOptions />} />
                 </Routes>
                 <Footer />

@@ -1,0 +1,352 @@
+/* Contenedor principal */
+.pacientes-atendidos-container {
+    padding: 25px;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  /* Encabezado y acciones */
+  .pacientes-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+  
+  .pacientes-header h2 {
+    color: #4CAF50; /* Cambiado a color principal */
+    margin: 0;
+    font-size: 1.8rem;
+  }
+  
+  .pacientes-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+  
+  /* Buscador */
+  .search-container {
+    position: relative;
+    width: 300px;
+  }
+  
+  .search-icon-pacientes {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+  }
+  
+  .search-input-pacientes {
+    width: 100%;
+    padding: 10px 10px 10px 40px;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    margin-top: auto;
+    margin-bottom: auto;
+  }
+  
+  .search-input-pacientes:focus {
+    border-color: #4e4ab7; /* Cambiado a color principal */
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(78, 74, 183, 0.2); /* Cambiado a color principal con transparencia */
+  }
+  
+  /* Botón de ordenamiento */
+  .orden-btn {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 10.5px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #495057;
+    transition: all 0.2s;
+    margin-top: auto;
+    margin-bottom: auto;
+  }
+  
+  .orden-btn:hover {
+    background-color: #e9ecef;
+    color: #4e4ab7; /* Cambiado a color principal */
+  }
+  
+  /* Tabla de pacientes */
+  .pacientes-table-container {
+    overflow-x: auto;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+  
+  .pacientes-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+  }
+  
+  .pacientes-table th {
+    background-color: #f2f2ff; /* Cambiado a un tono más violeta claro */
+    color: #4e4ab7; /* Cambiado a color principal */
+    font-weight: 600;
+    text-align: left;
+    padding: 15px;
+    border-bottom: 2px solid #e9ecef;
+  }
+  
+  .pacientes-table td {
+    padding: 15px;
+    border-bottom: 1px solid #e9ecef;
+    vertical-align: middle;
+  }
+  
+  /* Columnas específicas */
+  .th-expand,
+  .td-expand {
+    width: 40px;
+    text-align: center;
+    cursor: pointer;
+  }
+  
+  .th-foto,
+  .td-foto {
+    width: 70px;
+    text-align: center;
+  }
+  
+  .th-nombre {
+    position: relative;
+    margin-top: auto;
+    margin-bottom: auto;
+  }
+  
+  .sort-btn-pacientes {
+    background: none;
+    border: none;
+    color: #6c757d;
+    cursor: pointer;
+    padding: 0;
+    margin-left: 5px;
+    font-size: 0.8rem;
+    margin-top: auto;
+    margin-bottom: auto;
+  }
+  
+  .sort-btn-pacientes:hover {
+    color: #4e4ab7; /* Cambiado a color principal */
+  }
+  
+  /* Foto del paciente */
+  .paciente-foto {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #4e4ab7; /* Cambiado a color principal */
+  }
+  
+  /* Fila de paciente */
+  .paciente-row {
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .paciente-row:hover {
+    background-color: #f8f9fa;
+  }
+  
+  .paciente-row.expanded {
+    background-color: #f2f2ff; /* Cambiado a un tono más violeta claro */
+  }
+  
+  /* Contenedor de consultas expandido */
+  .consultas-container {
+    background-color: #f8f9fa;
+  }
+  
+  .consultas-list {
+    padding: 0 15px 15px;
+  }
+  
+  /* Tabla de consultas */
+  .consultas-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    background-color: white;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  }
+  
+  .consultas-table th {
+    background-color: #f4f4ff; /* Cambiado a un tono más violeta muy claro */
+    color: #4e4ab7; /* Cambiado a color principal */
+    font-weight: 600;
+    text-align: left;
+    padding: 12px 15px;
+    font-size: 0.9rem;
+  }
+  
+  .consultas-table td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #e9ecef;
+    font-size: 0.95rem;
+  }
+  
+  .consulta-row:last-child td {
+    border-bottom: none;
+  }
+  
+  /* Iconos en consultas */
+  .consulta-icon {
+    color: #6e55e0; /* Cambiado a color secundario más brillante */
+    margin-right: 8px;
+    font-size: 0.9rem;
+  }
+  
+  /* Motivo de consulta */
+  .consulta-motivo {
+    display: inline-block;
+    max-width: 300px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  /* Estados de consulta */
+  .consulta-estado {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 5px;
+    font-size: 0.85rem;
+    font-weight: 500;
+  }
+  
+  .estado-realizada {
+    background-color: #d1e7dd;
+    color: #0f5132;
+  }
+  
+  .estado-cancelada {
+    background-color: #f8d7da;
+    color: #842029;
+  }
+  
+  .estado-pendiente {
+    background-color: #fff3cd;
+    color: #664d03;
+  }
+
+  .estado-reprogramada {
+    color: rgb(71, 71, 71); /* Verde */
+    background-color: #cfcfcf; /* Fondo suave */
+  }
+  
+  /* Botón de ver detalles */
+  .ver-detalles-btn {
+    background-color: white;
+    color: #4e4ab7; /* Cambiado a color principal */
+    border: 1px solid #6e55e0; /* Cambiado a color secundario */
+    border-radius: 4px;
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.2s;
+    margin-top: 7px;
+    margin-bottom: 7px;
+  }
+  
+  .ver-detalles-btn:hover {
+    background-color: #f0f0ff; /* Cambiado a un tono más violeta claro */
+    border-color: #4e4ab7; /* Cambiado a color principal */
+  }
+  
+  /* Mensaje de no resultados */
+  .no-results {
+    text-align: center;
+    padding: 30px;
+    color: #6c757d;
+    font-style: italic;
+  }
+  
+  /* Responsive */
+  @media (max-width: 992px) {
+    .pacientes-header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  
+    .search-container {
+      width: 100%;
+    }
+  
+    .pacientes-actions {
+      width: 100%;
+      justify-content: space-between;
+    }
+  
+    .th-ultima,
+    .td-ultima {
+      display: none;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .pacientes-atendidos-container {
+      padding: 15px;
+    }
+  
+    .pacientes-table th,
+    .pacientes-table td {
+      padding: 10px;
+    }
+  
+    .consulta-motivo {
+      max-width: 150px;
+    }
+  
+    .th-consultas,
+    .td-consultas {
+      display: none;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    .pacientes-table {
+      font-size: 0.9rem;
+    }
+  
+    .consultas-table th,
+    .consultas-table td {
+      padding: 8px;
+    }
+  
+    .consulta-motivo {
+      max-width: 100px;
+    }
+  
+    .ver-detalles-btn {
+      padding: 4px 8px;
+      font-size: 0.8rem;
+    }
+  
+    .consulta-icon {
+      display: none;
+    }
+  }
+  
+  

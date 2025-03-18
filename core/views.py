@@ -293,7 +293,7 @@ def consultas_medico(request, user_id):
             # Crear el diccionario de datos
             consultas_data.append({
                 "id": consulta.id,
-                "paciente_name": f"{consulta.paciente.first_name} {consulta.paciente.last_name}",
+                "paciente_name": f"{consulta.paciente.last_name} {consulta.paciente.first_name}",
                 "paciente_foto": paciente_foto_url,
                 "fecha": consulta.fecha,
                 "hora": consulta.hora,
