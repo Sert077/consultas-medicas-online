@@ -140,7 +140,7 @@ const PacientesAtendidos = ({ userId = localStorage.getItem("paciente_id") }) =>
   return (
     <div className="pacientes-atendidos-container">
       <div className="pacientes-header">
-        <h2>Pacientes Atendidos</h2>
+        <h2>Pacientes</h2>
         <div className="pacientes-actions">
           <div className="search-container">
             <FaSearch className="search-icon-pacientes" />

@@ -7,13 +7,9 @@ import {
     IconStethoscope,
     IconSettings,
     IconLogout,
-    IconMenu,
     IconHelpCircle,
     IconCirclePlus,
-    IconChartBar,
-    IconChartLine,
-    IconFileText,
-    IconHistory    
+    IconChartBar,  
 } from "@tabler/icons-react";
 import "../css/Header.css";
 import { FaBars } from "react-icons/fa";
@@ -26,13 +22,13 @@ const Header = () => {
     const navigate = useNavigate();
     const [profilePicture, setProfilePicture] = useState('/images/icon-user.png'); // Imagen por defecto
     const dropdownRef = useRef(null);
+    const userType = localStorage.getItem("tipo_usuario");
 
     useEffect(() => {
         const token = localStorage.getItem("token");
         const user = localStorage.getItem("username");
         const superUser = localStorage.getItem("is_superuser");
-        const userType = localStorage.getItem("tipo_usuario");
-
+        
         if (token && user) {
             setIsLoggedIn(true);
             setUsername(user);
@@ -158,7 +154,16 @@ const Header = () => {
                             </Link>
                         </li>
                     )}
-    
+
+                    {isLoggedIn && userType === "medico" && (
+                        <li>
+                            <Link to="/pacientes">
+                                <IconUsers className="icon-consultas" />
+                                Pacientes
+                            </Link>
+                        </li>
+                    )}
+
                     <li>
                         <Link to="/conocenos" className="disabled">
                             <IconHelpCircle className="icon-help" />

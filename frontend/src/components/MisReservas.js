@@ -248,16 +248,22 @@ const MisReservas = () => {
                 {/* Filtros */}
             <div className="filtros-container">
                 <label>Tipo de consulta:</label>
-                <select value={tipoConsulta} onChange={(e) => setTipoConsulta(e.target.value)} className='tipo-consulta-filter'>
+                <select value={tipoConsulta} onChange={(e) => {
+                    setTipoConsulta(e.target.value);
+                    setCurrentPage(1); // Resetear paginación
+                }} className='tipo-consulta-filter'>
                     <option value="">Todas</option>
                     <option value="virtual">Virtual</option>
                     <option value="presencial">Presencial</option>
                 </select>
 
                 <label>Estado:</label>
-                    <select value={estadoConsulta} onChange={(e) => setEstadoConsulta(e.target.value)} className='estado-filter'>
-                        <option value="">Pendiente y Reprogramadas (Por defecto)</option>
-                        <option value="pendiente">Pendiente y Reprogramadas</option>
+                <select value={estadoConsulta} onChange={(e) => {
+                    setEstadoConsulta(e.target.value);
+                    setCurrentPage(1); // Resetear paginación
+                }} className='estado-filter'>
+                        <option value="">Pendiente y Reprogramadas</option>
+                        {/* <option value="pendiente">Pendiente y Reprogramadas</option> */}
                         <option value="realizada">Realizada</option>
                         <option value="cancelada">Cancelada</option>
                         <option value="todos">Todos</option>
@@ -277,13 +283,14 @@ const MisReservas = () => {
                                 endDate={fechaFin}
                                 onChange={(update) => {
                                     setRangoFechas(update);
+                                    setCurrentPage(1); // Resetear paginación
                                     if (update[0] && update[1]) {
                                         setOpenCalendar(false);
                                     }
                                 }}
                                 isClearable
                                 inline
-                            />
+                            />                        
                         )}
                     </div>
                 </div>
@@ -373,7 +380,7 @@ const MisReservas = () => {
                                                         {consulta.tipo_consulta !== 'presencial' && (
                                                             <button 
                                                                 onClick={() => handleRealizarConsulta(consulta.id)} 
-                                                                disabled={consulta.estado === 'realizada'}
+                                                                disabled={consulta.estado === 'realizada' || consulta.estado === 'cancelada'}
                                                             >
                                                                 Realizar consulta
                                                             </button>
