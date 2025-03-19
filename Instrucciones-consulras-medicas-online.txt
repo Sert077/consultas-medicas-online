@@ -133,6 +133,6 @@ npm i --save-dev @types/leaflet
 para iconos home:
 npm install lucide-react
 
-
-
+npm install face-api.js
+npm install tesseract.js
 
