@@ -154,6 +154,34 @@ const openCamera = (inputRef, captureMode) => {
     });
   };
 
+  // 📌 Función para preprocesar imágenes
+  const alternativePreprocessImage = (file) => {
+    return new Promise((resolve, reject) => {
+      const img = new Image()
+      const reader = new FileReader()
+
+      reader.onload = () => {
+        img.src = reader.result
+        img.onload = () => {
+          const canvas = document.createElement("canvas")
+          const ctx = canvas.getContext("2d")
+
+          canvas.width = img.width
+          canvas.height = img.height
+
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+            resolve(canvas)
+          } else {
+            reject(new Error("Error al procesar la imagen."))
+          }
+        }
+      }
+
+      reader.readAsDataURL(file)
+    })
+  }
+
   // 📌 Función para verificar el rostro
   const verifyFace = async () => {
     if (!selfie || !anverso) {
@@ -187,12 +215,91 @@ const openCamera = (inputRef, captureMode) => {
     return true
   }
 
-  // 📌 Función para extraer y verificar los datos de la cédula
   const verifyText = async () => {
     if (!reverso || !anverso) {
       setDataMatchError("Debes subir ambas fotos de la cédula.");
       return false;
     }
+  
+    const tryWithAlternativePreprocess = async () => {
+      try {
+        const anversoCanvas = await alternativePreprocessImage(anverso);
+        const reversoCanvas = await alternativePreprocessImage(reverso);
+  
+        const anversoDataUrl = anversoCanvas.toDataURL();
+        const reversoDataUrl = reversoCanvas.toDataURL();
+  
+        const [anversoResult, reversoResult] = await Promise.all([
+          Tesseract.recognize(anversoDataUrl, "spa"),
+          Tesseract.recognize(reversoDataUrl, "spa"),
+        ]);
+  
+        const anversoText = anversoResult.data.text;
+        const reversoText = reversoResult.data.text;
+  
+        // Verificar el número de cédula
+        const ciRegex = /No\.?\s*([0-9]+)/i;
+        const ciMatch = anversoText.match(ciRegex);
+  
+        if (!ciMatch || !ciMatch[1]) {
+          setDataMatchError("No se pudo detectar el número de cédula en la imagen.");
+          return false;
+        }
+  
+        const extractedCi = ciMatch[1].trim();
+  
+        if (extractedCi !== idCard.trim()) {
+          setDataMatchError("El número de cédula no coincide.");
+          return false;
+        }
+  
+        // Verificar nombre y apellidos
+        if (
+          !reversoText.toLowerCase().includes(firstName.toLowerCase()) ||
+          !reversoText.toLowerCase().includes(lastName.toLowerCase())
+        ) {
+          setDataMatchError("El nombre o apellidos no coinciden.");
+          return false;
+        }
+  
+        // Verificar fecha de nacimiento
+        const dobRegex = /Nacido el (\d{1,2}) de ([a-zA-Z]+) de (\d{4})/i;
+        const dobMatch = reversoText.match(dobRegex);
+  
+        if (dobMatch) {
+          const [, day, month, year] = dobMatch;
+          const monthMap = {
+            enero: "01",
+            febrero: "02",
+            marzo: "03",
+            abril: "04",
+            mayo: "05",
+            junio: "06",
+            julio: "07",
+            agosto: "08",
+            septiembre: "09",
+            octubre: "10",
+            noviembre: "11",
+            diciembre: "12",
+          };
+  
+          const extractedDob = `${year}-${monthMap[month.toLowerCase()]}-${day.padStart(2, "0")}`;
+  
+          if (extractedDob !== birthdate) {
+            setDataMatchError("La fecha de nacimiento no coincide.");
+            return false;
+          }
+        } else {
+          setDataMatchError("No se pudo leer la fecha de nacimiento.");
+          return false;
+        }
+  
+        return true;
+      } catch (error) {
+        console.error("Error al procesar la cédula con preprocesamiento alternativo:", error);
+        return false;
+      }
+    };
   
     try {
       const anversoCanvas = await preprocessImage(anverso);
@@ -224,22 +331,22 @@ const openCamera = (inputRef, captureMode) => {
         setDataMatchError("El número de cédula no coincide.");
         return false;
       }
-
+  
       // Verificar nombre y apellidos
       if (
         !reversoText.toLowerCase().includes(firstName.toLowerCase()) ||
         !reversoText.toLowerCase().includes(lastName.toLowerCase())
       ) {
-        setDataMatchError("El nombre o apellidos no coinciden.")
-        return false
+        setDataMatchError("El nombre o apellidos no coinciden.");
+        return false;
       }
-
+  
       // Verificar fecha de nacimiento
-      const dobRegex = /Nacido el (\d{1,2}) de ([a-zA-Z]+) de (\d{4})/i
-      const dobMatch = reversoText.match(dobRegex)
-
+      const dobRegex = /Nacido el (\d{1,2}) de ([a-zA-Z]+) de (\d{4})/i;
+      const dobMatch = reversoText.match(dobRegex);
+  
       if (dobMatch) {
-        const [, day, month, year] = dobMatch
+        const [, day, month, year] = dobMatch;
         const monthMap = {
           enero: "01",
           febrero: "02",
@@ -253,25 +360,25 @@ const openCamera = (inputRef, captureMode) => {
           octubre: "10",
           noviembre: "11",
           diciembre: "12",
-        }
-
-        const extractedDob = `${year}-${monthMap[month.toLowerCase()]}-${day.padStart(2, "0")}`
-
+        };
+  
+        const extractedDob = `${year}-${monthMap[month.toLowerCase()]}-${day.padStart(2, "0")}`;
+  
         if (extractedDob !== birthdate) {
-          setDataMatchError("La fecha de nacimiento no coincide.")
-          return false
+          setDataMatchError("La fecha de nacimiento no coincide.");
+          return false;
         }
       } else {
-        setDataMatchError("No se pudo leer la fecha de nacimiento.")
-        return false
+        // Si no se puede leer la fecha de nacimiento, intentar con el preprocesamiento alternativo
+        return await tryWithAlternativePreprocess();
       }
-
-      return true
+  
+      return true;
     } catch (error) {
-      console.error("Error al procesar la cédula:", error)
-      return false
+      console.error("Error al procesar la cédula:", error);
+      return await tryWithAlternativePreprocess();
     }
-  }
+  };
 
   // 📌 Función para iniciar verificación
   const handleVerification = async (e) => {
