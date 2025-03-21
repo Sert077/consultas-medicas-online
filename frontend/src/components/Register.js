@@ -118,30 +118,42 @@ const openCamera = (inputRef, captureMode) => {
   // 📌 Función para preprocesar imágenes
   const preprocessImage = (file) => {
     return new Promise((resolve, reject) => {
-      const img = new Image()
-      const reader = new FileReader()
-
+      const img = new Image();
+      const reader = new FileReader();
+  
       reader.onload = () => {
-        img.src = reader.result
+        img.src = reader.result;
         img.onload = () => {
-          const canvas = document.createElement("canvas")
-          const ctx = canvas.getContext("2d")
-
-          canvas.width = img.width
-          canvas.height = img.height
-
+          const canvas = document.createElement("canvas");
+          const ctx = canvas.getContext("2d");
+  
+          canvas.width = img.width;
+          canvas.height = img.height;
+  
           if (ctx) {
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
-            resolve(canvas)
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+  
+            // Convertir a escala de grises
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
+            for (let i = 0; i < data.length; i += 4) {
+              const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
+              data[i] = avg; // red
+              data[i + 1] = avg; // green
+              data[i + 2] = avg; // blue
+            }
+            ctx.putImageData(imageData, 0, 0);
+  
+            resolve(canvas);
           } else {
-            reject(new Error("Error al procesar la imagen."))
+            reject(new Error("Error al procesar la imagen."));
           }
-        }
-      }
-
-      reader.readAsDataURL(file)
-    })
-  }
+        };
+      };
+  
+      reader.readAsDataURL(file);
+    });
+  };
 
   // 📌 Función para verificar el rostro
   const verifyFace = async () => {
@@ -179,32 +191,39 @@ const openCamera = (inputRef, captureMode) => {
   // 📌 Función para extraer y verificar los datos de la cédula
   const verifyText = async () => {
     if (!reverso || !anverso) {
-      setDataMatchError("Debes subir ambas fotos de la cédula.")
-      return false
+      setDataMatchError("Debes subir ambas fotos de la cédula.");
+      return false;
     }
-
+  
     try {
-      const anversoCanvas = await preprocessImage(anverso)
-      const reversoCanvas = await preprocessImage(reverso)
-
-      const anversoDataUrl = anversoCanvas.toDataURL()
-      const reversoDataUrl = reversoCanvas.toDataURL()
-
+      const anversoCanvas = await preprocessImage(anverso);
+      const reversoCanvas = await preprocessImage(reverso);
+  
+      const anversoDataUrl = anversoCanvas.toDataURL();
+      const reversoDataUrl = reversoCanvas.toDataURL();
+  
       const [anversoResult, reversoResult] = await Promise.all([
         Tesseract.recognize(anversoDataUrl, "spa"),
         Tesseract.recognize(reversoDataUrl, "spa"),
-      ])
-
-      const anversoText = anversoResult.data.text
-      const reversoText = reversoResult.data.text
-
+      ]);
+  
+      const anversoText = anversoResult.data.text;
+      const reversoText = reversoResult.data.text;
+  
       // Verificar el número de cédula
-      const ciRegex = /No\.?\s*([0-9]+)/i
-      const ciMatch = anversoText.match(ciRegex)
-
-      if (!ciMatch || ciMatch[1] !== idCard) {
-        setDataMatchError("El número de cédula no coincide.")
-        return false
+      const ciRegex = /No\.?\s*([0-9]+)/i;
+      const ciMatch = anversoText.match(ciRegex);
+  
+      if (!ciMatch || !ciMatch[1]) {
+        setDataMatchError("No se pudo detectar el número de cédula en la imagen.");
+        return false;
+      }
+  
+      const extractedCi = ciMatch[1].trim();
+  
+      if (extractedCi !== idCard.trim()) {
+        setDataMatchError("El número de cédula no coincide.");
+        return false;
       }
 
       // Verificar nombre y apellidos
@@ -217,7 +236,7 @@ const openCamera = (inputRef, captureMode) => {
       }
 
       // Verificar fecha de nacimiento
-      const dobRegex = /(\d{1,2}) de ([a-zA-Z]+) de (\d{4})/i
+      const dobRegex = /Nacido el (\d{1,2}) de ([a-zA-Z]+) de (\d{4})/i
       const dobMatch = reversoText.match(dobRegex)
 
       if (dobMatch) {
