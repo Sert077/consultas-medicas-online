@@ -114,7 +114,6 @@ const openCamera = (inputRef, captureMode) => {
     }
   }
   
-
   // 📌 Función para preprocesar imágenes
   const preprocessImage = (file) => {
     return new Promise((resolve, reject) => {
