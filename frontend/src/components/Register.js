@@ -536,7 +536,7 @@ const openCamera = (inputRef, captureMode) => {
       <h2>Registro de Paciente</h2>
       <form onSubmit={handleRegister}>
         <div>
-          <label>Nombre(s):</label>
+          <label>Nombre(s):<span style={{ color: 'red' }}> *</span></label>
           <input
             type="text"
             value={firstName}
@@ -558,7 +558,7 @@ const openCamera = (inputRef, captureMode) => {
           )}
         </div>
         <div>
-          <label>Apellidos:</label>
+          <label>Apellidos:<span style={{ color: 'red' }}> *</span></label>
           <input
             type="text"
             value={lastName}
@@ -580,7 +580,7 @@ const openCamera = (inputRef, captureMode) => {
           )}
         </div>
         <div>
-          <label>Fecha de nacimiento:</label>
+          <label>Fecha de nacimiento:<span style={{ color: 'red' }}> *</span></label>
           <input
             type="date"
             value={birthdate}
@@ -600,22 +600,7 @@ const openCamera = (inputRef, captureMode) => {
         </div>
 
         <div>
-          <label>Número telefónico:</label>
-          <input
-            type="tel"
-            value={phoneNumber}
-            onChange={handlePhoneChange}
-            placeholder="Ingrese su número de teléfono"
-            required
-            pattern="^\d+$"
-            maxLength="9"
-            onInvalid={(e) => e.target.setCustomValidity("Solo se permiten caracteres numéricos")}
-            onInput={(e) => e.target.setCustomValidity("")}
-          />
-          {phoneError && <div style={{ color: "red", fontSize: "12px" }}>{phoneError}</div>}
-        </div>
-        <div>
-          <label>Cédula de Identidad:</label>
+          <label>Cédula de Identidad:<span style={{ color: 'red' }}> *</span></label>
           <input
             type="text"
             value={idCard}
@@ -632,8 +617,25 @@ const openCamera = (inputRef, captureMode) => {
             </div>
           )}
         </div>
+
         <div>
-          <label>Nombre de Usuario:</label>
+          <label>Número telefónico:<span style={{ color: 'red' }}> *</span></label>
+          <input
+            type="tel"
+            value={phoneNumber}
+            onChange={handlePhoneChange}
+            placeholder="Ingrese su número de teléfono"
+            required
+            pattern="^\d+$"
+            maxLength="9"
+            onInvalid={(e) => e.target.setCustomValidity("Solo se permiten caracteres numéricos")}
+            onInput={(e) => e.target.setCustomValidity("")}
+          />
+          {phoneError && <div style={{ color: "red", fontSize: "12px" }}>{phoneError}</div>}
+        </div>
+        
+        <div>
+          <label>Nombre de Usuario:<span style={{ color: 'red' }}> *</span></label>
           <input
             type="text"
             value={username}
@@ -645,7 +647,7 @@ const openCamera = (inputRef, captureMode) => {
           {usernameError && <div style={{ color: "red", fontSize: "12px" }}>{usernameError}</div>}
         </div>
         <div>
-          <label>Email:</label>
+          <label>Email:<span style={{ color: 'red' }}> *</span></label>
           <input
             type="email"
             value={email}
@@ -657,7 +659,7 @@ const openCamera = (inputRef, captureMode) => {
           {emailError && <div style={{ color: "red", fontSize: "12px" }}>{emailError}</div>}
         </div>
         <div>
-          <label>Contraseña:</label>
+          <label>Contraseña:<span style={{ color: 'red' }}> *</span></label>
           <div className="password-input">
             <input
               type={showPassword ? "text" : "password"}
@@ -677,7 +679,7 @@ const openCamera = (inputRef, captureMode) => {
           )}
         </div>
         <div>
-          <label>Repetir Contraseña:</label>
+          <label>Repetir Contraseña:<span style={{ color: 'red' }}> *</span></label>
           <div className="password-input">
             <input
               type={showRepeatPassword ? "text" : "password"}

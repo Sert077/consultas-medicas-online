@@ -277,7 +277,8 @@
 
 .modal-label-motivo{
     color: #301466;
-    margin-bottom: -5px; /* Separación entre la etiqueta y el campo */
+    margin-bottom: 0px; /* Separación entre la etiqueta y el campo */
+    margin-top: 0px;
     text-align: left; /* Alinear texto a la izquierda */
     width: 100%; /* Asegurar que ocupe todo el ancho del contenedor */
     display: block; /* Evita comportamiento inline para un alineado correcto */
@@ -285,11 +286,16 @@
 
 .input-field-motivo{
     color: #301466;
-    margin-bottom: 5px; /* Separación entre la etiqueta y el campo */
+    margin-top: 10px; /* Separación entre la etiqueta y el campo */
     text-align: left; /* Alinear texto a la izquierda */
     width: 100%; /* Asegurar que ocupe todo el ancho del contenedor */
     height: 70px;
     padding-bottom: 40px;
+}
+
+.input-field-motivo:focus{
+    outline: none;
+    border-color: #6c63ff;
 }
 
 /* Calendario */
@@ -543,16 +549,30 @@
     margin: 0; /* Eliminar márgenes innecesarios */
 }
 
-.textarea-container,
+.textarea-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
 .input-container-motivo {
     position: relative;
     display: flex;
     align-items: center;
 }
 
+.input-container-motivo input {
+    color: #301466;
+    margin-top: 16px; /* Separación entre la etiqueta y el campo */
+    text-align: left; /* Alinear texto a la izquierda */
+    width: 100%; /* Asegurar que ocupe todo el ancho del contenedor */
+    height: 70px;
+    padding-bottom: 40px;
+}
+
 .char-count {
     position: absolute;
-    bottom: 5px;
+    bottom: 0px;
     right: 10px;
     font-size: 12px;
     color: rgba(0, 0, 0, 0.3); /* Color tenue */
@@ -682,7 +702,7 @@
   .modal-button {
     padding: 10px 20px; 
     background-color: white; 
-    border: 1px solid #4CAF50; 
+    border: 2px solid #4CAF50; 
     color: #4CAF50; 
     font-size: 16px; 
     cursor: pointer; 
@@ -753,8 +773,6 @@
     }
   }
   
-  
-
 .error-message {
     color: red;
     font-size: 0.9em;

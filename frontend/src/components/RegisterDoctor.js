@@ -54,6 +54,7 @@ const RegisterDoctor = () => {
     horarioInicio: '',
     horarioFin: '',
     consultaDuracion: '',
+    modalidad: '',
     username: '',
     password: '',
     repeatPassword: '',
@@ -155,7 +156,8 @@ const handleRemovePicture = () => {
     formDataToSend.append('doctor.specialty', finalSpecialty); // Enviar la especialidad final
     formDataToSend.append('doctor.phone_number', formData.phoneNumber);
     formDataToSend.append('doctor.address', formattedAddress);
-    formDataToSend.append('doctor.consulta_duracion', formData.consultaDuracion); // Nuevo campo
+    formDataToSend.append('doctor.consulta_duracion', formData.consultaDuracion); 
+    formDataToSend.append('doctor.modalidad_consulta', formData.modalidad); // Nuevo campo
     formDataToSend.append('doctor.biography', formData.biography);
     formDataToSend.append('doctor.days', formData.days);
     formDataToSend.append('doctor.start_time', formData.horarioInicio);
@@ -214,7 +216,7 @@ const handleRemovePicture = () => {
       <h2>Registrar Doctor</h2>
       <form onSubmit={handleSubmit} className="form-grid">
         <div className="form-group">
-          <label htmlFor="firstName">Nombre:</label>
+          <label htmlFor="firstName">Nombre:<span style={{ color: 'red' }}> *</span></label>
           <input
             type="text"
             id="firstName"
@@ -227,7 +229,7 @@ const handleRemovePicture = () => {
         </div>
 
         <div className="form-group">
-          <label htmlFor="lastName">Apellidos:</label>
+          <label htmlFor="lastName">Apellidos:<span style={{ color: 'red' }}> *</span></label>
           <input
             type="text"
             id="lastName"
@@ -240,7 +242,7 @@ const handleRemovePicture = () => {
         </div>
 
         <div className="form-group">
-          <label htmlFor="id_card">Cedula de Identidad:</label>
+          <label htmlFor="id_card">Cedula de Identidad:<span style={{ color: 'red' }}> *</span></label>
           <input
             type="text"
             id="id_card"
@@ -254,7 +256,7 @@ const handleRemovePicture = () => {
         </div>
 
         <div className="form-group">
-          <label htmlFor="specialty">Especialidad:</label>
+          <label htmlFor="specialty">Especialidad:<span style={{ color: 'red' }}> *</span></label>
           <select
             id="specialty"
             name="specialty"
@@ -262,7 +264,7 @@ const handleRemovePicture = () => {
             onChange={handleSpecialtyChange}
             required
           >
-            <option value="">Seleccione una especialidad</option>
+            <option value="">Seleccione una especialidad<span style={{ color: 'red' }}> *</span></option>
             {specialties.map((specialty, index) => (
               <option key={index} value={specialty}>
                 {specialty}
@@ -283,7 +285,7 @@ const handleRemovePicture = () => {
         </div>
 
         <div className="form-group">
-          <label htmlFor="address">Dirección del Consultorio:</label>
+          <label htmlFor="address">Dirección del Consultorio:<span style={{ color: 'red' }}> *</span></label>
           <div style={{ display: "flex", alignItems: "center" }}>
             <input
               type="text"
@@ -306,7 +308,7 @@ const handleRemovePicture = () => {
         </div> 
 
         <div className="form-group">
-          <label htmlFor="phoneNumber">Teléfono:</label>
+          <label htmlFor="phoneNumber">Teléfono:<span style={{ color: 'red' }}> *</span></label>
           <input
             type="number"
             id="phoneNumber"
@@ -320,7 +322,7 @@ const handleRemovePicture = () => {
         </div>
 
         <div className="form-dias-horarios">
-          <label>Días de Atención:</label>
+          <label>Días de Atención:<span style={{ color: 'red' }}> *</span></label>
           <div className="predefined-options">
             <button
               type="button"
@@ -370,7 +372,7 @@ const handleRemovePicture = () => {
         </div>
 
         <div className="form-group time-fields-wrapper"> 
-        <label htmlFor="time-fields">Horario:</label>
+        <label htmlFor="time-fields">Horario:<span style={{ color: 'red' }}> *</span></label>
           <div className="time-fields"> 
             <label htmlFor="horarioInicio">De (Hrs):</label> 
             <input type="time" 
@@ -389,7 +391,7 @@ const handleRemovePicture = () => {
             required /> 
           </div> 
       
-          <label className='duracion-consultas'>Duración de Consulta:</label>
+          <label className='duracion-consultas'>Duración de Consulta:<span style={{ color: 'red' }}> *</span></label>
           <div className="predefined-options-consultas">
             {["15 min", "30 min", "45 min", "1 hora"].map((duracion, index) => (
               <button
@@ -402,10 +404,26 @@ const handleRemovePicture = () => {
               </button>
             ))}
           </div>
+          <div className="form-group-modalidad">
+          <label htmlFor="modalidad" className='modalidad'>Modalidad de Consulta:<span style={{ color: 'red' }}> *</span></label>
+              <select
+                id="modalidad"
+                name="modalidad"
+                value={formData.modalidad}
+                onChange={handleChange}
+                className='modalidad'
+                required
+              >
+                <option value="">Seleccione una modalidad</option>
+                <option value="Híbrida">Híbrida</option>
+                <option value="Presencial">Presencial</option>
+                <option value="Virtual">Virtual</option>
+              </select>
+              </div>
         </div>
 
         <div className="form-group">
-            <label htmlFor="profilePicture">Foto de perfil:</label>
+            <label htmlFor="profilePicture">Foto de perfil:<span style={{ color: 'red' }}> *</span></label>
             <div className="file-input">
                 {previewPicture ? (
                     <>
@@ -443,7 +461,7 @@ const handleRemovePicture = () => {
         </div>
 
         <div className="form-group">
-          <label htmlFor="biography">Biografía:</label>
+          <label htmlFor="biography">Biografía:<span style={{ color: 'red' }}> *</span></label>
           <textarea
             id="biography"
             name="biography"
@@ -456,7 +474,7 @@ const handleRemovePicture = () => {
         </div>
 
         <div className="form-group">
-          <label htmlFor="email">Email:</label>
+          <label htmlFor="email">Email:<span style={{ color: 'red' }}> *</span></label>
           <input
             type="email"
             id="email"
@@ -470,7 +488,7 @@ const handleRemovePicture = () => {
         </div>
 
         <div className="form-group">
-          <label htmlFor="username">Usuario:</label>
+          <label htmlFor="username">Usuario:<span style={{ color: 'red' }}> *</span></label>
           <input
             type="text"
             id="username"
@@ -484,7 +502,7 @@ const handleRemovePicture = () => {
         </div>
 
         <div className="form-group">
-      <label htmlFor="password">Contraseña:</label>
+      <label htmlFor="password">Contraseña:<span style={{ color: 'red' }}> *</span></label>
       <div className="password-container">
         <input
           type={showPassword ? 'text' : 'password'}
@@ -504,7 +522,7 @@ const handleRemovePicture = () => {
 
     {/* Campo de Repetir Contraseña */}
     <div className="form-group">
-      <label htmlFor="repeatPassword">Repetir contraseña:</label>
+      <label htmlFor="repeatPassword">Repetir contraseña:<span style={{ color: 'red' }}> *</span></label>
       <div className="password-container">
         <input
           type={showRepeatPassword ? 'text' : 'password'}
