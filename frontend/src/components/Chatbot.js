@@ -125,13 +125,12 @@ const Chatbot = () => {
                             </div>
                         ))}
                         {loading && (
-    <div className="chatbot-message bot">
-        <div className="loading-slide">
-            <span></span><span></span><span></span>
-        </div>
-    </div>
-)}
-
+                            <div className="chatbot-message bot">
+                                <div className="loading-slide">
+                                    <span></span><span></span><span></span>
+                                </div>
+                            </div>
+                        )}
                         <div ref={messagesEndRef} /> 
                     </div>
 

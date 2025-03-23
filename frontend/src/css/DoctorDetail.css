@@ -1,192 +1,461 @@
+/* Variables para colores consistentes */
+:root {
+  --background-color: #f9f9f9;
+  --primary-button: #4caf50;
+  --primary-button-hover: #45a049;
+  --secondary-button: #6c63ff;
+  --secondary-button-hover: #5a52d5;
+  --text-dark: #333;
+  --text-medium: #555;
+  --text-light: #777;
+  --border-color: #ccc;
+  --accent-color: #4caf50;
+  --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  --hover-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+}
+
+/* Estilos generales */
 .doctor-detail-container {
     display: flex;
     flex-direction: column;
     align-items: center;
     padding: 20px;
+  font-family: "Roboto", "Segoe UI", sans-serif;
 }
 
-.doctor-info-container {
+/* Cabecera con información del médico 
+.doctor-header {
+  display: grid;
+  grid-template-columns: 1fr;
+  background: linear-gradient(135deg, #ffffff, var(--background-color));
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: var(--card-shadow);
+  position: relative;
+  max-width: 1200px;
+  margin: 0 auto;
+}*/
+
+/* Modificar el estilo del doctor-header-bg para que ocupe todo el ancho */
+.doctor-header-bg {
+    height: auto;
+    background-color: white;
+    border-bottom: 1px solid var(--border-color);
+    padding: 20px 30px;
+    position: relative;
+    width: 86.5%; /* Ancho personalizado */
+    top: 40px;
+    margin: 0 auto; /* Centrar el contenedor horizontalmente */
+    margin-bottom: -50px;
+    z-index: 3;
+    /*box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); /* Opcional: sombra para destacar */
+  }
+  
+  /* Estilos para el título */
+  .doctor-header-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin: 0;
     display: flex;
-    justify-content: center;
     align-items: center;
-    width: 100%;
-    max-width: 700px;
-    margin-bottom: 20px;
-    border: 1px solid #ddd;
-    padding: 20px;
-    border-radius: 8px;
-    background-color: #f9f9f9;
+    justify-content: center; /* Centrar el contenido horizontalmente */
+    gap: 10px;
+    text-align: center; /* Centrar el texto */
+  }
+  
+  .doctor-header-title i {
+    color: var(--accent-color);
+  }
+
+.doctor-info-container {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 20px;
+  padding: 0 40px 40px;
+  border-radius: 0 0 16px 16px;
+  position: relative;
+  z-index: 2;
+}
+
+.doctor-image-container {
+  margin-top: 0px;
+  position: relative;
+  z-index: 2;
 }
 
 .doctor-image {
-    width: 200px;
-    height: 200px;
-    border-radius: 50%;
-    margin-right: 20px;
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 5px solid white;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  background-color: white;
 }
 
 .doctor-details {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+  padding-top: 80px;
+}
+
+.doctor-details h2 {
+    font-size: 25px;
+    font-weight: 700;
+    color: #4caf50;
+    margin-bottom: 20px;
+    line-height: 1.2;
+    font-family: "Arial", sans-serif;
+    text-align: left; /* Alinea el texto a la izquierda */
+  }
+
+.doctor-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 15px 30px;
+  margin-bottom: 10px;
+}
+
+.doctor-info-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.doctor-info-item i {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(76, 175, 80, 0.1);
+  color: var(--accent-color);
+  border-radius: 50%;
+  font-size: 1rem;
+}
+
+.doctor-info-item .info-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-light);
+  display: block;
+  margin-bottom: 2px;
+}
+
+.doctor-info-item .info-value {
+  font-size: 1rem;
+  color: var(--text-dark);
+  font-weight: 500;
 }
 
 .doctor-buttons {
-    display: flex;
-    gap: 10px;
-    margin-top: 20px;
+  display: flex;
+  gap: 15px;
+  margin-top: 10px;
 }
 
 .consult-button {
-    background-color: #4CAF50;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 210px;
+  font-size: 13.4px;
 }
 
-.consult-button:hover {
-    background-color: #45a049;
+.consult-button:first-child {
+  background-color: var(--primary-button);
+  color: white;
 }
+
+.consult-button:first-child:hover {
+  background-color: var(--primary-button-hover);
+  box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+  transform: translateY(-2px);
+}
+
 .consult-button:last-child {
-    background-color: #6c63ff; /* Púrpura */
+  background-color: var(--secondary-button);
+  color: white;
 }
+
 .consult-button:last-child:hover {
-    background-color: #4e4ab7;
+  background-color: var(--secondary-button-hover);
+  box-shadow: 0 5px 15px rgba(108, 99, 255, 0.3);
+  transform: translateY(-2px);
 }
 
-.doctor-biography-container {
-    text-align: left;
-    width: 100%;
-    max-width: 700px;
-    border: 1px solid #ddd;
-    padding: 20px;
-    border-radius: 8px;
-    background-color: #f9f9f9;
-    margin-bottom: 20px;
+/* Contenido principal en dos columnas */
+.doctor-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 47px;
+  
+  
+  margin-left: -42px;
+  margin-bottom: -25px;
 }
 
-.doctor-biography-container h3{
-    text-align: center;
-    font-size: 18px;
-    color: #555;
+/* Estilos para las tarjetas de información */
+.info-card {
+  background-color: var(--background-color);
+  border-radius: 16px;
+  box-shadow: var(--card-shadow);
+  overflow: hidden;
+  transition: all 0.3s ease;
 }
 
-.consultas-container {
-    text-align: left; /* Alinea el contenido a la izquierda */
-    width: 100%;
-    max-width: 700px;
-    border: 1px solid #ddd;
-    padding: 20px;
-    border-radius: 8px;
-    background-color: #f9f9f9;
+.info-card:hover {
+  box-shadow: var(--hover-shadow);
+  transform: translateY(-5px);
 }
 
+.info-card-header {
+  padding: 20px 30px;
+  background-color: white;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.info-card-header h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.info-card-header h3 i {
+  color: var(--accent-color);
+}
+
+.info-card-body {
+  padding: 25px 30px;
+}
+
+/* Mapa */
 .map-container {
-    flex: 1;
-    max-width: 720px;
-    width: 100%;
+  max-width: 700px;
+  max-height: auto;
+  
+  gap: 5px;
+}
+
+.map-container .info-card-header {
+  width: 89%;
+}
+
+.info-card-header-mapa {
+    padding: 20px 30px;
+    background-color: white;
+    border-bottom: 1px solid var(--border-color);
+    width: 640px;
+    margin-top: 10px;
+  }
+  
+  .info-card-header-mapa h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin: 0;
     display: flex;
+    align-items: center;
+    justify-content: center; /* Centrar el contenido horizontalmente */
+    gap: 10px;
+  }
+  
+  .info-card-header-mapa h3 i {
+    color: var(--accent-color);
+  }
+
+.map-container iframe {
+  width: 700px;
+  height: 350px;
+  border-radius: 8px;
+  border: none;
+}
+
+/* Biografía */
+.doctor-biography-container {
+  width: 100%;
+  height: 350px;
+}
+
+.doctor-biography-container p {
+  line-height: 1.8;
+  color: var(--text-medium);
+  margin: 0;
+  text-align: justify;
+}
+
+/* Consultas */
+.consultas-container {
+  width: 100%;
+  height: 350px;
+}
+
+.consultas-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 10px;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.consulta-item {
+  background-color: white;
+  padding: 16px 20px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  transition: all 0.3s ease;
+}
+
+.consulta-item:hover {
+  transform: translateX(5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.consulta-icon {
+  width: 40px;
+  height: 40px;
+  background-color: rgba(108, 99, 255, 0.1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--secondary-button);
+  font-size: 1.2rem;
+}
+
+.consulta-info {
+  flex: 1;
+}
+
+.consulta-date {
+  font-weight: 600;
+  color: var(--text-dark);
+  margin-bottom: 3px;
+}
+
+.consulta-time {
+  color: var(--text-light);
+  font-size: 0.9rem;
+}
+
+.no-consultas {
+  color: var(--text-light);
+  font-style: italic;
+  text-align: center;
+  padding: 20px 0;
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.doctor-header,
+.info-card {
+  animation: fadeIn 0.6s ease forwards;
+}
+
+.info-card:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+.info-card:nth-child(3) {
+  animation-delay: 0.2s;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .doctor-content {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .doctor-info-container {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    text-align: center;
+  }
+
+  .doctor-image-container {
+    margin: -80px auto 0;
+  }
+
+  .doctor-info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .doctor-info-item {
+    justify-content: center;
+  }
+
+  .doctor-buttons {
     flex-direction: column;
     align-items: center;
-    background-color: #f9f9f9;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
+  }
+
+  .consult-button {
+    width: 100%;
+  }
+
+  .doctor-detail-container {
+    padding: 20px 15px;
+    gap: 20px;
+  }
+
+  .info-card-header,
+  .info-card-body {
+    padding: 15px 20px;
+  }
 }
 
-.map-container h3{
+@media (max-width: 480px) {
+  .doctor-header-bg {
+    padding: 15px 20px;
+  }
+
+  .doctor-image {
+    width: 120px;
+    height: 120px;
+  }
+
+  .doctor-image-container {
+    margin-top: -60px;
+  }
+
+  .doctor-details h2 {
+    font-size: 1.5rem;
     text-align: center;
-    font-size: 18px;
-    color: #555;
+  }
+
+  .doctor-info-container {
+    padding: 0 20px 30px;
+  }
 }
 
-.consultas-container h3{
-    text-align: center;
-    font-size: 18px;
-    color: #555;
-}
 
-.consultas-container ul {
-    list-style-position: inside; /* Asegura que el punto de la lista esté dentro */
-    padding-left: 0; /* Elimina el margen por defecto */
-}
-
-.consultas-container li {
-    margin-bottom: 10px; /* Añade espacio entre las consultas */
-    font-size: 1.1rem; /* Ajusta el tamaño del texto */
-    color: #333; /* Color de texto para mayor contraste */
-}
-
-.doctor-details p {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 1.1rem;
-    color: #333;
-    margin: 8px 0;
-    transition: transform 0.3s ease, opacity 0.3s ease;
-}
-
-.doctor-details p i {
-    color: #4CAF50; /* Verde para íconos */
-    font-size: 1.2rem;
-}
-
-.doctor-details p:hover {
-    transform: scale(1.05); /* Aumenta ligeramente el tamaño al pasar el mouse */
-    opacity: 0.9;
-}
-
-.doctor-info-container {
-    animation: fadeIn 1s ease;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(-20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.consultas-container, .doctor-biography-container {
-    animation: fadeIn 1.2s ease;
-}
-
-/* Ajustes generales para que los estilos sean responsivos */
-@media (max-width: 768px) {
-    .doctor-info-container {
-        flex-direction: column; /* Cambiar a disposición vertical */
-        align-items: center; /* Asegurar que los elementos estén centrados */
-    }
-
-    .doctor-image {
-        margin-right: 0; /* Eliminar el margen derecho en pantallas pequeñas */
-        margin-bottom: 15px; /* Añadir margen inferior para espacio */
-    }
-
-    .doctor-buttons {
-        flex-direction: column; /* Botones en una sola columna */
-        gap: 0px; /* Más espacio entre botones */
-        width: 100%; /* Asegurar que ocupen el ancho completo */
-    }
-
-    .doctor-biography-container,
-    .consultas-container {
-        max-width: 90%; /* Reducir el ancho en pantallas pequeñas */
-    }
-
-    .map-container {
-        max-width: 94.5%; /* Reducir el ancho en pantallas pequeñas */
-    }
-}
+  
+  
 
 /* Estilos para el modal */
 .modal-overlay {

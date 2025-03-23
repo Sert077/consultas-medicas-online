@@ -75,7 +75,7 @@ const Home = () => {
             </div>
             <h3 className="feature-title">Consulta Médica Online</h3>
             <p className="feature-description">
-              Conecta con médicos especialistas a través del chat. Recibe atención médica de calidad sin salir de
+              Conecta con médicos especialistas a través del chat o videollamada. Recibe atención médica de calidad sin salir de
               casa.
             </p>
           </div>
@@ -240,7 +240,7 @@ const Home = () => {
           Accede a atención médica de calidad desde cualquier lugar y en cualquier momento.
         </p>
         <Link to={isAuthenticated ? "/doctores" : "/login"} className="cta-button">
-          {isAuthenticated ? "Ver Médicos Disponibles" : "Crear Cuenta Gratis"}
+          {isAuthenticated ? "Ver Médicos Disponibles" : "Crear Cuenta"}
         </Link>
       </section>
     </div>

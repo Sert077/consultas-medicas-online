@@ -228,18 +228,33 @@ def send_email(request):
             subject = data.get('subject')
             message = data.get('message')
             recipient_list = data.get('recipient_list')
+            html_message = data.get('html_message')
 
-            send_mail(
+            email = EmailMultiAlternatives(
                 subject,
-                message,
-                'servesa07@gmail.com',  # Cambia esto por tu dirección de correo
+                message,  # Versión en texto plano
+                'servesa07@gmail.com',
                 recipient_list,
-                fail_silently=False,
             )
 
+            if html_message:
+                email.attach_alternative(html_message, "text/html")
+
+                # Ruta de la imagen del logo
+                logo_path = os.path.join(settings.MEDIA_ROOT, "profile_pictures/logos/logo1.png")
+
+                if os.path.exists(logo_path):
+                    with open(logo_path, 'rb') as logo_file:
+                        logo = MIMEImage(logo_file.read(), _subtype="png")
+                        logo.add_header('Content-ID', '<logo1>')  # Content-ID para el HTML
+                        logo.add_header('Content-Disposition', 'inline', filename="logo1.png")
+                        email.attach(logo)
+
+            email.send(fail_silently=False)
             return JsonResponse({'status': 'Email sent successfully'}, status=200)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
+
     return JsonResponse({'error': 'Invalid request method'}, status=400)
 
 
