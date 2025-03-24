@@ -140,7 +140,7 @@ const PacientesAtendidos = ({ userId = localStorage.getItem("paciente_id") }) =>
   return (
     <div className="pacientes-atendidos-container">
       <div className="pacientes-header">
-        <h2>Pacientes</h2>
+        <h2>Historial de Pacientes</h2>
         <div className="pacientes-actions">
           <div className="search-container">
             <FaSearch className="search-icon-pacientes" />
@@ -216,11 +216,11 @@ const PacientesAtendidos = ({ userId = localStorage.getItem("paciente_id") }) =>
                               {paciente.detalles.map((consulta, i) => (
                                 <tr key={i} className="consulta-row">
                                   <td>
-                                    <FaCalendarAlt className="consulta-icon" />
+                                    <FaCalendarAlt className="pacientes-icon" />
                                     {formatearFecha(consulta.fecha)}
                                   </td>
                                   <td>
-                                    <FaClipboardList className="consulta-icon" />
+                                    <FaClipboardList className="pacientes-icon" />
                                     <span className="consulta-motivo">{consulta.motivo_consulta}</span>
                                   </td>
                                   <td>

@@ -194,10 +194,11 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 47px;
-  
-  
+  max-width: 700px;
   margin-left: -42px;
-  margin-bottom: -25px;
+  margin-bottom: 25px;
+  height: 100%; /* Asegura que tenga el mismo alto */
+  max-height: 450px;
 }
 
 /* Estilos para las tarjetas de información */
@@ -282,8 +283,9 @@
 
 /* Biografía */
 .doctor-biography-container {
-  width: 100%;
-  height: 350px;
+  height: 100%; /* Asegura que tenga el mismo alto */
+  max-height: 450px;
+  overflow-y: auto; /* Habilita el scroll vertical */
 }
 
 .doctor-biography-container p {
@@ -296,7 +298,8 @@
 /* Consultas */
 .consultas-container {
   width: 100%;
-  height: 350px;
+  height: 100%; /* Asegura que tenga el mismo alto */
+  max-height: 450px;
 }
 
 .consultas-list {
@@ -305,7 +308,7 @@
   margin: 0;
   display: grid;
   gap: 10px;
-  max-height: 240px;
+  max-height: 320px;
   overflow-y: auto;
 }
 

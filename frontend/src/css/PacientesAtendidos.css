@@ -21,7 +21,7 @@
   .pacientes-header h2 {
     color: #4CAF50; /* Cambiado a color principal */
     margin: 0;
-    font-size: 1.8rem;
+    font-size: 1.5rem;
   }
   
   .pacientes-actions {
@@ -209,7 +209,7 @@
   }
   
   /* Iconos en consultas */
-  .consulta-icon {
+  .pacientes-icon {
     color: #6e55e0; /* Cambiado a color secundario más brillante */
     margin-right: 8px;
     font-size: 0.9rem;
@@ -344,7 +344,7 @@
       font-size: 0.8rem;
     }
   
-    .consulta-icon {
+    .pacientes-icon {
       display: none;
     }
   }

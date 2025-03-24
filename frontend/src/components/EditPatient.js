@@ -188,7 +188,7 @@ const EditPatient = () => {
                         />
                         )}
                     </div>
-                    <button type="submit">Actualizar Datos</button>
+                    <button type="submit" className='register-button'>Actualizar Datos</button>
                 </form>
             )}
         </div>

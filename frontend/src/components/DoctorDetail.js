@@ -816,7 +816,7 @@ const DoctorDetail = () => {
                                     onChange={handleMotivoConsultaChange}
                                     required
                                     className="input-field-motivo"
-                                    placeholder="Escriba el motivo de su consulta"
+                                    placeholder="Escriba el motivo o dolencias de su consulta"
                                 />
                                 <p className="char-count">{motivoConsulta.length}/150</p>
                             </div>

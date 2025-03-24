@@ -117,7 +117,7 @@ const Conocenos = () => {
                 pacientes con profesionales de la salud de manera rápida, segura y eficiente.
               </p>
               <p>
-                Nacimos con el propósito de democratizar el acceso a la salud, eliminando barreras geográficas y
+                Nacimos con el propósito de democratizar el acceso a la salud primeramente desde Cochabamba - Bolivia, eliminando barreras geográficas y
                 temporales para que todos puedan recibir atención médica de calidad cuando la necesiten.
               </p>
               <p>
