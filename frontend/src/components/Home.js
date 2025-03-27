@@ -137,7 +137,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Testimonials Section */}
+      {/* Testimonials Section 
       <section className="testimonials-section">
         <h2 className="section-title animate-on-scroll">Lo que dicen nuestros pacientes</h2>
         <div className="testimonials-container">
@@ -193,7 +193,7 @@ const Home = () => {
             </div>
           </div>
         </div>
-      </section>
+      </section>*/}
 
       {/* Reemplazamos la sección de testimonios por la sección para médicos */}
       <MedicosSection />
@@ -239,7 +239,7 @@ const Home = () => {
         <p className="cta-description">
           Accede a atención médica de calidad desde cualquier lugar y en cualquier momento.
         </p>
-        <Link to={isAuthenticated ? "/doctores" : "/login"} className="cta-button">
+        <Link to={isAuthenticated ? "/doctores" : "/register"} className="cta-button">
           {isAuthenticated ? "Ver Médicos Disponibles" : "Crear Cuenta"}
         </Link>
       </section>

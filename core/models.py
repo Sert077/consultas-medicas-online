@@ -54,6 +54,9 @@ class Consulta(models.Model):
         default='virtual'
     )
     embarazo = models.BooleanField(null=True, blank=True)
+    enfermedad_base = models.TextField(null=True, blank=True)  # Enfermedades base del paciente
+    medicacion = models.TextField(null=True, blank=True)  # Medicación actual del paciente
+    cirugias = models.TextField(null=True, blank=True)  # Cirugías previas del paciente
     archivo_pdf = models.FileField(upload_to='profile_pictures/pdf_adjunt_consultas/', null=True, blank=True)
     token_reprogramacion = models.UUIDField(default=uuid.uuid4, unique=True, null=True, blank=True)
     

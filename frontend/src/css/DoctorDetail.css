@@ -95,7 +95,7 @@
 }
 
 .doctor-details {
-  padding-top: 80px;
+  padding-top: 150px;
 }
 
 .doctor-details h2 {
@@ -680,7 +680,7 @@
     transition: background-color 0.3s ease;
   }
   
-  .button.cancelar-seleccion:hover {
+  .button.cancelar-seleccionado:hover {
     background-color: #bcbcbc;
   }
   
@@ -745,7 +745,7 @@
     justify-content: center; /* Centrar horizontalmente */
     align-items: center; /* Centrar verticalmente */
     gap: 10px; /* Espacio entre los botones */
-    margin-bottom: -15px;
+    margin-bottom: 25px;
 }
 
 .button.reservar {
@@ -759,6 +759,7 @@
     font-size: 1rem;
     transition: background-color 0.3s ease;
     box-sizing: border-box;
+    margin-bottom: 15px;
 }
 
 .button.close-modal {
@@ -772,6 +773,7 @@
     font-size: 1rem;
     transition: background-color 0.3s ease;
     box-sizing: border-box;
+    margin-bottom: 15px;
 }
 
 .button:hover {

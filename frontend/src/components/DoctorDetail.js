@@ -26,6 +26,12 @@ const DoctorDetail = () => {
     const [reservaError, setReservaError] = useState('');
     const [archivoPdf, setArchivoPdf] = useState(null);
     const [loadingReserva, setLoadingReserva] = useState(false);
+    const [tieneEnfermedadBase, setTieneEnfermedadBase] = useState(false);
+    const [descripcionEnfermedad, setDescripcionEnfermedad] = useState("");
+    const [tomaMedicacion, setTomaMedicacion] = useState(false);
+    const [descripcionMedicacion, setDescripcionMedicacion] = useState("");
+    const [tuvoCirugia, setTuvoCirugia] = useState(false);
+    const [descripcionCirugia, setDescripcionCirugia] = useState("");
     const [direccionReal, setDireccionReal] = useState('Cargando dirección...');
 
     useEffect(() => {
@@ -100,6 +106,12 @@ const DoctorDetail = () => {
         setFechaError("");
         setHoraError("");
         setReservaError("");
+        setTieneEnfermedadBase(false);
+        setDescripcionEnfermedad("");
+        setTomaMedicacion(false);
+        setDescripcionMedicacion("");
+        setTuvoCirugia(false);
+        setDescripcionCirugia("");
     };    
 
     const handleReserva = (e) => {
@@ -143,6 +155,9 @@ const DoctorDetail = () => {
         formData.append('tipo_sangre', tipoSangre);
         formData.append('alergias', tieneAlergias ? descripcionAlergia : "no");
         formData.append('embarazo', genero === "F" ? estaEmbarazada : null);
+        formData.append('enfermedad_base', tieneEnfermedadBase ? descripcionEnfermedad : "no");
+        formData.append('medicacion', tomaMedicacion ? descripcionMedicacion : "no");
+        formData.append('cirugia', tuvoCirugia ? descripcionCirugia : "no");
 
         if (archivoPdf) {
             formData.append('archivo_pdf', archivoPdf);
@@ -804,6 +819,159 @@ const DoctorDetail = () => {
                                 </div>
                             )}
                         </div>
+
+                        <div>
+    <label htmlFor="tiene-enfermedad" className="modal-label-alergias">
+        ¿Tiene una enfermedad de base?<span style={{ color: 'red', marginLeft: '3px' }}>*</span>
+    </label>
+    <div className="input-field alergias-input-field">
+        <label>
+            <input
+                type="radio"
+                name="tiene-enfermedad"
+                value="Sí"
+                checked={tieneEnfermedadBase === true}
+                onChange={() => setTieneEnfermedadBase(true)}
+                className="radio-alergias"
+            />
+            Sí
+        </label>
+        <label>
+            <input
+                type="radio"
+                name="tiene-enfermedad"
+                value="No"
+                checked={tieneEnfermedadBase === false}
+                onChange={() => {
+                    setTieneEnfermedadBase(false);
+                    setDescripcionEnfermedad('');
+                }}
+                className="radio-alergias"
+            />
+            No
+        </label>
+    </div>
+    {tieneEnfermedadBase && (
+        <div>
+            <label htmlFor="descripcion-enfermedad" className="modal-label-alergias">
+                Describa su enfermedad de base:<span style={{ color: 'red' }}>*</span>
+            </label>
+            <div className="textarea-container">
+                <textarea
+                    id="descripcion-enfermedad"
+                    value={descripcionEnfermedad}
+                    onChange={(e) => setDescripcionEnfermedad(e.target.value)}
+                    className="input-field alergias-textarea"
+                    placeholder="Describa su enfermedad"
+                    required
+                ></textarea>
+                <p className="char-count">{descripcionEnfermedad.length}/100</p>
+            </div>
+        </div>
+    )}
+</div>
+
+<div>
+    <label htmlFor="toma-medicacion" className="modal-label-alergias">
+        ¿Actualmente toma medicación?<span style={{ color: 'red', marginLeft: '3px' }}>*</span>
+    </label>
+    <div className="input-field alergias-input-field">
+        <label>
+            <input
+                type="radio"
+                name="toma-medicacion"
+                value="Sí"
+                checked={tomaMedicacion === true}
+                onChange={() => setTomaMedicacion(true)}
+                className="radio-alergias"
+            />
+            Sí
+        </label>
+        <label>
+            <input
+                type="radio"
+                name="toma-medicacion"
+                value="No"
+                checked={tomaMedicacion === false}
+                onChange={() => {
+                    setTomaMedicacion(false);
+                    setDescripcionMedicacion('');
+                }}
+                className="radio-alergias"
+            />
+            No
+        </label>
+    </div>
+    {tomaMedicacion && (
+        <div>
+            <label htmlFor="descripcion-medicacion" className="modal-label-alergias">
+                Describa la medicación que está tomando:<span style={{ color: 'red' }}>*</span>
+            </label>
+            <div className="textarea-container">
+                <textarea
+                    id="descripcion-medicacion"
+                    value={descripcionMedicacion}
+                    onChange={(e) => setDescripcionMedicacion(e.target.value)}
+                    className="input-field alergias-textarea"
+                    placeholder="Describa la medicación"
+                    required
+                ></textarea>
+                <p className="char-count">{descripcionMedicacion.length}/100</p>
+            </div>
+        </div>
+    )}
+</div>
+<div>
+    <label htmlFor="tuvo-cirugia" className="modal-label-alergias">
+        ¿Tuvo alguna cirugía?<span style={{ color: 'red', marginLeft: '3px' }}>*</span>
+    </label>
+    <div className="input-field alergias-input-field">
+        <label>
+            <input
+                type="radio"
+                name="tuvo-cirugia"
+                value="Sí"
+                checked={tuvoCirugia === true}
+                onChange={() => setTuvoCirugia(true)}
+                className="radio-alergias"
+            />
+            Sí
+        </label>
+        <label>
+            <input
+                type="radio"
+                name="tuvo-cirugia"
+                value="No"
+                checked={tuvoCirugia === false}
+                onChange={() => {
+                    setTuvoCirugia(false);
+                    setDescripcionCirugia('');
+                }}
+                className="radio-alergias"
+            />
+            No
+        </label>
+    </div>
+    {tuvoCirugia && (
+        <div>
+            <label htmlFor="descripcion-cirugia" className="modal-label-alergias">
+                Describa la cirugía que tuvo:<span style={{ color: 'red' }}>*</span>
+            </label>
+            <div className="textarea-container">
+                <textarea
+                    id="descripcion-cirugia"
+                    value={descripcionCirugia}
+                    onChange={(e) => setDescripcionCirugia(e.target.value)}
+                    className="input-field alergias-textarea"
+                    placeholder="Describa la cirugía"
+                    required
+                ></textarea>
+                <p className="char-count">{descripcionCirugia.length}/100</p>
+            </div>
+        </div>
+    )}
+</div>
+
 
                         <div>
                             <label htmlFor="motivo-consulta" className="modal-label-motivo">

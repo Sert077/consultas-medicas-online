@@ -108,6 +108,7 @@ Esto debería resolver el problema y permitir que el token sea generado correcta
 para chat websockets:
 
 Instalar redis-server windows https://github.com/microsoftarchive/redis/releases
+https://redis.io/docs/latest/operate/oss_and_stack/install/install-redis/install-redis-on-windows/
 
 pip install channels
 pip install channels channels_redis

@@ -161,7 +161,7 @@ footer {
   display: flex;
   flex-wrap: wrap;
   gap: 0.4rem;
-  margin-bottom: -15px;
+  margin-bottom: 10px;
 }
 
 .day-button-custom {
@@ -173,7 +173,7 @@ footer {
   font-size: 11px;
   cursor: pointer;
   transition: background-color 0.3s, color 0.3s;
-  margin-top: 15px;
+  margin-top: 20px;
 }
 
 .day-button:hover {
@@ -292,7 +292,7 @@ footer {
   margin-left: 10px;
   margin-bottom: 0px;
   border-radius: 6px;
-  padding: 9px 12px;
+  padding: 8.5px 12px;
 }
 
 .suggestions {

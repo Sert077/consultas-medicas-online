@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
 import "../css/HeroSection.css"
+import { use } from "react"
 
 // Imágenes para el carrusel (reemplaza estas URLs con tus propias imágenes)
 const carouselImages = [
@@ -15,11 +16,17 @@ const carouselImages = [
 const HeroSection = () => {
   const [currentImage, setCurrentImage] = useState(0)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const userType = localStorage.getItem("tipo_usuario");
 
   // Verificar si hay un token en el localStorage
   useEffect(() => {
     const token = localStorage.getItem("token")
     setIsAuthenticated(!!token) // Si hay token, isAuthenticated será true
+  }, [])
+
+ useEffect(() => {
+    const userType = localStorage.getItem("tipo_usuario");
+    console.log(userType);
   }, [])
 
   // Cambiar imagen automáticamente cada 5 segundos
@@ -77,9 +84,11 @@ const HeroSection = () => {
           <h1 className="hero-title">Meditest, Consultas Médicas Online</h1>
           <p className="hero-subtitle">Atención médica de calidad desde la comodidad de tu hogar</p>
           <div className="hero-buttons">
-            <Link to="/doctores" className="hero-button primary">
-             Consulta un Médico
+           
+            <Link to={isAuthenticated && userType === "medico" ? "/pacientes": "/doctores"} className="hero-button primary">
+            {isAuthenticated ? "Mis Pacientes" : "Consulta un Médico"}
             </Link>
+            
             <Link to={isAuthenticated ? "/misreservas" : "/conocenos"} className="hero-button secondary">
               {isAuthenticated ? "Mis Consultas" : "¿Eres Médico?"}
             </Link>

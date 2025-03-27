@@ -756,6 +756,9 @@ const openCamera = (inputRef, captureMode) => {
                     >
                       <FaCamera /> Usar Cámara
                     </button>
+                    <div className="selfie-info">
+                      <FaInfoCircle /> Por favor no use filtros en las imágenes de la cédula
+                    </div>
                   </div>
                 )}
               </div>
@@ -809,6 +812,9 @@ const openCamera = (inputRef, captureMode) => {
                     >
                       <FaCamera /> Usar Cámara
                     </button>
+                    <div className="selfie-info">
+                      <FaInfoCircle /> Por favor no use filtros en las imágenes de la cédula 
+                    </div>
                   </div>
                 )}
               </div>

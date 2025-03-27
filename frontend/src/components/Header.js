@@ -139,13 +139,15 @@ const Header = () => {
                             Home
                         </Link>
                     </li>
+                    { userType != "medico" && (
                     <li>
                         <Link to="/doctores">
                             <IconStethoscope className="icon" />
                             Médicos
                         </Link>
                     </li>
-    
+                    )}
+
                     {isLoggedIn && (
                         <li>
                             <Link to="/misreservas">
@@ -164,13 +166,6 @@ const Header = () => {
                         </li>
                     )}
 
-                    <li>
-                        <Link to="/conocenos" className="disabled">
-                            <IconHelpCircle className="icon-help" />
-                            Conoce más!
-                        </Link>
-                    </li>
-    
                     {isSuperUser && (
                         <li>
                             <Link to="/registerdoctor">
@@ -188,6 +183,12 @@ const Header = () => {
                             </Link>
                         </li>
                     )}
+                    <li>
+                        <Link to="/conocenos" className="disabled">
+                            <IconHelpCircle className="icon-help" />
+                            Conoce más!
+                        </Link>
+                    </li>
                     {isLoggedIn ? (
                         <li className="user-menu" ref={dropdownRef}>
                             <div onClick={toggleDropdown} className="user-info">

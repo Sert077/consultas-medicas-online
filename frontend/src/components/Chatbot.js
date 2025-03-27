@@ -34,6 +34,10 @@ const Chatbot = () => {
     if (
         location.pathname === "/" || 
         location.pathname === "/login" || 
+        location.pathname === "/conocenos" || 
+        location.pathname === "/edit-patient" || 
+        location.pathname === "/misreservas" || 
+        location.pathname === "/pacientes" ||
         location.pathname.startsWith("/register") || 
         location.pathname.startsWith("/chat") ||
         location.pathname.startsWith("/historial-consultas") || 

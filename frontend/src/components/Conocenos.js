@@ -331,7 +331,7 @@ const Conocenos = () => {
           Accede a atención médica de calidad desde cualquier lugar y en cualquier momento.
         </p>
         <Link to={isAuthenticated ? "/doctores" : "/login"} className="cta-button">
-          {isAuthenticated ? "Ver Médicos Disponibles" : "Crear Cuenta Gratis"}
+          {isAuthenticated ? "Ver Médicos Disponibles" : "Iniciar Sesión"}
         </Link>
       </section>
     </div>
