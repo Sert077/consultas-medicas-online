@@ -1,14 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FaCalendarAlt, FaClock, FaUserMd, FaHashtag, FaArrowLeft, FaArrowRight, FaUser,
-    FaClipboardList,
-    FaVenusMars,
-    FaTint,
-    FaAllergies,
-    FaBirthdayCake,
-    FaStethoscope,
-    FaBaby,
-    FaFilePdf,
-    FaTimes, } from 'react-icons/fa';
+        FaClipboardList, FaVenusMars, FaTint, FaAllergies, FaBirthdayCake, FaStethoscope, FaBaby,
+        FaFilePdf, FaTimes, FaDisease, FaPills, FaProcedures, FaHeartbeat } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { FaFileDownload } from 'react-icons/fa';
 import DatePicker from 'react-datepicker';
@@ -543,13 +536,13 @@ const MisReservas = () => {
                                                 </div>
                                             </div>
 
-                                            {consultaSeleccionada.embarazo !== null && (
+                                            {consultaSeleccionada.genero === "F" && consultaSeleccionada.embarazo !== null && (
                                                 <div className="historia-info-item">
-                                                <FaBaby className="historia-icon" />
-                                                <div>
-                                                    <span className="historia-label">Embarazo:</span>
-                                                    <span className="historia-value">{consultaSeleccionada.embarazo ? "Sí" : "No"}</span>
-                                                </div>
+                                                    <FaBaby className="historia-icon" />
+                                                    <div>
+                                                        <span className="historia-label">Embarazo:</span>
+                                                        <span className="historia-value">{consultaSeleccionada.embarazo ? "Sí" : "No"}</span>
+                                                    </div>
                                                 </div>
                                             )}
 
@@ -559,6 +552,30 @@ const MisReservas = () => {
                                                 <span className="historia-label">Alergias:</span>
                                                 <span className="historia-value">{consultaSeleccionada.alergias || "Ninguna"}</span>
                                                 </div>
+                                            </div>
+
+                                            <div className="historia-info-item">
+                                            <FaHeartbeat className="historia-icon" /> 
+                                            <div>
+                                                <span className="historia-label">Enfermedad de Base:</span>
+                                                <span className="historia-value">{consultaSeleccionada.enfermedad_base}</span>
+                                            </div>
+                                            </div>
+
+                                            <div className="historia-info-item">
+                                            <FaPills className="historia-icon" /> 
+                                            <div>
+                                                <span className="historia-label">Medicacion Actual:</span>
+                                                <span className="historia-value">{consultaSeleccionada.medicacion}</span>
+                                            </div>
+                                            </div>
+
+                                            <div className="historia-info-item">
+                                            <FaProcedures className="historia-icon" /> 
+                                            <div>
+                                                <span className="historia-label">Cirugías Previas:</span>
+                                                <span className="historia-value">{consultaSeleccionada.cirugia}</span>
+                                            </div>
                                             </div>
                                             </div>
 

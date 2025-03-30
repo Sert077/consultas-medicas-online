@@ -165,3 +165,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 MEDIA_URL = '/profile_pictures/'
 MEDIA_ROOT = os.path.join(BASE_DIR, '')
+
+# Url frontend
+FRONTEND_URL = 'http://localhost:3000/'  # Cambia esto si tu frontend está en otro lugar

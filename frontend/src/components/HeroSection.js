@@ -16,7 +16,7 @@ const carouselImages = [
 const HeroSection = () => {
   const [currentImage, setCurrentImage] = useState(0)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const userType = localStorage.getItem("tipo_usuario");
+  const [userType, setUserType] = useState("");
 
   // Verificar si hay un token en el localStorage
   useEffect(() => {
@@ -24,10 +24,13 @@ const HeroSection = () => {
     setIsAuthenticated(!!token) // Si hay token, isAuthenticated será true
   }, [])
 
- useEffect(() => {
-    const userType = localStorage.getItem("tipo_usuario");
-    console.log(userType);
-  }, [])
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    setIsAuthenticated(!!token); // Si hay token, isAuthenticated será true
+  
+    const storedUserType = localStorage.getItem("tipo_usuario");
+    setUserType(storedUserType);
+  }, []);
 
   // Cambiar imagen automáticamente cada 5 segundos
   useEffect(() => {
@@ -85,9 +88,12 @@ const HeroSection = () => {
           <p className="hero-subtitle">Atención médica de calidad desde la comodidad de tu hogar</p>
           <div className="hero-buttons">
            
-            <Link to={isAuthenticated && userType === "medico" ? "/pacientes": "/doctores"} className="hero-button primary">
-            {isAuthenticated ? "Mis Pacientes" : "Consulta un Médico"}
-            </Link>
+          <Link 
+    to={isAuthenticated && userType === "medico" ? "/pacientes" : "/doctores"} 
+    className="hero-button primary"
+  >
+    {isAuthenticated && userType === "medico" ? "Mis Pacientes" : "Consulta un Médico"}
+  </Link>
             
             <Link to={isAuthenticated ? "/misreservas" : "/conocenos"} className="hero-button secondary">
               {isAuthenticated ? "Mis Consultas" : "¿Eres Médico?"}

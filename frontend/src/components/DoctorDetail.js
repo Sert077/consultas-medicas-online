@@ -873,7 +873,7 @@ const DoctorDetail = () => {
 
 <div>
     <label htmlFor="toma-medicacion" className="modal-label-alergias">
-        ¿Actualmente toma medicación?<span style={{ color: 'red', marginLeft: '3px' }}>*</span>
+        ¿Actualmente toma medicamentos?<span style={{ color: 'red', marginLeft: '3px' }}>*</span>
     </label>
     <div className="input-field alergias-input-field">
         <label>

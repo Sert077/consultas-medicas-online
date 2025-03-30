@@ -59,6 +59,11 @@ from django.utils.timezone import now
 from django.core.mail import EmailMultiAlternatives 
 from email.mime.image import MIMEImage
 
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
+from django.views.decorators.http import require_POST
+
 # API para crear un nuevo médico
 @api_view(['POST'])
 def create_doctor(request):
@@ -322,6 +327,9 @@ def consultas_medico(request, user_id):
                 "edad": consulta.edad,
                 "genero": consulta.genero,
                 "motivo_consulta": consulta.motivo_consulta,
+                "medicacion": consulta.medicacion,
+                "cirugia": consulta.cirugia,    
+                "enfermedad_base": consulta.enfermedad_base
             })
 
         return JsonResponse(consultas_data, safe=False)
@@ -1166,3 +1174,174 @@ def enviar_solicitud_medico(request):
 
     return JsonResponse({"success": False, "error": "Método no permitido"}, status=405)
 
+@csrf_exempt
+@require_POST
+def request_password_reset(request):
+    """
+    Vista para solicitar un restablecimiento de contraseña.
+    Envía un correo electrónico con un enlace para restablecer la contraseña.
+    """
+    try:
+        data = json.loads(request.body)
+        email = data.get('email')
+        
+        if not email:
+            return JsonResponse({'error': 'El correo electrónico es requerido'}, status=400)
+        
+        # Verificar si el usuario existe
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return JsonResponse({'error': 'No existe una cuenta con este correo electrónico'}, status=404)
+        
+        # Generar token único para este usuario
+        token = default_token_generator.make_token(user)
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+        
+        # Construir URL para restablecer contraseña
+        reset_url = f"{settings.FRONTEND_URL}reset-password/{uid}/{token}/"
+        
+        # Ruta de la imagen del logo
+        logo_path = os.path.join(settings.MEDIA_ROOT, "profile_pictures/logos/logo1.png")
+        
+        # Estructura del correo en HTML
+        message_html = f"""
+        <html>
+        <head>
+            <style>
+                .email-container {{
+                    font-family: Arial, sans-serif;
+                    max-width: 800px;
+                    margin: 0 auto;
+                    border: 1px solid #ddd;
+                    border-radius: 8px;
+                    overflow: hidden;
+                    box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.1);
+                }}
+                .email-header {{
+                    background: linear-gradient(135deg, #392682 55%, #28ADA8 100%);
+                    color: white;
+                    text-align: center;
+                    padding: 20px;
+                }}
+                .email-header img {{
+                    max-width: 120px;
+                }}
+                .email-body {{
+                    padding: 20px;
+                    color: #333;
+                }}
+                .email-body h2 {{
+                    color: #392682;
+                }}
+                .reset-button {{
+                    display: inline-block;
+                    background-color: #4e4ab7;
+                    color: white;
+                    text-align: center;
+                    border-radius: 6px;
+                    padding: 12px 24px;
+                    border-radius: 6px;
+                    margin: 20px 0;
+                }}
+                .reset-button:hover {{
+                    background-color: #3f3c93;
+                }}
+                .email-footer {{
+                    background: #f1f1f1;
+                    padding: 15px;
+                    text-align: center;
+                    font-size: 12px;
+                    color: #666;
+                }}
+            </style>
+        </head>
+        <body>
+            <div class="email-container">
+                <div class="email-header">
+                    <img src="cid:logo_meditest" alt="MediTest Logo">
+                </div>
+                <div class="email-body">
+                    <h2>Restablecimiento de Contraseña</h2>
+                    <p>Hola <strong>{user.first_name}</strong>,</p>
+                    <p>Hemos recibido una solicitud para restablecer la contraseña de tu cuenta en MediTest.</p>
+                    <p>Para continuar con el proceso, haz clic en el siguiente botón:</p>
+                    <p style="text-align: center;">
+                        <a href="{reset_url}" class="reset-button">Restablecer Contraseña</a>
+                    </p>
+                    <p>Si no solicitaste este cambio, puedes ignorar este correo y tu contraseña seguirá siendo la misma.</p>
+                    <p>Este enlace expirará en 24 horas por motivos de seguridad.</p>
+                    <p>Atentamente,<br><strong>Equipo de MediTest</strong></p>
+                </div>
+                <div class="email-footer">
+                    © 2025 MediTest. Todos los derechos reservados.
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+        
+        # Crear el correo en formato HTML usando EmailMultiAlternatives
+        email_message = EmailMultiAlternatives(
+            subject="Restablecimiento de Contraseña - MediTest",
+            body="Este es un correo en formato HTML. Si ves esto, tu cliente de correo no soporta HTML.",
+            from_email='servesa07@gmail.com',
+            to=[email]
+        )
+        email_message.attach_alternative(message_html, "text/html")
+        
+        # Adjuntar el logo con una Content ID (cid)
+        if os.path.exists(logo_path):
+            with open(logo_path, 'rb') as f:
+                logo_data = f.read()
+                logo_mime = MIMEImage(logo_data)
+                logo_mime.add_header('Content-ID', '<logo_meditest>')
+                logo_mime.add_header('Content-Disposition', 'inline', filename='logo1.png')
+                email_message.attach(logo_mime)
+        
+        # Enviar el correo
+        email_message.send()
+        
+        return JsonResponse({'success': True, 'message': 'Se ha enviado un correo electrónico con instrucciones para restablecer tu contraseña'})
+    
+    except Exception as e:
+        print(f"Error en request_password_reset: {e}")
+        return JsonResponse({'error': str(e)}, status=500)
+
+@csrf_exempt
+@require_POST
+def reset_password_confirm(request):
+    """
+    Vista para confirmar el restablecimiento de contraseña.
+    Verifica el token y establece la nueva contraseña.
+    """
+    try:
+        data = json.loads(request.body)
+        uid = data.get('uid')
+        token = data.get('token')
+        new_password = data.get('new_password')
+        
+        if not (uid and token and new_password):
+            return JsonResponse({'error': 'Todos los campos son requeridos'}, status=400)
+        
+        try:
+            # Decodificar el uid para obtener el ID del usuario
+            user_id = force_str(urlsafe_base64_decode(uid))
+            user = User.objects.get(pk=user_id)
+            
+            # Verificar que el token sea válido
+            if not default_token_generator.check_token(user, token):
+                return JsonResponse({'error': 'El enlace de restablecimiento no es válido o ha expirado'}, status=400)
+            
+            # Establecer la nueva contraseña
+            user.set_password(new_password)
+            user.save()
+            
+            return JsonResponse({'success': True, 'message': 'Tu contraseña ha sido restablecida con éxito'})
+            
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            return JsonResponse({'error': 'El enlace de restablecimiento no es válido'}, status=400)
+    
+    except Exception as e:
+        print(f"Error en reset_password_confirm: {e}")
+        return JsonResponse({'error': str(e)}, status=500)

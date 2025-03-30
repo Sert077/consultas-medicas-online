@@ -45,6 +45,7 @@ import ReprogramarConsulta from './components/ReprogramarConsulta';
 import Conocenos from "./components/Conocenos"
 import MediTestLogoOptions from './components/meditest-logo-vanilla';
 import PacientesAtendidos from './components/PacientesAtendidos';
+import ResetPassword from './components/ResetPassword';
 
 function App() {
     return (
@@ -69,6 +70,8 @@ function App() {
                     <Route path="/reprogramar/:token" element={<ReprogramarConsulta />} />
                     <Route path="/pacientes" element={<PacientesAtendidos />} />
                     <Route path="/meditest-logo" element={<MediTestLogoOptions />} />
+                    <Route path="/reset-password/:uid/:token" element={<ResetPassword />} />
+                    {/* Puedes agregar más rutas aquí */}
                 </Routes>
                 <Footer />
                 <Chatbot /> {/* Agregar chatbot debajo del footer */}

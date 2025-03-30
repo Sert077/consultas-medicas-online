@@ -5,6 +5,7 @@ from . import views
 from .views import send_email
 from .views import get_chat_messages, get_doctor_by_chat, consulta_detail, user_detail, patient_profile, upload_pdf, get_pdfs
 from .views import VerifyEmailView, GenerarRecetaView, get_authenticated_doctor, cancelar_consultas, reprogramar_consulta, enviar_solicitud_medico
+from .views import request_password_reset, reset_password_confirm
 
 urlpatterns = [
     # Rutas comentadas, puedes descomentarlas si las necesitas
@@ -51,5 +52,7 @@ urlpatterns = [
     path('consultas/cancelar/', cancelar_consultas, name='cancelar_consultas'),
     path("consultas/reprogramar/<uuid:token>/", reprogramar_consulta, name="reprogramar_consulta"),
     path('enviar-solicitud-medico/', enviar_solicitud_medico, name='enviar_solicitud_medico'),
+    path('patient/request-password-reset/', request_password_reset, name='request_password_reset'),
+    path('patient/reset-password-confirm/', reset_password_confirm, name='reset_password_confirm'),
 
 ]
