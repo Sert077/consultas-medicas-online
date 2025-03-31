@@ -77,7 +77,7 @@ const ResetPassword = () => {
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="reset-password-form">
-            <div className="form-group">
+            <div className="form-group-reset-password">
               <label htmlFor="new-password">
                 <i className="fas fa-lock"></i> Nueva Contraseña
               </label>
@@ -91,7 +91,7 @@ const ResetPassword = () => {
               />
             </div>
 
-            <div className="form-group">
+            <div className="form-group-reset-password">
               <label htmlFor="confirm-password">
                 <i className="fas fa-lock"></i> Confirmar Contraseña
               </label>

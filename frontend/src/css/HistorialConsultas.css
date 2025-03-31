@@ -15,6 +15,25 @@
     margin-bottom: 20px;
 }
 
+.input-container-historial {
+  position: relative;
+  display: inline-block;
+}
+
+.input-container-historial input {
+  padding-right: 30px; /* Espacio para el ícono */
+}
+
+.icono-lupa {
+  position: absolute;
+    top: 62%;
+    right: 20px;
+    transform: translateY(-50%);
+    font-size: 18px;
+    color: #888;
+    pointer-events: none;
+}
+
 .filtros {
   display: flex;
   flex-wrap: wrap;

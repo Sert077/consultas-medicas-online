@@ -59,12 +59,16 @@ const HistorialConsultas = () => {
 
         {/* Filtros */}
         <div className="filtros">
-          <input 
-            type="text" 
-            placeholder="Buscar..." 
-            value={busqueda} 
-            onChange={(e) => setBusqueda(e.target.value)} 
-          />
+        <div className="input-container-historial">
+  <input 
+    type="text" 
+    placeholder="Buscar..." 
+    value={busqueda} 
+    onChange={(e) => setBusqueda(e.target.value)} 
+  />
+  <span className="icono-lupa"><i className="fas fa-search"></i></span>
+</div>
+
           <label>Fecha inicial:</label><input 
             type="date" 
             value={fechaInicio} 
