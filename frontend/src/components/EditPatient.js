@@ -24,7 +24,7 @@ const EditPatient = () => {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Token ${token}`,
+                         Authorization: `Bearer ${token}`,
                     },
                 });
     
@@ -80,7 +80,7 @@ const EditPatient = () => {
             const response = await fetch('http://localhost:8000/api/patient/profile/', {
                 method: 'PUT',
                 headers: {
-                    'Authorization': `Token ${token}`,
+                   Authorization: `Bearer ${token}`,
                 },
                 body: formData,
             });
@@ -125,7 +125,7 @@ const EditPatient = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Token ${token}`,
+           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ email }),
       })

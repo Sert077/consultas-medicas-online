@@ -16,6 +16,7 @@ from .models import Consulta
 from .serializers import ConsultaSerializer, RecetaSerializer
 from .serializers import UserRegistrationSerializer
 from rest_framework.authtoken.models import Token
+from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import AllowAny
 from rest_framework.exceptions import ValidationError
 from django.contrib.auth.models import User
@@ -63,6 +64,8 @@ from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.views.decorators.http import require_POST
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.decorators import authentication_classes
 
 # API para crear un nuevo médico
 @api_view(['POST'])
@@ -172,13 +175,16 @@ def login_user(request):
     user = authenticate(username=username, password=password)
 
     if user is not None:
-        # Generar o recuperar el token del usuario
-        token, created = Token.objects.get_or_create(user=user)
+        # Generar tokens JWT
+        refresh = RefreshToken.for_user(user)
+        access_token = str(refresh.access_token)
+        refresh_token = str(refresh)
 
+        # Si es superusuario, devolver datos sin tipo_usuario
         if user.is_superuser:
-            # Si es superuser, no necesitamos 'tipo_usuario'
             return Response({
-                'token': token.key,
+                'token': access_token,
+                'refresh_token': refresh_token,
                 'username': user.username,
                 'id': user.id,
                 'is_superuser': user.is_superuser,
@@ -187,24 +193,24 @@ def login_user(request):
                 'email': user.email,
             })
 
-        # Para usuarios normales, intentar obtener el perfil
+        # Para usuarios normales, obtener perfil
         try:
-            perfil = user.perfil  # Ajusta esto si el atributo tiene otro nombre
+            perfil = user.perfil  # Si el usuario tiene perfil asociado
             tipo_usuario = perfil.tipo_usuario
             birthdate = perfil.birthdate
 
-            # Verificar si es paciente y si está verificado
+            # Si es paciente, verificar su cuenta
             if tipo_usuario == 'paciente' and not perfil.verificado:
                 return Response(
                     {'error': 'Por favor, verifica tu correo antes de iniciar sesión.'},
-                    status=403  # Forbidden
+                    status=403
                 )
         except AttributeError:
-            # En caso de que no tenga perfil
             return Response({'error': 'El usuario no tiene un perfil asociado.'}, status=400)
 
         return Response({
-            'token': token.key,
+            'token': access_token,
+            'refresh_token': refresh_token,
             'username': user.username,
             'id': user.id,
             'is_superuser': user.is_superuser,
@@ -216,7 +222,6 @@ def login_user(request):
         })
 
     return Response({'error': 'No se encontró el usuario o la contraseña es incorrecta'}, status=400)
-
 
 @api_view(['GET'])
 def consultas_doctor(request, doctor_id):
@@ -428,24 +433,22 @@ class VerifyEmailView(APIView):
         
 
 @api_view(['GET', 'PUT'])
+@authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
 def patient_profile(request):
     if request.method == 'GET':
-        # Serializar al usuario con los datos de perfil
         user_serializer = UserSerializer(request.user)
         return Response(user_serializer.data)
 
     elif request.method == 'PUT':
-        # Serializar al usuario para actualizar datos del perfil
         user_serializer = UserSerializer(request.user, data=request.data, partial=True)
-        perfil_serializer = PerfilSerializer(request.user.perfil, data=request.data, partial=True)  # Actualizamos el perfil
+        perfil_serializer = PerfilSerializer(request.user.perfil, data=request.data, partial=True)
 
         if user_serializer.is_valid() and perfil_serializer.is_valid():
             user_serializer.save()
-            perfil_serializer.save()  # Guardamos los cambios en el perfil
+            perfil_serializer.save()
             return Response({"message": "Datos actualizados con éxito"})
         
-        # Si no es válido, respondemos con el error
         return Response(user_serializer.errors, status=400)
     
 
@@ -882,12 +885,15 @@ def generar_reporte(request):
 
 
 @api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
 def get_authenticated_doctor(request):
-    if request.user.is_authenticated and hasattr(request.user, 'doctor'):
+    if hasattr(request.user, 'doctor'):
         doctor = request.user.doctor
         serializer = DoctorSerializer(doctor)
         return Response(serializer.data)
     return Response({'detail': 'Usuario no autorizado'}, status=401)
+
 
 @api_view(['POST'])
 @parser_classes([MultiPartParser, FormParser])

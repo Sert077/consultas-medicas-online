@@ -17,6 +17,8 @@ pip install django-cors-headers
 
 para login de usuarios con token
 
+pip install djangorestframework-simplejwt
+
 El error `AttributeError: type object 'Token' has no attribute 'objects'` indica que Django no está encontrando correctamente el modelo `Token`. Esto suele ocurrir cuando la aplicación no está configurada para usar `TokenAuthentication`.
 
 ### Solución:

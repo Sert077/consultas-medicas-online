@@ -6,6 +6,7 @@ from .views import send_email
 from .views import get_chat_messages, get_doctor_by_chat, consulta_detail, user_detail, patient_profile, upload_pdf, get_pdfs
 from .views import VerifyEmailView, GenerarRecetaView, get_authenticated_doctor, cancelar_consultas, reprogramar_consulta, enviar_solicitud_medico
 from .views import request_password_reset, reset_password_confirm
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 urlpatterns = [
     # Rutas comentadas, puedes descomentarlas si las necesitas
@@ -54,5 +55,7 @@ urlpatterns = [
     path('enviar-solicitud-medico/', enviar_solicitud_medico, name='enviar_solicitud_medico'),
     path('patient/request-password-reset/', request_password_reset, name='request_password_reset'),
     path('patient/reset-password-confirm/', reset_password_confirm, name='reset_password_confirm'),
+    path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),  # Login con JWT
+    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 
 ]

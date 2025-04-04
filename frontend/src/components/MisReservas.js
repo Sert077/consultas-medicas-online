@@ -101,7 +101,7 @@ const MisReservas = () => {
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
-                Authorization: `Token ${token}`,
+                Authorization: `Bearer ${token}`,
             },
         })
             .then((response) => response.json())
