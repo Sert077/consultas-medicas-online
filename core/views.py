@@ -300,47 +300,44 @@ def cancelar_consulta(request, consulta_id):
 def consultas_medico(request, user_id):
     try:
         # Verificar si el usuario es un médico
-        doctor = Doctor.objects.get(user_id=user_id)  # Buscar el doctor por su user_id
-        consultas = Consulta.objects.filter(medico_id=doctor.id)  # Filtrar las consultas por el medico_id
+        doctor = Doctor.objects.get(user_id=user_id)
+        consultas = Consulta.objects.filter(medico_id=doctor.id)
 
-        # Preparar los datos para la respuesta
         consultas_data = []
         for consulta in consultas:
-            # Buscar la receta asociada a la consulta
             receta = Receta.objects.filter(consulta=consulta.id).first()
             doc_receta_url = f"{settings.MEDIA_URL}{receta.doc_receta}" if receta and receta.doc_receta else None
             archivo_pdf_url = f"{settings.MEDIA_URL}{consulta.archivo_pdf}" if consulta.archivo_pdf else None
 
-             # Buscar el perfil del paciente y obtener su foto
             paciente_perfil = Perfil.objects.filter(user=consulta.paciente).first()
             paciente_foto_url = f"{settings.MEDIA_URL}{paciente_perfil.user_picture}" if paciente_perfil and paciente_perfil.user_picture else None
 
-            # Crear el diccionario de datos
             consultas_data.append({
                 "id": consulta.id,
                 "paciente_name": f"{consulta.paciente.last_name} {consulta.paciente.first_name}",
                 "paciente_foto": paciente_foto_url,
                 "fecha": consulta.fecha,
                 "hora": consulta.hora,
-                "estado": consulta.estado,  # Incluir el estado de la consulta
-                "doc_receta": doc_receta_url,  # Incluir la URL de la receta si existe
+                "estado": consulta.estado,
+                "doc_receta": doc_receta_url,
                 "archivo_pdf": archivo_pdf_url,
                 "tipo_consulta": consulta.tipo_consulta,
                 "embarazo": consulta.embarazo,
-                "tipo_sangre": consulta.tipo_sangre,
-                "alergias": consulta.alergias,
+                "tipo_sangre": consulta.get_tipo_sangre(),  # Desencriptado
+                "alergias": consulta.get_alergias(),  # Desencriptado
                 "edad": consulta.edad,
-                "genero": consulta.genero,
-                "motivo_consulta": consulta.motivo_consulta,
-                "medicacion": consulta.medicacion,
-                "cirugia": consulta.cirugia,    
-                "enfermedad_base": consulta.enfermedad_base
+                "genero": consulta.get_genero(),  # Desencriptado
+                "motivo_consulta": consulta.get_motivo_consulta(),  # Desencriptado
+                "medicacion": consulta.get_medicacion(),  # Desencriptado
+                "cirugia": consulta.get_cirugia(),  # Desencriptado
+                "enfermedad_base": consulta.get_enfermedad_base(),  # Desencriptado
             })
 
         return JsonResponse(consultas_data, safe=False)
 
     except Doctor.DoesNotExist:
         return JsonResponse({"error": "Este usuario no es un médico"}, status=404)
+
     
 
 def get_chat_messages(request, chat_id):
@@ -447,9 +444,16 @@ def patient_profile(request):
         if user_serializer.is_valid() and perfil_serializer.is_valid():
             user_serializer.save()
             perfil_serializer.save()
-            return Response({"message": "Datos actualizados con éxito"})
+
+            # Recargar datos desde la BD para asegurarse de que se pasan por `to_representation`
+            request.user.refresh_from_db()
+            request.user.perfil.refresh_from_db()
+
+            return Response(UserSerializer(request.user).data)  # Esto asegurará que los valores se desencripten correctamente
         
-        return Response(user_serializer.errors, status=400)
+        return Response({"errors": {**user_serializer.errors, **perfil_serializer.errors}}, status=400)
+
+
     
 
 class GenerarRecetaView(APIView):

@@ -9,6 +9,7 @@ import secrets
 from django.core.mail import send_mail
 from django.conf import settings
 from .models import EmailVerificationToken
+from .encryption_utils import encrypt_data, decrypt_data
 
 class DoctorSerializer(serializers.ModelSerializer):
     class Meta:
@@ -37,23 +38,32 @@ class ConsultaSerializer(serializers.ModelSerializer):
     
     
 class PerfilSerializer(serializers.ModelSerializer):
+    phone_number = serializers.CharField(required=False)  # Permitir escritura
+    id_card = serializers.CharField(required=False)  # Permitir escritura
+
     class Meta:
         model = Perfil
         fields = ['tipo_usuario', 'birthdate', 'phone_number', 'id_card', 'user_picture', 'verificado']
-    
-    def update(self, instance, validated_data):
-        # Si hay una nueva imagen de usuario, actualizamos el campo
-        if 'user_picture' in validated_data:
-            instance.user_picture = validated_data['user_picture']
 
+    def update(self, instance, validated_data):
+        # Guardar otros datos normalmente sin volver a cifrar
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
+
         instance.save()
         return instance
 
+    def to_representation(self, instance):
+        """ Personalizar la salida para desencriptar phone_number e id_card """
+        representation = super().to_representation(instance)
+        representation['phone_number'] = instance.get_phone_number()  # Ya tiene la lógica de desencriptación
+        representation['id_card'] = instance.get_id_card()  # Ya tiene la lógica de desencriptación
+        return representation
+
+
 
 class UserSerializer(serializers.ModelSerializer):
-    perfil = PerfilSerializer(read_only=True)  # Relación al Perfil 
+    perfil = PerfilSerializer()  # Relación al Perfil 
 
     class Meta:
         model = User

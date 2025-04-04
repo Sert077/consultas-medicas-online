@@ -106,6 +106,9 @@ El error `AttributeError: type object 'Token' has no attribute 'objects'` indica
 
 Esto debería resolver el problema y permitir que el token sea generado correctamente cuando un usuario inicie sesión.
 
+Para encriptar datos sensibles de la base de datos:
+pip install pycryptodome
+pip install python-dotenv
 
 para chat websockets:
 
