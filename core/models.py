@@ -202,31 +202,31 @@ class Receta(models.Model):
         super().save(*args, **kwargs)
 
     def get_nombre_paciente(self):
-        return decrypt_data(self.nombre_paciente)
+        return decrypt_data(self.nombre_paciente) if self.nombre_paciente else None
     
     def get_id_card(self):
-        return decrypt_data(self.id_card)
+        return decrypt_data(self.id_card) if self.id_card else None
     
     def get_genero(self):
-        return decrypt_data(self.genero)
+        return decrypt_data(self.genero) if self.genero else None
     
     def get_tipo_sangre(self):  
-        return decrypt_data(self.tipo_sangre)
+        return decrypt_data(self.tipo_sangre) if self.tipo_sangre else None
     
     def get_alergias(self):
-        return decrypt_data(self.alergias)
+        return decrypt_data(self.alergias) if self.alergias else None
 
     def get_diagnostico(self):
-        return decrypt_data(self.diagnostico)
+        return decrypt_data(self.diagnostico) if self.diagnostico else None
     
     def get_tratamiento(self):
-        return decrypt_data(self.tratamiento)
+        return decrypt_data(self.tratamiento) if self.tratamiento else None
     
     def get_indicaciones(self): 
-        return decrypt_data(self.indicaciones)
+        return decrypt_data(self.indicaciones) if self.indicaciones else None
     
     def get_notas(self):
-        return decrypt_data(self.notas)
+        return decrypt_data(self.notas) if self.notas else None
 
     def __str__(self):
         return f"Receta de {self.nombre_paciente} - {self.consulta}"

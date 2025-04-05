@@ -337,24 +337,25 @@ def consultas_medico(request, user_id):
 
     except Doctor.DoesNotExist:
         return JsonResponse({"error": "Este usuario no es un médico"}, status=404)
-
     
 
 def get_chat_messages(request, chat_id):
     messages = ChatMessage.objects.filter(chat_id=chat_id).order_by('timestamp')
     message_list = []
+    
     for message in messages:
         message_data = {
             'id': message.id,
             'sender_id': message.sender_id,
             'sender_name': message.sender_name,
-            'message': message.message,
+            'message': message.get_message(),  # Desencriptar aquí
             'image': message.image.url if message.image else None,
             'pdf': message.pdf.url if message.pdf else None,
             'type': 'image' if message.image else 'pdf' if message.pdf else 'text',
             'timestamp': message.timestamp.isoformat(),
         }
         message_list.append(message_data)
+
     return JsonResponse(message_list, safe=False)
 
 @csrf_exempt
@@ -474,10 +475,10 @@ class GenerarRecetaView(APIView):
                 paciente=consulta.paciente,
                 medico=consulta.medico,
                 nombre_paciente=data['nombre_paciente'],
-                id_card=consulta.paciente.perfil.id_card,
-                genero=consulta.genero,
-                tipo_sangre=consulta.tipo_sangre,
-                alergias=consulta.alergias,
+                id_card=consulta.paciente.perfil.get_id_card(),
+                genero=consulta.get_genero(),
+                tipo_sangre=consulta.get_tipo_sangre(),
+                alergias=consulta.get_alergias(),
                 edad=consulta.edad,
                 peso=data['peso'],
                 talla=data['talla'],
@@ -546,13 +547,13 @@ class GenerarRecetaView(APIView):
             elements.append(Paragraph("<b>PACIENTE</b>", header_style))
             # Información del paciente (solo las palabras específicas en negrita)
             paciente_data = f"""
-                Nombre: {receta.nombre_paciente}<br/>
-                CI: {receta.id_card}<br/>
+                Nombre: {receta.get_nombre_paciente()}<br/>
+                CI: {receta.get_id_card()}<br/>
                 Edad: {receta.edad}<br/>
-                Género: {receta.genero}<br/>
+                Género: {receta.get_genero()}<br/>
                 <b></b>
-                Alergias: {receta.alergias or 'Ninguna'}<br/>
-                Grupo Sanguineo: {receta.tipo_sangre} Peso: {receta.peso} kg, Talla: {receta.talla} cm
+                Alergias: {receta.get_alergias() or 'Ninguna'}<br/>
+                Grupo Sanguineo: {receta.get_tipo_sangre()} Peso: {receta.peso} kg, Talla: {receta.talla} cm
             """
             # Modificar estilo de negrita solo en los datos específicos
             paciente_data = paciente_data.replace("Nombre:", "<b>Nombre:</b>").replace("CI:", "<b>CI:</b>").replace("Edad:", "<b>Edad:</b>").replace("Género:", "<b>Género:</b>").replace("Alergias:", "<b>Alergias:</b>").replace("Grupo Sanguineo:", "<b>Grupo Sanguineo:</b>").replace("Peso:", "<b>Peso:</b>").replace("Talla:", "<b>Talla:</b>")
@@ -565,7 +566,7 @@ class GenerarRecetaView(APIView):
 
             # Diagnóstico
             elements.append(Paragraph("<b>DIAGNÓSTICO</b>", header_style))
-            elements.append(Paragraph(receta.diagnostico, normal_style))
+            elements.append(Paragraph(receta.get_diagnostico(), normal_style))
             elements.append(Spacer(1, 12))
 
             # Agregar una línea horizontal después del diagnóstico
@@ -573,13 +574,13 @@ class GenerarRecetaView(APIView):
 
             # Tratamiento
             elements.append(Paragraph("<b>TRATAMIENTO</b>", header_style))
-            elements.append(Paragraph(receta.tratamiento, normal_style))
+            elements.append(Paragraph(receta.get_tratamiento(), normal_style))
             elements.append(Spacer(1, 12))
 
             # Otras indicaciones
             if receta.indicaciones:
                 elements.append(Paragraph("<b>Otras indicaciones</b>", bold_style))
-                elements.append(Paragraph(receta.indicaciones, normal_style))
+                elements.append(Paragraph(receta.get_indicaciones(), normal_style))
                 elements.append(Spacer(1, 12))
 
             # Firma
@@ -613,7 +614,7 @@ class GenerarRecetaView(APIView):
             if receta.notas:
                 elements.append(Spacer(1, 24))
                 elements.append(Paragraph("<b>Notas:</b>", bold_style_small))
-                elements.append(Paragraph(receta.notas, small_style))
+                elements.append(Paragraph(receta.get_notas(), small_style))
 
             # Construir PDF
             doc.build(elements)

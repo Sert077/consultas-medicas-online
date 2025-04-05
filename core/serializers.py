@@ -46,6 +46,10 @@ class PerfilSerializer(serializers.ModelSerializer):
         fields = ['tipo_usuario', 'birthdate', 'phone_number', 'id_card', 'user_picture', 'verificado']
 
     def update(self, instance, validated_data):
+        # Si hay una nueva imagen de usuario, actualizamos el campo
+        if 'user_picture' in validated_data:
+            instance.user_picture = validated_data['user_picture']
+
         # Guardar otros datos normalmente sin volver a cifrar
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
