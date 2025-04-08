@@ -66,6 +66,9 @@ from django.utils.encoding import force_bytes, force_str
 from django.views.decorators.http import require_POST
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.decorators import authentication_classes
+from django.contrib.auth import user_logged_in
+from django.contrib.auth.models import update_last_login
+from django.utils import timezone
 
 # API para crear un nuevo médico
 @api_view(['POST'])
@@ -176,6 +179,8 @@ def login_user(request):
 
     if user is not None:
         # Generar tokens JWT
+        user.last_login = timezone.now()
+        user.save(update_fields=['last_login'])
         refresh = RefreshToken.for_user(user)
         access_token = str(refresh.access_token)
         refresh_token = str(refresh)
@@ -269,25 +274,33 @@ def send_email(request):
 
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def consultas_paciente(request, paciente_id):
+    perfil = Perfil.objects.filter(user=request.user).first()
+
+    if not perfil or perfil.tipo_usuario != 'paciente':
+        return Response({'error': 'Acceso no autorizado'}, status=403)
+
+    if request.user.id != int(paciente_id):
+        return Response({'error': 'No puedes ver datos de otro paciente'}, status=403)
+
     consultas = Consulta.objects.filter(paciente_id=paciente_id).select_related('medico').prefetch_related('recetas')
     
-
     data = []
     for consulta in consultas:
-        receta = consulta.recetas.first()  # Suponemos una receta por consulta
+        receta = consulta.recetas.first()
         data.append({
             'id': consulta.id,
             'fecha': consulta.fecha,
             'hora': consulta.hora,
             'estado': consulta.estado,
             'medico_name': f'{consulta.medico.first_name} {consulta.medico.last_name}',
-            'doc_receta': receta.doc_receta.url if receta and receta.doc_receta else None,  # URL del documento
-            
-            "tipo_consulta": consulta.tipo_consulta,
+            'doc_receta': receta.doc_receta.url if receta and receta.doc_receta else None,
+            'tipo_consulta': consulta.tipo_consulta,
         })
-    
+
     return Response(data)
+
 
 
 @api_view(['POST'])
@@ -297,9 +310,18 @@ def cancelar_consulta(request, consulta_id):
     return Response({'message': 'Consulta cancelada correctamente.'})
 
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def consultas_medico(request, user_id):
+    perfil = Perfil.objects.filter(user=request.user).first()
+
+    if not perfil or perfil.tipo_usuario != 'medico':
+        return Response({'error': 'Acceso no autorizado'}, status=403)
+
+    if request.user.id != int(user_id):
+        return Response({'error': 'No puedes ver datos de otro médico'}, status=403)
+
     try:
-        # Verificar si el usuario es un médico
         doctor = Doctor.objects.get(user_id=user_id)
         consultas = Consulta.objects.filter(medico_id=doctor.id)
 
@@ -323,20 +345,21 @@ def consultas_medico(request, user_id):
                 "archivo_pdf": archivo_pdf_url,
                 "tipo_consulta": consulta.tipo_consulta,
                 "embarazo": consulta.embarazo,
-                "tipo_sangre": consulta.get_tipo_sangre(),  # Desencriptado
-                "alergias": consulta.get_alergias(),  # Desencriptado
+                "tipo_sangre": consulta.get_tipo_sangre(),
+                "alergias": consulta.get_alergias(),
                 "edad": consulta.edad,
-                "genero": consulta.get_genero(),  # Desencriptado
-                "motivo_consulta": consulta.get_motivo_consulta(),  # Desencriptado
-                "medicacion": consulta.get_medicacion(),  # Desencriptado
-                "cirugia": consulta.get_cirugia(),  # Desencriptado
-                "enfermedad_base": consulta.get_enfermedad_base(),  # Desencriptado
+                "genero": consulta.get_genero(),
+                "motivo_consulta": consulta.get_motivo_consulta(),
+                "medicacion": consulta.get_medicacion(),
+                "cirugia": consulta.get_cirugia(),
+                "enfermedad_base": consulta.get_enfermedad_base(),
             })
 
         return JsonResponse(consultas_data, safe=False)
 
     except Doctor.DoesNotExist:
         return JsonResponse({"error": "Este usuario no es un médico"}, status=404)
+
     
 
 def get_chat_messages(request, chat_id):

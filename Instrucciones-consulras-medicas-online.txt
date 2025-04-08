@@ -110,6 +110,10 @@ Para encriptar datos sensibles de la base de datos:
 pip install pycryptodome
 pip install python-dotenv
 
+para eliminar usuarios inactivos por mas de 10 años:
+pip install django-cron
+
+
 para chat websockets:
 
 Instalar redis-server windows https://github.com/microsoftarchive/redis/releases

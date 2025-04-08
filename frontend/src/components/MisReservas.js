@@ -40,24 +40,27 @@ const MisReservas = () => {
             return;
         }
     
-        if (tipoUsuario === 'medico') {
-            fetch(`http://localhost:8000/api/consultas/medico/${userId}/`)
-                .then(response => response.json())
-                .then(data => {
-                    console.log('Datos de la API (medico):', data);
-                    setReservas(data);
-                })
-                .catch(error => console.error('Error fetching reservas:', error));
-        } else {
-            fetch(`http://localhost:8000/api/consultas/paciente/${userId}/`)
-                .then(response => response.json())
-                .then(data => {
-                    console.log('Datos de la API (paciente):', data);
-                    setReservas(data);
-                })
-                .catch(error => console.error('Error fetching reservas:', error));
-        }
-    }, [token, navigate, tipoUsuario, userId]);
+        const headers = {
+            'Authorization': `Bearer ${token}`, // Se obtiene el token de acceso
+        };
+    
+        const url = tipoUsuario === 'medico'
+            ? `http://localhost:8000/api/consultas/medico/${userId}/`
+            : `http://localhost:8000/api/consultas/paciente/${userId}/`;
+    
+        fetch(url, { headers })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Datos de la API:', data);
+                setReservas(data);
+            })
+            .catch(error => console.error('Error fetching reservas:', error));
+    }, [token, navigate, tipoUsuario, userId]);    
 
     const handleRealizarConsulta = (consultaId) => {
         navigate(`/chat/${consultaId}`);
