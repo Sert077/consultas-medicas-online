@@ -174,20 +174,30 @@ const MisReservas = () => {
     };
 
     // Filtrar reservas según los filtros seleccionados
-    const reservasFiltradas = reservas.filter(consulta => {
-    const fechaConsulta = new Date(consulta.fecha);
-    const estadoLowerCase = consulta.estado.toLowerCase();
+    const reservasFiltradas = reservas
+    .filter(consulta => {
+        const fechaConsulta = new Date(`${consulta.fecha}T${consulta.hora}`);
+        const estadoLowerCase = consulta.estado.toLowerCase();
 
-    return (
-        (tipoConsulta === '' || consulta.tipo_consulta === tipoConsulta) &&
-        (estadoConsulta === '' 
-            ? (estadoLowerCase === 'pendiente' || estadoLowerCase === 'reprogramada') // Cargar por defecto pendientes y reprogramadas
-            : (estadoConsulta === 'pendiente' 
-                ? (estadoLowerCase === 'pendiente' || estadoLowerCase === 'reprogramada') // Incluir reprogramadas en el filtro de pendientes
-                : (estadoConsulta === 'todos' || estadoLowerCase === estadoConsulta))) && // Opción para mostrar todos
-        (!fechaInicio || !fechaFin || (fechaConsulta >= fechaInicio && fechaConsulta <= fechaFin))
-    );
-});
+        return (
+            (tipoConsulta === '' || consulta.tipo_consulta === tipoConsulta) &&
+            (estadoConsulta === '' 
+                ? (estadoLowerCase === 'pendiente' || estadoLowerCase === 'reprogramada') 
+                : (estadoConsulta === 'pendiente' 
+                    ? (estadoLowerCase === 'pendiente' || estadoLowerCase === 'reprogramada') 
+                    : (estadoConsulta === 'todos' || estadoLowerCase === estadoConsulta))) &&
+            (!fechaInicio || !fechaFin || (
+                fechaConsulta >= new Date(fechaInicio.setHours(0, 0, 0, 0)) &&
+                fechaConsulta <= new Date(fechaFin.setHours(23, 59, 59, 999))
+            ))
+        );
+    })
+    .sort((a, b) => {
+        const fechaA = new Date(`${a.fecha}T${a.hora}`);
+        const fechaB = new Date(`${b.fecha}T${b.hora}`);
+        return fechaA - fechaB;
+    });
+
 
     const handleSeleccionarConsulta = (consultaId) => {
         setConsultasSeleccionadas((prevSeleccionadas) =>
@@ -616,8 +626,6 @@ const MisReservas = () => {
                                     </div>
                                 </div>
                                 )}
-
-
         </div>
         
     );
