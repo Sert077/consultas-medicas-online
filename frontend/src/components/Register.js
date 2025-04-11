@@ -26,6 +26,7 @@ const Register = () => {
   const [birthdateError, setBirthdateError] = useState("")
   const [emailError, setEmailError] = useState("")
   const [usernameError, setUsernameError] = useState("")
+  const [privacyAccepted, setPrivacyAccepted] = useState(false)
 
   // Estados para imágenes
   const [anverso, setAnverso] = useState(null)
@@ -898,8 +899,24 @@ const openCamera = (inputRef, captureMode) => {
           {faceMatchError && <div className="verification-error">{faceMatchError}</div>}
           {dataMatchError && <div className="verification-error">{dataMatchError}</div>}
         </div>
+        <div className="checkbox-register-container">
+  <div className="checkbox-inner-wrapper">
+    <label className="checkbox-register-label">
+      <input
+        type="checkbox"
+        checked={privacyAccepted}
+        onChange={() => setPrivacyAccepted(!privacyAccepted)}
+        className="styled-checkbox-register"
+      />
+      <span>
+        He leído y acepto la <a href="/politica-de-privacidad" target="_blank" rel="noopener noreferrer">Política de Privacidad</a>.
+      </span>
+    </label>
+  </div>
+</div>
 
-        <button type="submit" className="register-button" disabled={!isVerified}>
+
+        <button type="submit" className="register-button" disabled={!isVerified || !privacyAccepted}>
           Registrar
         </button>
       </form>

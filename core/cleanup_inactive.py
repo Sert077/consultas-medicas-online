@@ -5,10 +5,10 @@ from core.models import Perfil
 import os
 
 def eliminar_usuarios_inactivos():
-    años_inactividad = 10
+    años_inactividad = 10 # Años de inactividad
     fecha_limite = timezone.now() - timedelta(days=años_inactividad * 365)
 
-    # Buscar pacientes inactivos (último login nulo o muy antiguo)
+    # Busca pacientes inactivos (último login nulo o muy antiguo)
     pacientes_inactivos = Perfil.objects.filter(
         tipo_usuario="paciente",
         user__isnull=False
@@ -35,3 +35,5 @@ def eliminar_usuarios_inactivos():
         eliminados += 1
 
     print(f"Total eliminados: {eliminados}")
+
+
