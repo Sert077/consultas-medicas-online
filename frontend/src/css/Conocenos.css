@@ -59,13 +59,13 @@
     height: auto;
   }
   
-  .header-text h1 {
+  .header-text-conocenos h1 {
     font-size: 3.0rem;
     margin-bottom: 1rem;
     font-weight: 700;
   }
   
-  .header-text p {
+  .header-text-conocenos p {
     font-size: 1.5rem;
     max-width: 700px;
     margin: 0 auto;

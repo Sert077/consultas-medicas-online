@@ -46,6 +46,8 @@ import Conocenos from "./components/Conocenos"
 import MediTestLogoOptions from './components/meditest-logo-vanilla';
 import PacientesAtendidos from './components/PacientesAtendidos';
 import ResetPassword from './components/ResetPassword';
+import PoliticaPrivacidad from './components/PoliticaPrivacidad';
+import InformacionLegal from './components/InformacionLegal';
 
 function App() {
     return (
@@ -71,6 +73,8 @@ function App() {
                     <Route path="/pacientes" element={<PacientesAtendidos />} />
                     <Route path="/meditest-logo" element={<MediTestLogoOptions />} />
                     <Route path="/reset-password/:uid/:token" element={<ResetPassword />} />
+                    <Route path="/politica-privacidad" element={<PoliticaPrivacidad />} />
+                    <Route path="/informacion-legal" element={<InformacionLegal />} />
                     {/* Puedes agregar más rutas aquí */}
                 </Routes>
                 <Footer />

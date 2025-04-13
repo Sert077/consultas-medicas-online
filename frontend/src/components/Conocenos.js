@@ -99,7 +99,7 @@ const Conocenos = () => {
           <div className="logo-container animate-on-scroll">
             <img src="/images/logo-conocemas1.png" alt="MediTest Logo" className="conocenos-logo" />
           </div>
-          <div className="header-text animate-on-scroll">
+          <div className="header-text-conocenos animate-on-scroll">
             <h1>Conócenos</h1>
             <p>Transformando la atención médica a través de la tecnología</p>
           </div>

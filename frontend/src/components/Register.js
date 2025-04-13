@@ -909,7 +909,7 @@ const openCamera = (inputRef, captureMode) => {
         className="styled-checkbox-register"
       />
       <span>
-        He leído y acepto la <a href="/politica-de-privacidad" target="_blank" rel="noopener noreferrer">Política de Privacidad</a>.
+        He leído y acepto la <a href="/politica-privacidad" target="_blank" rel="noopener noreferrer">Política de Privacidad</a>.
       </span>
     </label>
   </div>
