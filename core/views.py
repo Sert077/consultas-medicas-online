@@ -4,6 +4,8 @@ from django.shortcuts import render
 from rest_framework import generics
 from django.contrib.auth import authenticate
 from rest_framework.response import Response
+
+from core.encryption_utils import encrypt_data
 from .models import Doctor
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -59,6 +61,7 @@ import random
 from django.utils.timezone import now
 from django.core.mail import EmailMultiAlternatives 
 from email.mime.image import MIMEImage
+from rest_framework.exceptions import ValidationError
 
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
@@ -69,6 +72,8 @@ from rest_framework.decorators import authentication_classes
 from django.contrib.auth import user_logged_in
 from django.contrib.auth.models import update_last_login
 from django.utils import timezone
+
+from core import serializers
 
 # API para crear un nuevo médico
 @api_view(['POST'])
@@ -170,6 +175,20 @@ class ConsultaListView(generics.ListAPIView):
 class UserRegistrationView(generics.CreateAPIView):
     serializer_class = UserRegistrationSerializer
     permission_classes = [AllowAny]
+
+    def create(self, request, *args, **kwargs):
+        try:
+            return super().create(request, *args, **kwargs)
+        except serializers.ValidationError as e:
+            return Response({"error": e.detail}, status=status.HTTP_400_BAD_REQUEST)
+        except ValidationError as e:
+
+            import traceback
+            print(traceback.format_exc())  # Esto imprime el error completo en la terminal
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
 @api_view(['POST'])
 def login_user(request):
@@ -704,10 +723,10 @@ class GenerarRecetaView(APIView):
 
 # Vista para obtener todas las consultas y recetas con filtros
 def historial_consultas(request):
-    consultas = Consulta.objects.all()
-    recetas = Receta.objects.all()
+    consultas = Consulta.objects.select_related('medico').all()
+    recetas = Receta.objects.select_related('medico').all()
 
-    # Filtros por fecha, consultas, recetas y búsqueda por palabra
+    # Filtros
     fecha_inicio = request.GET.get('fecha_inicio')
     fecha_fin = request.GET.get('fecha_fin')
     
@@ -724,20 +743,39 @@ def historial_consultas(request):
 
     if 'busqueda' in request.GET:
         busqueda = request.GET['busqueda']
-        consultas = consultas.filter(motivo_consulta__icontains=busqueda)
+        consultas = consultas.filter(motivo_consulta__icontains=encrypt_data(busqueda))  # La búsqueda debe compararse encriptada
 
-    # Paginación de resultados
-    paginator = Paginator(consultas, 10)  # 10 consultas por página
+    # Paginación
+    paginator = Paginator(consultas, 10)
     page = request.GET.get('page')
     consultas_paginadas = paginator.get_page(page)
 
-    # Usamos list() para convertir el queryset a una lista de diccionarios
-    consultas_data = list(consultas_paginadas.object_list.values(
-        'id', 'fecha', 'hora', 'estado', 'motivo_consulta', 'genero', 'tipo_sangre', 'edad', 'tipo_consulta', 'embarazo', 'medico__first_name', 'medico__last_name'
-    ))
-    recetas_data = list(recetas.values(
-        'id', 'nombre_paciente', 'diagnostico', 'fecha_creacion', 'medico__first_name', 'medico__last_name'
-    ))
+    # Construcción de datos desencriptados
+    consultas_data = []
+    for consulta in consultas_paginadas:
+        consultas_data.append({
+            'id': consulta.id,
+            'fecha': consulta.fecha,
+            'hora': consulta.hora,
+            'estado': consulta.estado,
+            'motivo_consulta': consulta.get_motivo_consulta(),
+            'genero': consulta.get_genero(),
+            'tipo_sangre': consulta.get_tipo_sangre(),
+            'edad': consulta.edad,
+            'tipo_consulta': consulta.tipo_consulta,
+            'embarazo': consulta.embarazo,
+            'medico_nombre': f"{consulta.medico.first_name} {consulta.medico.last_name}" if consulta.medico else None
+        })
+
+    recetas_data = []
+    for receta in recetas:
+        recetas_data.append({
+            'id': receta.id,
+            'nombre_paciente': receta.get_nombre_paciente(),
+            'diagnostico': receta.get_diagnostico(),
+            'fecha_creacion': receta.fecha_creacion,
+            'medico_nombre': f"{receta.medico.first_name} {receta.medico.last_name}" if receta.medico else None
+        })
 
     data = {
         'consultas': consultas_data,
@@ -746,7 +784,7 @@ def historial_consultas(request):
         'total_recetas': recetas.count()
     }
 
-    return JsonResponse(data)
+    return JsonResponse(data, safe=False)
 
 
 def generar_reporte(request):
@@ -776,44 +814,56 @@ def generar_reporte(request):
     promedio_edad = consultas.aggregate(promedio_edad=Avg('edad'))['promedio_edad']
     promedio_edad = round(promedio_edad, 2) if promedio_edad else "No disponible"
 
-    fecha_generacion = now().strftime("%Y-%m-%d %H:%M:%S")
+    fecha_generacion = now().strftime("%d/%m/%Y %H:%M:%S")
 
     if reporte_tipo == 'estado':
         consultas_por_estado = consultas.values('estado').annotate(count=Count('estado'))
         chart_data = consultas_por_estado
-        title = 'Consultas por estado'
+        title = 'Consultas por Estado'
         xlabel = 'Estado'
         ylabel = 'Cantidad'
     elif reporte_tipo == 'genero':
-        consultas_por_genero = consultas.values('genero').annotate(count=Count('genero'))
-        chart_data = consultas_por_genero
-        title = 'Consultas por género'
+        conteo_genero = {}
+        for consulta in consultas:
+            genero = consulta.get_genero()
+            if genero:
+                conteo_genero[genero] = conteo_genero.get(genero, 0) + 1
+
+        chart_data = [{'genero': genero, 'count': count} for genero, count in conteo_genero.items()]
+        title = 'Consultas por Género'
         xlabel = 'Género'
         ylabel = 'Cantidad'
+
     elif reporte_tipo == 'especialidad':
         consultas_por_especialidad = consultas.filter(medico__specialty__in=especialidades) \
             .values('medico__specialty').annotate(count=Count('medico__specialty'))
         chart_data = consultas_por_especialidad
-        title = 'Consultas por especialidad'
+        title = 'Consultas por Especialidad'
         xlabel = 'Especialidad'
         ylabel = 'Cantidad'
     elif reporte_tipo == 'edad':
         consultas_por_edad = consultas.values('edad').annotate(count=Count('edad'))
         chart_data = consultas_por_edad
-        title = 'Consultas por edad'
+        title = 'Consultas por Edad'
         xlabel = 'Edad'
         ylabel = 'Cantidad'
     elif reporte_tipo == 'tipo_sangre':
-        consultas_por_tipo_sangre = consultas.values('tipo_sangre').annotate(count=Count('tipo_sangre'))
-        chart_data = consultas_por_tipo_sangre
-        title = 'Consultas por tipo de sangre'
-        xlabel = 'Tipo de sangre'
+        conteo_tipo_sangre = {}
+        for consulta in consultas:
+            tipo_sangre = consulta.get_tipo_sangre()
+            if tipo_sangre:
+                conteo_tipo_sangre[tipo_sangre] = conteo_tipo_sangre.get(tipo_sangre, 0) + 1
+
+        chart_data = [{'tipo_sangre': ts, 'count': count} for ts, count in conteo_tipo_sangre.items()]
+        title = 'Consultas por Tipo de Sangre'
+        xlabel = 'Tipo de Sangre'
         ylabel = 'Cantidad'
+
     elif reporte_tipo == 'tipo_consulta':
         consultas_por_tipo_consulta = consultas.values('tipo_consulta').annotate(count=Count('tipo_consulta'))
         chart_data = consultas_por_tipo_consulta
-        title = 'Consultas por tipo de consulta'
-        xlabel = 'Tipo de consulta'
+        title = 'Consultas por Tipo de Consulta'
+        xlabel = 'Tipo de Consulta'
         ylabel = 'Cantidad'
     else:
         chart_data = []
@@ -823,91 +873,237 @@ def generar_reporte(request):
 
     def create_chart(data, title, xlabel, ylabel, chart_type='barras_verticales'):
         plt.clf()
+        plt.figure(figsize=(10, 6))  # Tamaño más grande para mejor visualización
+        
+        # Configurar estilo más profesional
+        plt.style.use('seaborn-v0_8-whitegrid')
+        
         labels = [str(item.get(list(item.keys())[0], 'Desconocido')) for item in data]
         counts = [item.get('count', 0) for item in data]
 
-        colores_aleatorios = ['#' + ''.join([random.choice('0123456789ABCDEF') for _ in range(6)]) for _ in labels]
+        # Colores corporativos en lugar de aleatorios
+        colores_corporativos = ['#392682', '#28ada8', '#4e4ab7', '#6e55e0', '#1a5e7a', 
+                               '#2c7da0', '#3f3c93', '#064e3b', '#34d399', '#10b981']
+        
+        # Si hay más categorías que colores, repetir los colores
+        colores = [colores_corporativos[i % len(colores_corporativos)] for i in range(len(labels))]
 
         if chart_type == 'barras_horizontales':
-            plt.barh(labels, counts, color=colores_aleatorios)
+            bars = plt.barh(labels, counts, color=colores)
+            # Añadir valores en las barras
+            for i, v in enumerate(counts):
+                plt.text(v + 0.1, i, str(v), va='center')
         elif chart_type == 'pastel':
-            plt.pie(counts, labels=labels, autopct='%1.1f%%', startangle=140, colors=colores_aleatorios)
-        else:
-            plt.bar(labels, counts, color=colores_aleatorios)
+            plt.pie(counts, labels=labels, autopct='%1.1f%%', startangle=140, colors=colores,
+                   wedgeprops={'edgecolor': 'white', 'linewidth': 1})
+            plt.axis('equal')  # Asegurar que el gráfico sea circular
+        else:  # barras_verticales
+            bars = plt.bar(labels, counts, color=colores)
+            # Añadir valores encima de las barras
+            for bar in bars:
+                height = bar.get_height()
+                plt.text(bar.get_x() + bar.get_width()/2., height + 0.1,
+                        str(int(height)), ha='center', va='bottom')
 
-        plt.title(title)
-        plt.xlabel(xlabel if chart_type != 'pastel' else '')
-        plt.ylabel(ylabel if chart_type != 'pastel' else '')
+        plt.title(title, fontsize=14, fontweight='bold')
+        plt.xlabel(xlabel if chart_type != 'pastel' else '', fontsize=12)
+        plt.ylabel(ylabel if chart_type != 'pastel' else '', fontsize=12)
+        
+        # Rotar etiquetas si son muchas
+        if len(labels) > 5 and chart_type != 'barras_horizontales' and chart_type != 'pastel':
+            plt.xticks(rotation=45, ha='right')
+        
+        plt.tight_layout()  # Ajustar automáticamente el diseño
 
         with tempfile.NamedTemporaryFile(delete=False, suffix='.png') as tmpfile:
-            plt.savefig(tmpfile, format='png')
+            plt.savefig(tmpfile, format='png', dpi=300)  # Mayor resolución
             tmpfile.close()
             return tmpfile.name
 
     chart = create_chart(chart_data, title, xlabel, ylabel, grafico_tipo)
 
-    pdf = FPDF()
+    # Crear una clase personalizada de FPDF para encabezados y pies de página
+    class PDF(FPDF):
+        def header(self):
+            # Logo
+            logo_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'profile_pictures/logos/logo_reportes.png')
+            if os.path.exists(logo_path):
+                self.image(logo_path, 10, 8, 30)
+            
+            # Título del reporte
+            self.set_font('Arial', 'B', 16)
+            self.set_text_color(57, 38, 130)  # Color corporativo #392682
+            self.cell(0, 10, 'REPORTE DE CONSULTAS MEDITEST', 0, 1, 'C')
+            
+            # Subtítulo con el tipo de reporte
+            self.set_font('Arial', 'I', 12)
+            self.set_text_color(44, 44, 44)
+            self.cell(0, 10, title, 0, 1, 'C')
+            
+            # Fecha de generación
+            self.set_font('Arial', '', 9)
+            self.set_text_color(100, 100, 100)
+            self.cell(0, 5, f'Fecha de Generación: {fecha_generacion}', 0, 1, 'R')
+            
+            # Espacio después del encabezado
+            self.ln(10)
+        
+        def footer(self):
+            # Posicionarse a 1.5 cm del final
+            self.set_y(-15)
+            
+            # Línea separadora
+            self.set_draw_color(57, 38, 130)  # Color corporativo #392682
+            self.line(10, self.get_y(), 200, self.get_y())
+            
+            # Información de pie de página
+            self.set_font('Arial', 'I', 8)
+            self.set_text_color(100, 100, 100)
+            self.cell(0, 10, 'MediTest - Plataforma de Consultas Médicas Online', 0, 0, 'L')
+            
+            # Número de página
+            self.cell(0, 10, f'Página {self.page_no()}', 0, 0, 'R')
+
+    # Iniciar PDF con la clase personalizada
+    pdf = PDF()
+    pdf.set_auto_page_break(auto=True, margin=15)
     pdf.add_page()
-
-    # Fecha de generación como encabezado (alineada a la derecha)
-    pdf.set_font('Arial', 'I', 10)
-    pdf.cell(0, 10, f'Fecha de Generación: {fecha_generacion}', ln=True, align='R')
-
-    # Título del reporte
-    pdf.set_font('Arial', 'B', 16)
-    pdf.cell(200, 10, 'Reporte de Consultas', ln=True, align='C')
-
-    # Título del gráfico
-    pdf.set_font('Arial', '', 12)
-    pdf.ln(10)  # Espacio antes del título
-    pdf.cell(200, 10, title, ln=True, align='C')
+    
+    # Configurar márgenes
+    pdf.set_margins(10, 10, 10)
     
     # Incluir el gráfico
     if chart:
-        pdf.image(chart, x=10, y=30, w=180)
-
+        # Calcular posición para centrar el gráfico
+        pdf.image(chart, x=15, y=40, w=180)
+    
+    # Espacio después del gráfico
+    pdf.ln(100)  # Ajustar según el tamaño del gráfico
+    
+    # Sección de estadísticas
+    pdf.set_fill_color(240, 240, 255)  # Fondo suave
+    pdf.set_font('Arial', 'B', 14)
+    pdf.set_text_color(57, 38, 130)  # Color corporativo #392682
+    pdf.cell(0, 10, 'RESUMEN ESTADÍSTICO', 0, 1, 'L', 1)
+    
+    # Línea separadora
+    pdf.ln(2)
+    
+    # Estadísticas generales
+    pdf.set_font('Arial', 'B', 11)
+    pdf.set_text_color(44, 44, 44)
+    pdf.cell(0, 8, 'Datos Generales:', 0, 1, 'L')
+    
+    pdf.set_font('Arial', '', 10)
+    
+    # Crear tabla para datos generales
+    col_width = 95
+    row_height = 8
+    
+    # Fila 1
+    pdf.set_fill_color(248, 248, 255)
+    pdf.cell(col_width, row_height, f'Total de Consultas: {total_consultas}', 1, 0, 'L', 1)
+    pdf.cell(col_width, row_height, f'Promedio de Edad: {promedio_edad}', 1, 1, 'L', 1)
+    
+    # Rango de Fechas
+    if fecha_inicio and fecha_fin:
+        fecha_inicio_format = datetime.strptime(fecha_inicio, '%Y-%m-%d').strftime('%d/%m/%Y')
+        fecha_fin_format = datetime.strptime(fecha_fin, '%Y-%m-%d').strftime('%d/%m/%Y')
+        pdf.cell(0, row_height, f'Rango de Fechas: {fecha_inicio_format} - {fecha_fin_format}', 1, 1, 'L', 1)
+    else:
+        pdf.cell(0, row_height, 'Rango de Fechas: Todas las fechas', 1, 1, 'L', 1)
+    
+    pdf.ln(5)
+    
     # Estadísticas adicionales
     consultas_por_estado = consultas.values('estado').annotate(count=Count('estado'))
     estado_consultas = {estado['estado']: estado['count'] for estado in consultas_por_estado}
     canceladas = estado_consultas.get('cancelada', 0)
     realizadas = estado_consultas.get('realizada', 0)
     pendientes = estado_consultas.get('pendiente', 0)
+    
+    # Título de sección
+    pdf.set_font('Arial', 'B', 11)
+    pdf.cell(0, 8, 'Consultas por Estado:', 0, 1, 'L')
+    
+    # Tabla de estados
+    pdf.set_font('Arial', '', 10)
+    
+    # Encabezados
+    pdf.set_fill_color(57, 38, 130)
+    pdf.set_text_color(255, 255, 255)
+    pdf.cell(col_width/2, row_height, 'Estado', 1, 0, 'C', 1)
+    pdf.cell(col_width/2, row_height, 'Cantidad', 1, 0, 'C', 1)
+    pdf.cell(col_width, row_height, 'Porcentaje', 1, 1, 'C', 1)
+    
+    # Datos
+    pdf.set_text_color(44, 44, 44)
+    
+    # Realizadas
+    pdf.set_fill_color(230, 255, 230)  # Verde claro
+    pdf.cell(col_width/2, row_height, 'Realizadas', 1, 0, 'L', 1)
+    pdf.cell(col_width/2, row_height, f'{realizadas}', 1, 0, 'C', 1)
+    pdf.cell(col_width, row_height, f'{(realizadas/total_consultas)*100:.2f}%' if total_consultas > 0 else '0.00%', 1, 1, 'C', 1)
+    
+    # Pendientes
+    pdf.set_fill_color(255, 255, 230)  # Amarillo claro
+    pdf.cell(col_width/2, row_height, 'Pendientes', 1, 0, 'L', 1)
+    pdf.cell(col_width/2, row_height, f'{pendientes}', 1, 0, 'C', 1)
+    pdf.cell(col_width, row_height, f'{(pendientes/total_consultas)*100:.2f}%' if total_consultas > 0 else '0.00%', 1, 1, 'C', 1)
+    
+    # Canceladas
+    pdf.set_fill_color(255, 230, 230)  # Rojo claro
+    pdf.cell(col_width/2, row_height, 'Canceladas', 1, 0, 'L', 1)
+    pdf.cell(col_width/2, row_height, f'{canceladas}', 1, 0, 'C', 1)
+    pdf.cell(col_width, row_height, f'{(canceladas/total_consultas)*100:.2f}%' if total_consultas > 0 else '0.00%', 1, 1, 'C', 1)
+    
+    pdf.ln(5)
+    
+    # Calcular promedio de edad por género (desencriptando)
+    promedio_edad_genero = {}
+    conteo_genero = {}
 
-    # Promedio de Edad por Género
-    promedio_edad_genero = consultas.values('genero').annotate(promedio_edad=Avg('edad'))
-    promedio_edad_genero = {item['genero']: item['promedio_edad'] for item in promedio_edad_genero}
+    for consulta in consultas:
+        genero = consulta.get_genero()
+        if genero and consulta.edad is not None:
+            if genero in promedio_edad_genero:
+                promedio_edad_genero[genero] += consulta.edad
+                conteo_genero[genero] += 1
+            else:
+                promedio_edad_genero[genero] = consulta.edad
+                conteo_genero[genero] = 1
 
-    # Agregar los datos al reporte PDF
-    pdf.ln(120)  # Espacio adicional antes de la sección
-    pdf.set_font('Arial', 'B', 12)
-    pdf.cell(0, 10, 'Datos Adicionales:', ln=True)
+    # Dividir sumatoria entre cantidad para obtener el promedio
+    for genero in promedio_edad_genero:
+        promedio_edad_genero[genero] /= conteo_genero[genero]
+    
+    # Título de sección
+    if promedio_edad_genero:
+        pdf.set_font('Arial', 'B', 11)
+        pdf.cell(0, 8, 'Promedio de Edad por Género:', 0, 1, 'L')
+        
+        # Tabla de promedios por género
+        pdf.set_font('Arial', '', 10)
+        
+        # Encabezados
+        pdf.set_fill_color(57, 38, 130)
+        pdf.set_text_color(255, 255, 255)
+        pdf.cell(col_width, row_height, 'Género', 1, 0, 'C', 1)
+        pdf.cell(col_width, row_height, 'Promedio de Edad', 1, 1, 'C', 1)
+        
+        # Datos
+        pdf.set_text_color(44, 44, 44)
+        pdf.set_fill_color(248, 248, 255)
+        
+        for i, (genero, edad) in enumerate(promedio_edad_genero.items()):
+            fill = i % 2 == 0  # Alternar colores de fila
+            pdf.cell(col_width, row_height, genero, 1, 0, 'L', fill)
+            pdf.cell(col_width, row_height, f'{edad:.2f} años', 1, 1, 'C', fill)
 
-    pdf.set_font('Arial', '', 12)
-    pdf.cell(0, 10, f'Total de Consultas: {total_consultas}', ln=True)
-    pdf.cell(0, 10, f'Promedio de Edad de los Pacientes: {promedio_edad}', ln=True)
-
-    # Rango de Fechas
-    if fecha_inicio and fecha_fin:
-        pdf.cell(0, 10, f'Rango de Fechas: {fecha_inicio} - {fecha_fin}', ln=True)
-    else:
-        pdf.cell(0, 10, 'Rango de Fechas: No disponible', ln=True)
-
-    # Consultas por Estado
-    pdf.cell(0, 10, f'Consultas Realizadas: {realizadas} ({(realizadas/total_consultas)*100:.2f}%)', ln=True)
-    pdf.cell(0, 10, f'Consultas Pendientes: {pendientes} ({(pendientes/total_consultas)*100:.2f}%)', ln=True)
-    pdf.cell(0, 10, f'Consultas Canceladas: {canceladas} ({(canceladas/total_consultas)*100:.2f}%)', ln=True)
-
-    # Promedio de Edad por Género
-    for genero, edad in promedio_edad_genero.items():
-        pdf.cell(0, 10, f'Promedio de Edad de {genero}: {edad:.2f}', ln=True)
-
-    pdf.ln(6.99)  # Espacio para el pie de página
-    pdf.set_font('Arial', 'I', 10)
-    pdf.cell(0, 10, 'Equipo de MediTest', ln=True, align='L')
-
+    # Generar el PDF
     pdf_output = pdf.output(dest='S').encode('latin1')
     response = HttpResponse(pdf_output, content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="reporte_consultas.pdf"'
+    response['Content-Disposition'] = f'attachment; filename="reporte_consultas_{reporte_tipo}.pdf"'
     
     return response
 

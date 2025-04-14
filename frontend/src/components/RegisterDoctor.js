@@ -415,9 +415,9 @@ const handleRemovePicture = () => {
                 required
               >
                 <option value="">Seleccione una modalidad</option>
-                <option value="Híbrida">Híbrida</option>
-                <option value="Presencial">Presencial</option>
-                <option value="Virtual">Virtual</option>
+                <option value="hibrida">Híbrida</option>
+                <option value="presencial">Presencial</option>
+                <option value="virtual">Virtual</option>
               </select>
               </div>
         </div>

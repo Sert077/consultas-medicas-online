@@ -12,9 +12,21 @@ from .models import EmailVerificationToken
 from .encryption_utils import encrypt_data, decrypt_data
 
 class DoctorSerializer(serializers.ModelSerializer):
+    phone_number = serializers.SerializerMethodField()
+    biography = serializers.SerializerMethodField()
+    address = serializers.SerializerMethodField()
     class Meta:
         model = Doctor
         fields = ['id', 'first_name', 'last_name', 'email', 'specialty', 'phone_number', 'profile_picture', 'address', 'biography', 'created_at', 'updated_at', 'days', 'start_time', 'end_time', 'user', 'consulta_duracion', 'modalidad_consulta']
+
+    def get_phone_number(self, obj):
+        return obj.get_phone_number()
+
+    def get_biography(self, obj):
+        return obj.get_biography()
+    
+    def get_address(self, obj):
+        return obj.get_address()
 
 class ConsultaSerializer(serializers.ModelSerializer):
     class Meta:

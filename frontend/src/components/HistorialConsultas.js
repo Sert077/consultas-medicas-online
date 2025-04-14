@@ -145,7 +145,7 @@ const HistorialConsultas = () => {
                 <td>{consulta.fecha}</td>
                 <td>{consulta.hora}</td>
                 <td>{consulta.tipo_consulta}</td>
-                <td>{consulta.medico__first_name} {consulta.medico__last_name}</td>
+                <td>{consulta.medico_nombre}</td>
                 <td>{consulta.genero}</td>
                 <td>{consulta.edad}</td>
                 <td>{consulta.tipo_sangre}</td>
@@ -173,7 +173,7 @@ const HistorialConsultas = () => {
                 <td>{receta.nombre_paciente}</td>
                 <td>{receta.diagnostico}</td>
                 
-                <td>{receta.medico__first_name} {receta.medico__last_name}</td>
+                <td>{receta.medico_nombre}</td>
               </tr>
             ))}
           </tbody>

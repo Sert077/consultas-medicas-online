@@ -21,10 +21,15 @@ class Doctor(models.Model):
     start_time = models.TimeField(null=True, blank=True)  # Hora de inicio
     end_time = models.TimeField(null=True, blank=True)    # Hora de fin
     consulta_duracion = models.CharField(max_length=10, null=True, blank=True)  # Duración de la consulta
-    modalidad_consulta = models.CharField(max_length=15, choices=[('presencial', 'Presencial'), ('virtual', 'Virtual'), ('hibrida', 'Hibrida')], null=True, blank=True)  # Modalidad de la consulta
+    modalidad_consulta = models.CharField(max_length=15, choices=[('presencial', 'Presencial'), ('virtual', 'Virtual'), ('hibrida', 'Híbrida')], null=True, blank=True)  # Modalidad de la consulta
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)  # Relación con el usuario
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['specialty'], name='idx_doctor_specialty'),
+        ]
 
     def save(self, *args, **kwargs):
         if self.phone_number:
