@@ -26,6 +26,13 @@ const DoctorDetail = () => {
     const [reservaError, setReservaError] = useState('');
     const [archivoPdf, setArchivoPdf] = useState(null);
     const [loadingReserva, setLoadingReserva] = useState(false);
+    const [tieneEnfermedadBase, setTieneEnfermedadBase] = useState(false);
+    const [descripcionEnfermedad, setDescripcionEnfermedad] = useState("");
+    const [tomaMedicacion, setTomaMedicacion] = useState(false);
+    const [descripcionMedicacion, setDescripcionMedicacion] = useState("");
+    const [tuvoCirugia, setTuvoCirugia] = useState(false);
+    const [descripcionCirugia, setDescripcionCirugia] = useState("");
+    const [direccionReal, setDireccionReal] = useState('Cargando dirección...');
 
     useEffect(() => {
         fetch(`http://localhost:8000/api/doctores/${id}/`)
@@ -50,6 +57,37 @@ const DoctorDetail = () => {
         return availableDays.includes(date.getDay()) && !isDayFullyBooked(date);
     };
 
+    const getCoordinatesFromAddress = (address) => {
+        const regex = /Lat:\s*([-+]?\d*\.\d+),\s*Lng:\s*([-+]?\d*\.\d+)/;
+        const match = address?.match(regex);
+
+        if (match) {
+            return { lat: match[1], lng: match[2] };
+        }
+        return null;
+    };
+
+    const coordinates = doctor ? getCoordinatesFromAddress(doctor.address) : null;
+
+    useEffect(() => {
+        if (coordinates) {
+            const { lat, lng } = coordinates;
+            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.display_name) {
+                        setDireccionReal(data.display_name); // Almacenar la dirección real
+                    } else {
+                        setDireccionReal("Dirección no disponible");
+                    }
+                })
+                .catch(error => {
+                    console.error("Error obteniendo la dirección:", error);
+                    setDireccionReal("Error obteniendo la dirección");
+                });
+        }
+    }, [coordinates]);
+
     const isAvailable = (fecha, hora) => {
         return !consultas.some(consulta => consulta.fecha === fecha && consulta.hora === hora);
     };
@@ -68,6 +106,12 @@ const DoctorDetail = () => {
         setFechaError("");
         setHoraError("");
         setReservaError("");
+        setTieneEnfermedadBase(false);
+        setDescripcionEnfermedad("");
+        setTomaMedicacion(false);
+        setDescripcionMedicacion("");
+        setTuvoCirugia(false);
+        setDescripcionCirugia("");
     };    
 
     const handleReserva = (e) => {
@@ -111,6 +155,9 @@ const DoctorDetail = () => {
         formData.append('tipo_sangre', tipoSangre);
         formData.append('alergias', tieneAlergias ? descripcionAlergia : "no");
         formData.append('embarazo', genero === "F" ? estaEmbarazada : null);
+        formData.append('enfermedad_base', tieneEnfermedadBase ? descripcionEnfermedad : "no");
+        formData.append('medicacion', tomaMedicacion ? descripcionMedicacion : "no");
+        formData.append('cirugia', tuvoCirugia ? descripcionCirugia : "no");
 
         if (archivoPdf) {
             formData.append('archivo_pdf', archivoPdf);
@@ -137,12 +184,128 @@ const DoctorDetail = () => {
             // Enviar correos
             const emailData = {
                 subject: 'Recordatorio de Consulta Médica',
-                message_paciente: `Estimado(a) ${pacienteName},\n\n` +
-                                  `Tiene una consulta programada con el Dr(a). ${doctor.first_name} ${doctor.last_name}` +
-                                  ` el ${formattedDate} a las ${hora}.\n\nGracias por usar nuestro servicio. Equipo de MediTest.`,
-                message_medico: `Estimado(a) Dr(a). ${doctor.first_name} ${doctor.last_name},\n\n` +
-                                `Tiene una consulta programada con ${pacienteName}` +
-                                ` el ${formattedDate} a las ${hora}.\n\nGracias por usar nuestro servicio. Equipo de MediTest.`,
+                message_paciente: `
+                    <html>
+                    <head>
+                        <style>
+                            .email-container {
+                                font-family: Arial, sans-serif;
+                                max-width: 800px;
+                                margin: 0 auto;
+                                border: 1px solid #ddd;
+                                border-radius: 8px;
+                                overflow: hidden;
+                                box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.1);
+                            }
+                            .email-header {
+                                background: linear-gradient(135deg, #392682 55%, #28ADA8 100%);
+                                color: white;
+                                text-align: center;
+                                padding: 20px;
+                            }
+                            .email-header img {
+                                max-width: 120px;
+                            }
+                            .email-body {
+                                padding: 20px;
+                                color: #333;
+                            }
+                            .email-body h2 {
+                                color: #392682;
+                            }
+                            .email-body p {
+                                color: rgb(36, 36, 36);
+                            }
+                            .email-footer {
+                                background: #f1f1f1;
+                                padding: 15px;
+                                text-align: center;
+                                font-size: 12px;
+                                color: #666;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="email-container">
+                            <div class="email-header">
+                               <img src="cid:logo1" alt="MediTest Logo">
+                            </div>
+                            <div class="email-body">
+                                <h2>¡Recordatorio de Consulta Médica!</h2>
+                                <p>Estimado/a <strong>${pacienteName}</strong>,</p>
+                                <p>Tiene una consulta programada con el Dr(a). ${doctor.first_name} ${doctor.last_name} el ${formattedDate} a las ${hora}.</p>
+                                <p>Gracias por usar nuestro servicio.</p>
+                                <p></p>
+                                <p>Atentamente,<br><strong>Equipo de MediTest</strong></p>
+                            </div>
+                            <div class="email-footer">
+                                © 2025 MediTest. Todos los derechos reservados.
+                            </div>
+                        </div>
+                    </body>
+                    </html>
+                `,
+                message_medico: `
+                    <html>
+                    <head>
+                        <style>
+                            .email-container {
+                                font-family: Arial, sans-serif;
+                                max-width: 800px;
+                                margin: 0 auto;
+                                border: 1px solid #ddd;
+                                border-radius: 8px;
+                                overflow: hidden;
+                                box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.1);
+                            }
+                            .email-header {
+                                background: linear-gradient(135deg, #392682 55%, #28ADA8 100%);
+                                color: white;
+                                text-align: center;
+                                padding: 20px;
+                            }
+                            .email-header img {
+                                max-width: 120px;
+                            }
+                            .email-body {
+                                padding: 20px;
+                                color: #333;
+                            }
+                            .email-body h2 {
+                                color: #392682;
+                            }
+                            .email-body p {
+                                color: rgb(36, 36, 36);
+                            }
+                            .email-footer {
+                                background: #f1f1f1;
+                                padding: 15px;
+                                text-align: center;
+                                font-size: 12px;
+                                color: #666;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="email-container">
+                            <div class="email-header">
+                                <img src="cid:logo1" alt="MediTest Logo">
+                            </div>
+                            <div class="email-body">
+                                <h2>¡Recordatorio de Consulta Médica!</h2>
+                                <p>Estimado/a Dr(a). <strong>${doctor.first_name} ${doctor.last_name}</strong>,</p>
+                                <p>Tiene una consulta programada con ${pacienteName} el ${formattedDate} a las ${hora}.</p>
+                                <p>Gracias por usar nuestro servicio.</p>
+                                <p></p>
+                                <p>Atentamente,<br><strong>Equipo de MediTest</strong></p>
+                            </div>
+                            <div class="email-footer">
+                                © 2025 MediTest. Todos los derechos reservados.
+                            </div>
+                        </div>
+                    </body>
+                    </html>
+                `,
                 recipient_list_paciente: [pacienteEmail],
                 recipient_list_medico: [doctor.email],
             };
@@ -156,6 +319,7 @@ const DoctorDetail = () => {
                     subject: emailData.subject,
                     message: emailData.message_paciente,
                     recipient_list: emailData.recipient_list_paciente,
+                    html_message: emailData.message_paciente, // Asegúrate de que tu backend soporte este campo
                 }),
             })
             .then((response) => {
@@ -174,6 +338,7 @@ const DoctorDetail = () => {
                         subject: emailData.subject,
                         message: emailData.message_medico,
                         recipient_list: emailData.recipient_list_medico,
+                        html_message: emailData.message_medico, // Asegúrate de que tu backend soporte este campo
                     }),
                 });
             })
@@ -302,59 +467,154 @@ const DoctorDetail = () => {
       
     return (
         <div className="doctor-detail-container">
-            <div className="doctor-info-container">
-        <img
-            src={doctor.profile_picture}
-            alt={`${doctor.first_name} ${doctor.last_name}`}
-            className="doctor-image"
-        />
-        <div className="doctor-details">
-            <h2>Dr(a): {doctor.first_name} {doctor.last_name}</h2>
-            <p><i className="fas fa-stethoscope"></i> Especialidad: {doctor.specialty}</p>
-            <p><i className="fas fa-envelope"></i> Correo: {doctor.email}</p>
-            <p><i className="fas fa-phone"></i> Teléfono: {doctor.phone_number}</p>
-            <p><i className="fas fa-map-marker-alt"></i> Dirección: {doctor.address}</p>
-            <p><i className="fas fa-calendar-alt"></i> Días de Atención: {formatDays(doctor.days)}</p>
-            <p><i className="fas fa-clock"></i> Horario de Atención: {formatTime(doctor.start_time)} a {formatTime(doctor.end_time)} Hrs.</p>
-            <div className="doctor-buttons">
-                <button className="consult-button" onClick={() => setShowModal(true)}>Reservar consulta médica</button>
-                <button className="consult-button" onClick={() => navigate(`/misreservas`)}>
-                    Realizar consulta médica
-                        </button>
-                    </div>
-                </div>
+      {/* Cabecera con información principal del médico */}
+      <div className="doctor-header">
+      <div className="doctor-header-bg">
+            <h3 className="doctor-header-title">
+                <i className="fas fa-user-md"></i> Información del Médico
+            </h3>
             </div>
-            <div className="map-container">
-                    <h3>Ubicación del Consultorio</h3>
-                    <iframe
-                        title="map"
-                        src={`https://www.google.com/maps?q=${encodeURIComponent(doctor.address)}&output=embed`}
-                        width="100%"
-                        height="250"
-                        style={{ border: 0 }}
-                        allowFullScreen=""
-                        loading="lazy"
-                    ></iframe>
-                </div>       
-            <div className="doctor-biography-container">
-                <h3>Biografía</h3>
-                <p>{doctor.biography}</p>
+        <div className="doctor-info-container">
+          <div className="doctor-image-container">
+            <img
+              src={doctor.profile_picture || "/placeholder.svg"}
+              alt={`${doctor.first_name} ${doctor.last_name}`}
+              className="doctor-image"
+            />
+          </div>
+          <div className="doctor-details">
+            <h2>
+              Dr(a). {doctor.first_name} {doctor.last_name}
+            </h2>
+
+            <div className="doctor-info-grid">
+              <div className="doctor-info-item">
+                <i className="fas fa-stethoscope"></i>
+                <div>
+                  <span className="info-label">Especialidad</span>
+                  <span className="info-value">{doctor.specialty}</span>
+                </div>
+              </div>
+
+              <div className="doctor-info-item">
+                <i className="fas fa-envelope"></i>
+                <div>
+                  <span className="info-label">Correo</span>
+                  <span className="info-value">{doctor.email}</span>
+                </div>
+              </div>
+
+              <div className="doctor-info-item">
+                <i className="fas fa-phone"></i>
+                <div>
+                  <span className="info-label">Teléfono</span>
+                  <span className="info-value">{doctor.phone_number}</span>
+                </div>
+              </div>
+
+              <div className="doctor-info-item">
+                <i className="fas fa-map-marker-alt"></i>
+                <div>
+                  <span className="info-label">Dirección</span>
+                  <span className="info-value">{direccionReal}</span>
+                </div>
+              </div>
+
+              <div className="doctor-info-item">
+                <i className="fas fa-calendar-alt"></i>
+                <div>
+                  <span className="info-label">Días de Atención</span>
+                  <span className="info-value">{formatDays(doctor.days)}</span>
+                </div>
+              </div>
+
+              <div className="doctor-info-item">
+                <i className="fas fa-clock"></i>
+                <div>
+                  <span className="info-label">Horario de Atención</span>
+                  <span className="info-value">
+                    {formatTime(doctor.start_time)} a {formatTime(doctor.end_time)} Hrs.
+                  </span>
+                </div>
+              </div>
             </div>
 
-            <div className="consultas-container">
-                <h3>Consultas Reservadas</h3>
-                {consultas.length > 0 ? (
-                    <ul>
-                        {consultas.map((consulta) => (
-                            <li key={consulta.id}>
-                                {consulta.fecha} a las {consulta.hora}
-                            </li>
-                        ))}
-                    </ul>
-                ) : (
-                    <p>No hay consultas reservadas.</p>
-                )}
+            <div className="doctor-buttons">
+              <button className="consult-button" onClick={() => setShowModal(true)}>
+                <i className="fas fa-calendar-plus"></i> Reservar consulta médica
+              </button>
+              <button className="consult-button" onClick={() => navigate(`/misreservas`)}>
+                <i className="fas fa-comments"></i> Realizar consulta médica
+              </button>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Mapa - ocupa todo el ancho */}
+      <div className="info-card map-container">
+          <div className="info-card-header-mapa">
+            <h3>
+              <i className="fas fa-map-marked-alt"></i> Ubicación del Consultorio
+            </h3>
+          </div>
+          <div className="info-card-body">
+            {coordinates ? (
+              <iframe
+                title="map"
+                src={`https://www.google.com/maps?q=${coordinates.lat},${coordinates.lng}&output=embed`}
+                allowFullScreen=""
+                loading="lazy"
+              ></iframe>
+            ) : (
+              <p className="no-consultas">Ubicación no disponible</p>
+            )}
+          </div>
+        </div>
+
+      {/* Contenido principal en dos columnas */}
+      <div className="doctor-content">
+        {/* Biografía */}
+        <div className="info-card doctor-biography-container">
+          <div className="info-card-header">
+            <h3>
+              <i className="fas fa-user"></i> Biografía
+            </h3>
+          </div>
+          <div className="info-card-body">
+            <p>{doctor.biography}</p>
+          </div>
+        </div>
+
+        {/* Consultas */}
+        <div className="info-card consultas-container">
+          <div className="info-card-header">
+            <h3>
+              <i className="fas fa-calendar-check"></i> Consultas Reservadas
+            </h3>
+          </div>
+          <div className="info-card-body">
+            {consultas.length > 0 ? (
+              <ul className="consultas-list">
+                {consultas.map((consulta) => (
+                  <li key={consulta.id} className="consulta-item">
+                    <div className="consulta-icon">
+                      <i className="fas fa-calendar-day"></i>
+                    </div>
+                    <div className="consulta-info">
+                      <div className="consulta-date">{consulta.fecha}</div>
+                      <div className="consulta-time">a las {consulta.hora}</div>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="no-consultas">No hay consultas reservadas.</p>
+            )}
+          </div>
+        </div>
+        </div>
+
            {/* Modal para reserva de consulta */}
            {showModal && (
             <div className="modal-overlay" onClick={() => setShowModal(false)}>
@@ -409,7 +669,7 @@ const DoctorDetail = () => {
                     </div>
                         {/* Mostrar la fecha y hora seleccionada */}
                         {fecha && hora && (
-                        <div className="seleccion-info">
+                        <div className="seleccionado-info">
                             <div className="seleccion-texto">
                             <p className="hora-seleccionada">
                                 <strong>📅 Hora seleccionada</strong>
@@ -418,7 +678,7 @@ const DoctorDetail = () => {
                             </div>
                             <button
                             type="button"
-                            className="button cancelar-seleccion"
+                            className="button cancelar-seleccionado"
                             onClick={() => { setFecha(null); setHora(""); }}
                             required
                             >
@@ -561,6 +821,159 @@ const DoctorDetail = () => {
                         </div>
 
                         <div>
+    <label htmlFor="tiene-enfermedad" className="modal-label-alergias">
+        ¿Tiene una enfermedad de base?<span style={{ color: 'red', marginLeft: '3px' }}>*</span>
+    </label>
+    <div className="input-field alergias-input-field">
+        <label>
+            <input
+                type="radio"
+                name="tiene-enfermedad"
+                value="Sí"
+                checked={tieneEnfermedadBase === true}
+                onChange={() => setTieneEnfermedadBase(true)}
+                className="radio-alergias"
+            />
+            Sí
+        </label>
+        <label>
+            <input
+                type="radio"
+                name="tiene-enfermedad"
+                value="No"
+                checked={tieneEnfermedadBase === false}
+                onChange={() => {
+                    setTieneEnfermedadBase(false);
+                    setDescripcionEnfermedad('');
+                }}
+                className="radio-alergias"
+            />
+            No
+        </label>
+    </div>
+    {tieneEnfermedadBase && (
+        <div>
+            <label htmlFor="descripcion-enfermedad" className="modal-label-alergias">
+                Describa su enfermedad de base:<span style={{ color: 'red' }}>*</span>
+            </label>
+            <div className="textarea-container">
+                <textarea
+                    id="descripcion-enfermedad"
+                    value={descripcionEnfermedad}
+                    onChange={(e) => setDescripcionEnfermedad(e.target.value)}
+                    className="input-field alergias-textarea"
+                    placeholder="Describa su enfermedad"
+                    required
+                ></textarea>
+                <p className="char-count">{descripcionEnfermedad.length}/100</p>
+            </div>
+        </div>
+    )}
+</div>
+
+<div>
+    <label htmlFor="toma-medicacion" className="modal-label-alergias">
+        ¿Actualmente toma medicamentos?<span style={{ color: 'red', marginLeft: '3px' }}>*</span>
+    </label>
+    <div className="input-field alergias-input-field">
+        <label>
+            <input
+                type="radio"
+                name="toma-medicacion"
+                value="Sí"
+                checked={tomaMedicacion === true}
+                onChange={() => setTomaMedicacion(true)}
+                className="radio-alergias"
+            />
+            Sí
+        </label>
+        <label>
+            <input
+                type="radio"
+                name="toma-medicacion"
+                value="No"
+                checked={tomaMedicacion === false}
+                onChange={() => {
+                    setTomaMedicacion(false);
+                    setDescripcionMedicacion('');
+                }}
+                className="radio-alergias"
+            />
+            No
+        </label>
+    </div>
+    {tomaMedicacion && (
+        <div>
+            <label htmlFor="descripcion-medicacion" className="modal-label-alergias">
+                Describa la medicación que está tomando:<span style={{ color: 'red' }}>*</span>
+            </label>
+            <div className="textarea-container">
+                <textarea
+                    id="descripcion-medicacion"
+                    value={descripcionMedicacion}
+                    onChange={(e) => setDescripcionMedicacion(e.target.value)}
+                    className="input-field alergias-textarea"
+                    placeholder="Describa la medicación"
+                    required
+                ></textarea>
+                <p className="char-count">{descripcionMedicacion.length}/100</p>
+            </div>
+        </div>
+    )}
+</div>
+<div>
+    <label htmlFor="tuvo-cirugia" className="modal-label-alergias">
+        ¿Tuvo alguna cirugía?<span style={{ color: 'red', marginLeft: '3px' }}>*</span>
+    </label>
+    <div className="input-field alergias-input-field">
+        <label>
+            <input
+                type="radio"
+                name="tuvo-cirugia"
+                value="Sí"
+                checked={tuvoCirugia === true}
+                onChange={() => setTuvoCirugia(true)}
+                className="radio-alergias"
+            />
+            Sí
+        </label>
+        <label>
+            <input
+                type="radio"
+                name="tuvo-cirugia"
+                value="No"
+                checked={tuvoCirugia === false}
+                onChange={() => {
+                    setTuvoCirugia(false);
+                    setDescripcionCirugia('');
+                }}
+                className="radio-alergias"
+            />
+            No
+        </label>
+    </div>
+    {tuvoCirugia && (
+        <div>
+            <label htmlFor="descripcion-cirugia" className="modal-label-alergias">
+                Describa la cirugía que tuvo:<span style={{ color: 'red' }}>*</span>
+            </label>
+            <div className="textarea-container">
+                <textarea
+                    id="descripcion-cirugia"
+                    value={descripcionCirugia}
+                    onChange={(e) => setDescripcionCirugia(e.target.value)}
+                    className="input-field alergias-textarea"
+                    placeholder="Describa la cirugía"
+                    required
+                ></textarea>
+                <p className="char-count">{descripcionCirugia.length}/100</p>
+            </div>
+        </div>
+    )}
+</div>
+
+
+                        <div>
                             <label htmlFor="motivo-consulta" className="modal-label-motivo">
                                 Motivo de consulta:<span style={{ color: 'red' }}>*</span>
                             </label>
@@ -571,7 +984,7 @@ const DoctorDetail = () => {
                                     onChange={handleMotivoConsultaChange}
                                     required
                                     className="input-field-motivo"
-                                    placeholder="Escriba el motivo de su consulta"
+                                    placeholder="Escriba el motivo o dolencias de su consulta"
                                 />
                                 <p className="char-count">{motivoConsulta.length}/150</p>
                             </div>

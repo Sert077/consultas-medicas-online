@@ -1,6 +1,6 @@
 .chatbot-container {
     position: fixed;
-    bottom: 20px;
+    bottom: 70px;
     right: 20px;
     z-index: 1000;
 }
@@ -60,6 +60,7 @@
 
 .chatbot-header h3{
     font-size: 15px;
+    color: White;
 }
 
 .chatbot-messages {
@@ -137,7 +138,7 @@
 .chatbot-hint {
     position: absolute;
     right: 60px; /* Ajusta la posición horizontal */
-    bottom: 27px; /* Ajusta la posición vertical */
+    bottom: 10px; /* Ajusta la posición vertical */
     background: #301466;
     color: white;
     padding: 8px 12px;

@@ -42,6 +42,12 @@ import EditPatient from './components/EditPatient';
 import HistorialConsultas from './components/HistorialConsultas';
 import Chatbot from './components/Chatbot';
 import ReprogramarConsulta from './components/ReprogramarConsulta';
+import Conocenos from "./components/Conocenos"
+import MediTestLogoOptions from './components/meditest-logo-vanilla';
+import PacientesAtendidos from './components/PacientesAtendidos';
+import ResetPassword from './components/ResetPassword';
+import PoliticaPrivacidad from './components/PoliticaPrivacidad';
+import InformacionLegal from './components/InformacionLegal';
 
 function App() {
     return (
@@ -50,6 +56,7 @@ function App() {
                 <Header /> {/* Aquí agregas el Header para que aparezca en todas las rutas */}
                 <Routes>
                     <Route path="/" element={<Home />} />
+                    <Route path="/conocenos" element={<Conocenos />} />
                     <Route path="/registerdoctor" element={<RegisterDoctor />} />
                     <Route path="/doctores" element={<Doctores />} /> 
                     <Route path="/doctores/:id" element={<DoctorDetail />} /> {/* Detalles de doctor */}
@@ -63,6 +70,12 @@ function App() {
                     <Route path="/verify-email/:token" element={<VerifyEmail />} />
                     <Route path="/historial-consultas" element={<HistorialConsultas />} />
                     <Route path="/reprogramar/:token" element={<ReprogramarConsulta />} />
+                    <Route path="/pacientes" element={<PacientesAtendidos />} />
+                    <Route path="/meditest-logo" element={<MediTestLogoOptions />} />
+                    <Route path="/reset-password/:uid/:token" element={<ResetPassword />} />
+                    <Route path="/politica-privacidad" element={<PoliticaPrivacidad />} />
+                    <Route path="/informacion-legal" element={<InformacionLegal />} />
+                    {/* Puedes agregar más rutas aquí */}
                 </Routes>
                 <Footer />
                 <Chatbot /> {/* Agregar chatbot debajo del footer */}

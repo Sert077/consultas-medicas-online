@@ -1,0 +1,105 @@
+from django.core.mail import EmailMessage
+from django.http import JsonResponse
+from django.conf import settings
+import os
+import json
+
+@csrf_exempt
+def enviar_solicitud_medico(request):
+    if request.method == 'POST':
+        try:
+            # Obtener los datos del formulario
+            data = json.loads(request.body)
+            nombre = data.get("nombre", "")
+            especialidad = data.get("especialidad", "")
+            email = data.get("email", "")
+            telefono = data.get("telefono", "")
+            mensaje = data.get("mensaje", "")
+
+            # Validación
+            if not (nombre and especialidad and email and telefono):
+                return JsonResponse({"success": False, "error": "Todos los campos obligatorios deben estar llenos."}, status=400)
+
+            # 📌 1️⃣ Correo a la empresa
+            subject_empresa = "Nueva solicitud de información de un médico"
+            message_empresa = (
+                f"Nombre: {nombre}\n"
+                f"Especialidad: {especialidad}\n"
+                f"Correo Electrónico: {email}\n"
+                f"Teléfono: {telefono}\n"
+                f"Mensaje:\n\n{mensaje if mensaje else 'Sin mensaje adicional.'}\n"
+            )
+            destinatario_empresa = "servesa07@gmail.com"
+            email_admin = EmailMessage(subject_empresa, message_empresa, 'servesa07@gmail.com', [destinatario_empresa])
+            email_admin.send()
+
+            # 📌 2️⃣ Correo al médico (con HTML y logo adjunto)
+            subject_medico = "Bienvenido a MediTest - Tu plataforma de consultas médicas"
+
+            # Ruta del logo y contrato
+            logo_path = os.path.join(settings.MEDIA_ROOT, "profile_pictures/logos/logo1.png")
+            contrato_path = os.path.join(settings.MEDIA_ROOT, "profile_pictures/contracts/Contrato_MediTest.pdf")
+
+            # Crear el email en HTML
+            email_medico = EmailMessage(
+                subject=subject_medico,
+                body="Este correo requiere un visor de HTML para visualizar correctamente el contenido.",
+                from_email='servesa07@gmail.com',
+                to=[email]
+            )
+            email_medico.content_subtype = "html"  # Indicar que el contenido es HTML
+
+            # Adjuntar el logo con un ID para incrustarlo en el HTML
+            if os.path.exists(logo_path):
+                with open(logo_path, 'rb') as logo_file:
+                    email_medico.attach("logo1.png", logo_file.read(), "image/png")
+                    email_medico.attachments[-1]['Content-ID'] = '<logo_medico>'
+                    email_medico.attachments[-1]['Disposition'] = 'inline'  # Incrustar en el cuerpo del correo
+
+            # Construcción del HTML con el logo incrustado
+            email_medico.body = f"""
+            <html>
+            <body style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
+                <div style="background: linear-gradient(135deg, #392682 55%, #28ADA8 100%); padding: 20px; text-align: center; color: #fff;">
+                    <img src="cid:logo_medico" alt="MediTest Logo" style="width: 120px; margin-bottom: 10px;">
+                    <h2>Consultas Médicas Online</h2>
+                </div>
+                <div style="padding: 20px;">
+                    <p>Estimado/a {nombre},</p>
+                    <p>Gracias por comunicarte con MediTest. Nos alegra saber que estás interesado en formar parte de nuestra plataforma.</p>
+                    <p><strong>Para completar tu registro, necesitamos los siguientes documentos:</strong></p>
+                    <ul>
+                        <li>✅ Certificado de especialidad médica</li>
+                        <li>✅ Copia de tu licencia médica</li>
+                        <li>✅ Identificación oficial</li>
+                        <li>✅ Experiencia y referencias profesionales</li>
+                    </ul>
+                    <p><strong>¿Por qué unirte a MediTest?</strong></p>
+                    <ul>
+                        <li>🔹 Flexibilidad para gestionar tu agenda</li>
+                        <li>🔹 Acceso a pacientes de distintas ubicaciones</li>
+                        <li>🔹 Herramientas digitales para recetas y diagnósticos</li>
+                        <li>🔹 Soporte técnico y administrativo continuo</li>
+                    </ul>
+                    <p>Adjunto encontrarás un contrato en borrador con más detalles sobre nuestra colaboración.</p>
+                    <p>Si tienes preguntas, responde a este correo o contáctanos al <strong>+591 68449128</strong>.</p>
+                    <p>Atentamente,</p>
+                    <p><strong>Equipo de MediTest</strong></p>
+                </div>
+            </body>
+            </html>
+            """
+
+            # Adjuntar contrato si existe
+            if os.path.exists(contrato_path):
+                email_medico.attach_file(contrato_path)
+
+            # Enviar el correo
+            email_medico.send()
+
+            return JsonResponse({"success": True, "message": "Solicitud enviada correctamente y respuesta automática enviada con contrato adjunto"}, status=200)
+
+        except Exception as e:
+            return JsonResponse({"success": False, "error": str(e)}, status=400)
+
+    return JsonResponse({"success": False, "error": "Método no permitido"}, status=405)

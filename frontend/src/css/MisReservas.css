@@ -116,12 +116,13 @@
     align-items: center;
     margin-top: 10px;
     margin-bottom: -10px;
+    gap: 10px;
 }
 
 .botones-derecha {
     display: flex;
     gap: 10px;
-    margin-bottom: -5px;
+    margin-bottom: 15px;
     margin-left: auto; /* Fija los botones a la derecha */
 }
 
@@ -140,7 +141,7 @@
     background-color: #4e4ab7;
 }
 
-.reservas-list button.button-realizado{
+.reservas-list button.button-realizado, .button-detalles {
     padding: 7px 10px; /* Reducir el tamaño del botón */
     border: none;
     border-radius: 5px;
@@ -550,14 +551,14 @@
     min-width: 120px;
     justify-content: center;
     gap: 0.5rem;
-    margin-bottom: -1rem;
+    margin-bottom: 1rem;
   }
   
   /* Estilos generales para los botones */
   .confirmation-modal-content button {
     padding: 0.5rem 1rem;
     border: none;
-    border-radius: 0.25rem;
+    border-radius: 6px;
     font-size: 1rem;
     cursor: pointer;
     transition: background-color 0.2s;
@@ -688,3 +689,300 @@
       opacity: 1;
     }
   }
+
+
+ /* Overlay del modal */
+.historia-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: 20px;
+    animation: fadeIn 0.3s ease-out;
+  }
+  
+  /* Contenido del modal */
+  .historia-modal-content {
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    width: 100%;
+    max-width: 900px;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: slideUp 0.4s ease-out;
+  }
+  
+  /* Encabezado del modal */
+  .historia-modal-header {
+    background: linear-gradient(135deg, #392682 0%, #5c3d99 100%);
+    color: white;
+    padding: 20px 25px;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  
+  .historia-modal-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: white;
+  }
+  
+  .historia-close-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    transition: background-color 0.2s;
+    margin-top: auto;
+    margin-bottom: auto;
+  }
+  
+  .historia-close-btn:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+  
+  /* Cuerpo del modal */
+  .historia-modal-body {
+    padding: 25px;
+  }
+  
+  /* Estructura de columnas */
+  .historia-columns {
+    display: flex;
+    gap: 30px;
+  }
+  
+  .historia-left-column {
+    flex: 1;
+  }
+  
+  .historia-right-column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* Secciones */
+  .historia-section {
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+  
+  .historia-section h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #4e4ab7;
+    font-size: 1.2rem;
+    border-bottom: 2px solid #e9ecef;
+    padding-bottom: 10px;
+  }
+  
+  /* Items de información */
+  .historia-info-item {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 12px;
+    gap: 15px;
+  }
+  
+  .historia-icon {
+    color: #4e4ab7;
+    font-size: 1.2rem;
+    margin-top: 3px;
+  }
+  
+  .historia-label {
+    font-weight: 600;
+    color: #495057;
+    margin-right: 8px;
+    display: block;
+  }
+  
+  .historia-value {
+    color: #212529;
+  }
+  
+  /* Foto del paciente */
+  .historia-foto-container {
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+  
+  .historia-paciente-foto {
+    max-width: 80%;
+    max-height: 80%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Motivo de consulta */
+  .historia-motivo-section {
+    flex-grow: 1;
+  }
+  
+  .historia-motivo {
+    background-color: white;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 15px;
+    min-height: 100px;
+    line-height: 1.6;
+  }
+  
+  /* Link de PDF */
+  .historia-pdf-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background-color: #e9ecef;
+    padding: 12px 15px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #212529;
+    transition: all 0.2s;
+  }
+  
+  .historia-pdf-link:hover {
+    background-color: #dee2e6;
+  }
+  
+  .historia-pdf-icon {
+    color: #dc3545;
+    font-size: 1.5rem;
+  }
+  
+  /* Footer del modal */
+  .historia-modal-footer {
+    padding: 20px 25px;
+    border-top: 1px solid #e9ecef;
+    display: flex;
+    justify-content: flex-end;
+  }
+  
+  .historia-close-modal-btn {
+    background-color: white;
+    color: #4f46e5;
+    border: 2px solid #5e51f0;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .historia-close-modal-btn:hover {
+    background-color: #f0f0ff;
+    border-color: #4338ca;
+  }
+  
+  /* Animaciones */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* Responsive */
+  @media (max-width: 768px) {
+    .historia-columns {
+      flex-direction: column;
+      gap: 20px;
+    }
+  
+    .historia-modal-header h2 {
+      font-size: 1.4rem;
+    }
+  
+    .historia-section {
+      padding: 15px;
+    }
+  
+    .historia-info-item {
+      gap: 10px;
+    }
+  
+    .historia-icon {
+      font-size: 1rem;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .historia-modal-content {
+      border-radius: 0;
+      max-height: 100vh;
+      height: 100%;
+    }
+  
+    .historia-modal-overlay {
+      padding: 0;
+    }
+  
+    .historia-modal-header {
+      border-radius: 0;
+    }
+  
+    .historia-modal-header h2 {
+      font-size: 1.2rem;
+    }
+  
+    .historia-section h3 {
+      font-size: 1.1rem;
+    }
+  
+    .historia-info-item {
+      flex-direction: column;
+      gap: 5px;
+    }
+  
+    .historia-icon {
+      display: none;
+    }
+  }
+  
+  

@@ -34,6 +34,10 @@ const Chatbot = () => {
     if (
         location.pathname === "/" || 
         location.pathname === "/login" || 
+        location.pathname === "/conocenos" || 
+        location.pathname === "/edit-patient" || 
+        location.pathname === "/misreservas" || 
+        location.pathname === "/pacientes" ||
         location.pathname.startsWith("/register") || 
         location.pathname.startsWith("/chat") ||
         location.pathname.startsWith("/historial-consultas") || 
@@ -107,13 +111,13 @@ const Chatbot = () => {
                 <div className="chatbot-hint">Si necesitas ayuda con la elección del médico, pregunta aquí 😊</div>
             )}
             <button className="chatbot-button" onClick={() => setIsOpen(!isOpen)}>
-                <img src="/images/logo-ia.png" alt="Chatbot MEDITEST" className="chatbot-icon" />
+                <img src="/images/logo-ia2.png" alt="Chatbot MEDITEST" className="chatbot-icon" />
             </button>
 
             {isOpen && (
                 <div className="chatbot-window">
                     <div className="chatbot-header">
-                        <img src="/images/logo.png" alt="MEDITEST Logo" className="chatbot-logo" />
+                        <img src="/images/logo1.png" alt="MEDITEST Logo" className="chatbot-logo" />
                         <h3>Chat de Ayuda</h3>
                         <button className="chatbot-close" onClick={() => setIsOpen(false)}>✖</button>
                     </div>
@@ -125,13 +129,12 @@ const Chatbot = () => {
                             </div>
                         ))}
                         {loading && (
-    <div className="chatbot-message bot">
-        <div className="loading-slide">
-            <span></span><span></span><span></span>
-        </div>
-    </div>
-)}
-
+                            <div className="chatbot-message bot">
+                                <div className="loading-slide">
+                                    <span></span><span></span><span></span>
+                                </div>
+                            </div>
+                        )}
                         <div ref={messagesEndRef} /> 
                     </div>
 

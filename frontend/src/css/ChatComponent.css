@@ -331,7 +331,7 @@
 
 .doctor-infochat span {
     display: inline-block; /* Asegura que el texto se mantenga en una sola línea */
-    font-size: 16px; /* Ajusta el tamaño de la fuente si es necesario */
+    font-size: 15px; /* Ajusta el tamaño de la fuente si es necesario */
 }
 
 .doctor-iconchat {

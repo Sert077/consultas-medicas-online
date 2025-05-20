@@ -1,0 +1,344 @@
+/* Estilos generales del contenedor principal */
+.register-container-patient {
+    max-width: 900px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 30px;
+    background-color: #f5f5f5;
+    border-radius: 12px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
+  }
+  
+  .register-container-patient h2 {
+    text-align: center;
+    color: #4caf50;
+    margin-bottom: 30px;
+    font-size: 28px;
+    position: relative;
+    padding-bottom: 10px;
+  }
+  
+  /*.register-container-patient h2::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 3px;
+    background-color: #4caf50;
+    border-radius: 3px;
+  }*/
+  
+  /* Layout del formulario */
+  .form-layout-patient {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 30px;
+  }
+  
+  /* Ajustes para la sección de perfil */
+  .profile-section-patient {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 15px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+    width: 250px; /* Reducir el ancho del contenedor */
+    align-self: start; /* Alinear al inicio para que no se estire */
+  }
+  
+  .profile-picture-container-patient {
+    position: relative;
+    width: 180px; /* Reducir el tamaño */
+    height: 180px; /* Reducir el tamaño */
+    margin-bottom: 15px;
+    border-radius: 50%;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    border: 4px solid white;
+    cursor: pointer; /* Indicar que es clickeable */
+  }
+  
+  .profile-picture-patient {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+  
+  .profile-picture-patient:hover {
+    transform: scale(1.05);
+  }
+  
+  /* Hacer que el overlay sea clickeable */
+  .profile-picture-overlay-patient {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    padding: 10px;
+    color: white;
+    font-size: 14px;
+    text-align: center;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+    cursor: pointer; /* Indicar que es clickeable */
+  }
+  
+  .profile-picture-container-patient:hover .profile-picture-overlay-patient {
+    transform: translateY(0);
+  }
+  
+  .file-input-container-patient {
+    width: 100%;
+    margin-top: 10px;
+  }
+  
+  /* Reducir el tamaño del botón */
+  .custom-file-upload-patient {
+    display: block;
+    width: auto; /* Ajustar al contenido en lugar de 100% */
+    padding: 8px 15px; /* Reducir el padding */
+    background-color: #4e4ab7;
+    color: white;
+    text-align: center;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    font-size: 14px; /* Reducir el tamaño de fuente */
+    margin: 0 auto; /* Centrar el botón */
+  }
+  
+  .custom-file-upload-patient:hover {
+    background-color: #3f3c93;
+    transform: translateY(-2px);
+  }
+
+  .custom-file-upload-patient i {
+    margin-right: 5px;
+  }
+  
+  .file-input-patient {
+    display: none;
+  }
+  
+  /* Botón de cambio de contraseña */
+  .password-change-button-patient {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 15px;
+    padding: 8px 15px;
+    background-color: #ff7627;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  .password-change-button-patient i {
+    font-size: 16px;
+  }
+  
+  .password-change-button-patient:hover {
+    background-color: #f57c00;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+  
+  .password-change-button-patient:active {
+    transform: translateY(0);
+  }
+  
+  /* Mensajes de éxito y error para cambio de contraseña */
+  .password-reset-success,
+  .password-reset-error {
+    margin-top: 15px;
+    padding: 10px;
+    border-radius: 6px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-align: left;
+    width: 100%;
+  }
+  
+  .password-reset-success {
+    background-color: rgba(76, 175, 80, 0.1);
+    color: #2e7d32;
+    border: 1px solid rgba(76, 175, 80, 0.3);
+  }
+  
+  .password-reset-error {
+    background-color: rgba(244, 67, 54, 0.1);
+    color: #d32f2f;
+    border: 1px solid rgba(244, 67, 54, 0.3);
+  }
+  
+  .password-reset-success i,
+  .password-reset-error i {
+    font-size: 16px;
+  }
+  
+  /* Sección de campos del formulario */
+  .form-fields-patient {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  
+  .form-group-patient {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 5px;
+  }
+  
+  .form-group-patient label {
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #6a1b9a;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  
+  .form-group-patient label i {
+    color: #4e4ab7;
+    font-size: 14px;
+  }
+  
+  .form-group-patient input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+    font-size: 15px;
+  }
+  
+  .form-group-patient input:focus {
+    border-color: #4e4ab7;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(78, 74, 183, 0.2);
+  }
+  
+  /* Estilos para campos no editables */
+  .form-group-patient.readonly input {
+    background-color: #f8f9fa;
+    border-color: #e9ecef;
+    color: #6c757d;
+    cursor: not-allowed;
+    opacity: 0.8;
+  }
+  
+  .readonly-badge-patient {
+    display: inline-flex;
+    align-items: center;
+    background-color: #e9ecef;
+    color: #6c757d;
+    font-size: 11px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: 8px;
+    font-weight: normal;
+  }
+  
+  .readonly-badge-patient i {
+    font-size: 10px;
+    margin-right: 3px;
+  }
+  
+  /* Botón de actualizar */
+  .update-button-container-patient {
+    grid-column: 1 / -1;
+    margin-top: 25px;
+    text-align: center;
+  }
+
+  .update-button-container-patient i {
+    margin-right: 5px;
+  }
+  
+  .register-button-patient {
+    padding: 12px 18px;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 200px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .register-button-patient:hover:not(:disabled) {
+    background-color: #45a049;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+  }
+  
+  .register-button-patient:active {
+    transform: translateY(0);
+  }
+  
+  .register-button-patient:disabled {
+    background-color: #85c487;
+    cursor: not-allowed;
+  }
+  
+  /* Responsive */
+  @media (max-width: 900px) {
+    .register-container-patient {
+      padding: 20px;
+    }
+  
+    .form-layout-patient {
+      grid-template-columns: 1fr;
+    }
+  
+    .profile-section-patient {
+      width: 100%;
+      max-width: 250px;
+      margin: 0 auto 20px;
+    }
+  
+    .form-fields-patient {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  @media (max-width: 500px) {
+    .register-container-patient h2 {
+      font-size: 24px;
+    }
+  
+    .profile-picture-container-patient {
+      width: 150px;
+      height: 150px;
+    }
+  
+    .form-group-patient input {
+      padding: 10px;
+    }
+  
+    .register-button-patient {
+      width: 100%;
+    }
+  }
+  
+  

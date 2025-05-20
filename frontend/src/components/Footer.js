@@ -5,7 +5,7 @@ const Footer = () => {
     return (
         <footer className="footer-container">
             <div className="footer-left">
-                <img src="/images/footerlogo1.png" alt="Logo footer" className="footer-logo" />
+                <img src="/images/footerlogo7.png" alt="Logo footer" className="footer-logo" />
             </div>
             <div className="footer-center">
                 <div className="social-icons">
@@ -24,11 +24,11 @@ const Footer = () => {
                 </div>
             </div>
             <div className="footer-right">
-                <p>Copyright © 2024, Meditest-Consultas Médicas Online</p>
+                <p>Copyright © 2025, Meditest-Consultas Médicas Online</p>
                 <p>Todos los derechos reservados</p>
                 <div className="footer-links">
-                    <a href="#" className="footer-link">Información legal</a>
-                    <a href="#" className="footer-link">Política de privacidad</a>
+                    <a href="/informacion-legal" className="footer-link">Información legal</a>
+                    <a href="/politica-privacidad" className="footer-link">Política de privacidad</a>
                 </div>
             </div>
         </footer>

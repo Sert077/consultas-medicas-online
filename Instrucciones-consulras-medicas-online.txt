@@ -17,6 +17,8 @@ pip install django-cors-headers
 
 para login de usuarios con token
 
+pip install djangorestframework-simplejwt
+
 El error `AttributeError: type object 'Token' has no attribute 'objects'` indica que Django no está encontrando correctamente el modelo `Token`. Esto suele ocurrir cuando la aplicación no está configurada para usar `TokenAuthentication`.
 
 ### Solución:
@@ -104,10 +106,18 @@ El error `AttributeError: type object 'Token' has no attribute 'objects'` indica
 
 Esto debería resolver el problema y permitir que el token sea generado correctamente cuando un usuario inicie sesión.
 
+Para encriptar datos sensibles de la base de datos:
+pip install pycryptodome
+pip install python-dotenv
+
+para eliminar usuarios inactivos por mas de 10 años:
+pip install django-cron
+
 
 para chat websockets:
 
 Instalar redis-server windows https://github.com/microsoftarchive/redis/releases
+https://redis.io/docs/latest/operate/oss_and_stack/install/install-redis/install-redis-on-windows/
 
 pip install channels
 pip install channels channels_redis
@@ -130,6 +140,9 @@ para mapas en registrar docotor:
 npm install react-leaflet@4.2.0 leaflet@1.9.4
 npm i --save-dev @types/leaflet
 
+para iconos home:
+npm install lucide-react
 
-
+npm install face-api.js
+npm install tesseract.js
 

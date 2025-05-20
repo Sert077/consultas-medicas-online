@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { FaCalendarAlt, FaClock, FaUserMd, FaHashtag, FaArrowLeft, FaArrowRight } from 'react-icons/fa';
+import { FaCalendarAlt, FaClock, FaUserMd, FaHashtag, FaArrowLeft, FaArrowRight, FaUser,
+        FaClipboardList, FaVenusMars, FaTint, FaAllergies, FaBirthdayCake, FaStethoscope, FaBaby,
+        FaFilePdf, FaTimes, FaDisease, FaPills, FaProcedures, FaHeartbeat } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { FaFileDownload } from 'react-icons/fa';
 import DatePicker from 'react-datepicker';
@@ -29,6 +31,8 @@ const MisReservas = () => {
     const cerrarModal = () => setModalAbierto(false);
     const [seleccionarTodas, setSeleccionarTodas] = useState(false);
     const [confirmacionMarcarRealizada, setConfirmacionMarcarRealizada] = useState(null);
+    const [consultaSeleccionada, setConsultaSeleccionada] = useState(null);
+    const [modalDetalleAbierto, setModalDetalleAbierto] = useState(false);
 
     useEffect(() => {
         if (!token) {
@@ -36,28 +40,41 @@ const MisReservas = () => {
             return;
         }
     
-        if (tipoUsuario === 'medico') {
-            fetch(`http://localhost:8000/api/consultas/medico/${userId}/`)
-                .then(response => response.json())
-                .then(data => {
-                    console.log('Datos de la API (medico):', data);
-                    setReservas(data);
-                })
-                .catch(error => console.error('Error fetching reservas:', error));
-        } else {
-            fetch(`http://localhost:8000/api/consultas/paciente/${userId}/`)
-                .then(response => response.json())
-                .then(data => {
-                    console.log('Datos de la API (paciente):', data);
-                    setReservas(data);
-                })
-                .catch(error => console.error('Error fetching reservas:', error));
-        }
-    }, [token, navigate, tipoUsuario, userId]);
+        const headers = {
+            'Authorization': `Bearer ${token}`, // Se obtiene el token de acceso
+        };
+    
+        const url = tipoUsuario === 'medico'
+            ? `http://localhost:8000/api/consultas/medico/${userId}/`
+            : `http://localhost:8000/api/consultas/paciente/${userId}/`;
+    
+        fetch(url, { headers })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Datos de la API:', data);
+                setReservas(data);
+            })
+            .catch(error => console.error('Error fetching reservas:', error));
+    }, [token, navigate, tipoUsuario, userId]);    
 
     const handleRealizarConsulta = (consultaId) => {
         navigate(`/chat/${consultaId}`);
     };
+
+    const abrirModalDetalle = (consulta) => {
+        setConsultaSeleccionada(consulta);
+        setModalDetalleAbierto(true);
+    };
+    
+    const cerrarModalDetalle = () => {
+        setConsultaSeleccionada(null);
+        setModalDetalleAbierto(false);
+    };    
 
     const handleCancelarConsulta = (consultaId) => {
         const confirmar = window.confirm('¿Está seguro de que desea cancelar esta consulta?');
@@ -87,7 +104,7 @@ const MisReservas = () => {
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
-                Authorization: `Token ${token}`,
+                Authorization: `Bearer ${token}`,
             },
         })
             .then((response) => response.json())
@@ -157,20 +174,30 @@ const MisReservas = () => {
     };
 
     // Filtrar reservas según los filtros seleccionados
-    const reservasFiltradas = reservas.filter(consulta => {
-    const fechaConsulta = new Date(consulta.fecha);
-    const estadoLowerCase = consulta.estado.toLowerCase();
+    const reservasFiltradas = reservas
+    .filter(consulta => {
+        const fechaConsulta = new Date(`${consulta.fecha}T${consulta.hora}`);
+        const estadoLowerCase = consulta.estado.toLowerCase();
 
-    return (
-        (tipoConsulta === '' || consulta.tipo_consulta === tipoConsulta) &&
-        (estadoConsulta === '' 
-            ? (estadoLowerCase === 'pendiente' || estadoLowerCase === 'reprogramada') // Cargar por defecto pendientes y reprogramadas
-            : (estadoConsulta === 'pendiente' 
-                ? (estadoLowerCase === 'pendiente' || estadoLowerCase === 'reprogramada') // Incluir reprogramadas en el filtro de pendientes
-                : (estadoConsulta === 'todos' || estadoLowerCase === estadoConsulta))) && // Opción para mostrar todos
-        (!fechaInicio || !fechaFin || (fechaConsulta >= fechaInicio && fechaConsulta <= fechaFin))
-    );
-});
+        return (
+            (tipoConsulta === '' || consulta.tipo_consulta === tipoConsulta) &&
+            (estadoConsulta === '' 
+                ? (estadoLowerCase === 'pendiente' || estadoLowerCase === 'reprogramada') 
+                : (estadoConsulta === 'pendiente' 
+                    ? (estadoLowerCase === 'pendiente' || estadoLowerCase === 'reprogramada') 
+                    : (estadoConsulta === 'todos' || estadoLowerCase === estadoConsulta))) &&
+            (!fechaInicio || !fechaFin || (
+                fechaConsulta >= new Date(fechaInicio.setHours(0, 0, 0, 0)) &&
+                fechaConsulta <= new Date(fechaFin.setHours(23, 59, 59, 999))
+            ))
+        );
+    })
+    .sort((a, b) => {
+        const fechaA = new Date(`${a.fecha}T${a.hora}`);
+        const fechaB = new Date(`${b.fecha}T${b.hora}`);
+        return fechaA - fechaB;
+    });
+
 
     const handleSeleccionarConsulta = (consultaId) => {
         setConsultasSeleccionadas((prevSeleccionadas) =>
@@ -227,16 +254,22 @@ const MisReservas = () => {
                 {/* Filtros */}
             <div className="filtros-container">
                 <label>Tipo de consulta:</label>
-                <select value={tipoConsulta} onChange={(e) => setTipoConsulta(e.target.value)} className='tipo-consulta-filter'>
+                <select value={tipoConsulta} onChange={(e) => {
+                    setTipoConsulta(e.target.value);
+                    setCurrentPage(1); // Resetear paginación
+                }} className='tipo-consulta-filter'>
                     <option value="">Todas</option>
                     <option value="virtual">Virtual</option>
                     <option value="presencial">Presencial</option>
                 </select>
 
                 <label>Estado:</label>
-                    <select value={estadoConsulta} onChange={(e) => setEstadoConsulta(e.target.value)} className='estado-filter'>
-                        <option value="">Pendiente y Reprogramadas (Por defecto)</option>
-                        <option value="pendiente">Pendiente y Reprogramadas</option>
+                <select value={estadoConsulta} onChange={(e) => {
+                    setEstadoConsulta(e.target.value);
+                    setCurrentPage(1); // Resetear paginación
+                }} className='estado-filter'>
+                        <option value="">Pendiente y Reprogramadas</option>
+                        {/* <option value="pendiente">Pendiente y Reprogramadas</option> */}
                         <option value="realizada">Realizada</option>
                         <option value="cancelada">Cancelada</option>
                         <option value="todos">Todos</option>
@@ -256,13 +289,14 @@ const MisReservas = () => {
                                 endDate={fechaFin}
                                 onChange={(update) => {
                                     setRangoFechas(update);
+                                    setCurrentPage(1); // Resetear paginación
                                     if (update[0] && update[1]) {
                                         setOpenCalendar(false);
                                     }
                                 }}
                                 isClearable
                                 inline
-                            />
+                            />                        
                         )}
                     </div>
                 </div>
@@ -342,11 +376,17 @@ const MisReservas = () => {
                                                             Marcar como realizada
                                                         </button>
                                                     )}
+                                                    {tipoUsuario === 'medico' && (
+                                                        <button className="button-detalles" onClick={() => abrirModalDetalle(consulta)}>
+                                                            Historia Clinica
+                                                        </button>
+                                                    )}
+
                                                     <div className="botones-derecha">
                                                         {consulta.tipo_consulta !== 'presencial' && (
                                                             <button 
                                                                 onClick={() => handleRealizarConsulta(consulta.id)} 
-                                                                disabled={consulta.estado === 'realizada'}
+                                                                disabled={consulta.estado === 'realizada' || consulta.estado === 'cancelada'}
                                                             >
                                                                 Realizar consulta
                                                             </button>
@@ -419,7 +459,175 @@ const MisReservas = () => {
                                         </div>
                                     </div>
                                 )}
+                                {modalDetalleAbierto && consultaSeleccionada && (
+                                    <div className="historia-modal-overlay" onClick={cerrarModalDetalle}>
+                                    <div className="historia-modal-content" onClick={(e) => e.stopPropagation()}>
+                                    <div className="historia-modal-header">
+                                        <h2>
+                                        <FaClipboardList /> Historia Clínica
+                                        </h2>
+                                        <button className="historia-close-btn" onClick={cerrarModalDetalle}>
+                                        ✖
+                                        </button>
+                                    </div>
+                                    <div className="historia-modal-body">
+                                        <div className="historia-columns">
+                                        <div className="historia-left-column">
+                                            {/* Foto del paciente */}
+                                            {consultaSeleccionada.paciente_foto && (
+                                            <div className="historia-foto-container">
+                                                <img
+                                                src={`http://localhost:8000${consultaSeleccionada.paciente_foto}`}
+                                                alt="Foto del paciente"
+                                                className="historia-paciente-foto"
+                                                />
+                                            </div>
+                                            )}
+                                        
+                                            {/* Información de la consulta */}
+                                            <div className="historia-section">
+                                            <h3>Detalles de la Consulta</h3>
+                                            <div className="historia-info-item">
+                                                <FaCalendarAlt className="historia-icon" />
+                                                <div>
+                                                <span className="historia-label">Fecha:</span>
+                                                <span className="historia-value">{consultaSeleccionada.fecha}</span>
+                                                </div>
+                                            </div>
+
+                                            <div className="historia-info-item">
+                                                <FaClock className="historia-icon" />
+                                                <div>
+                                                <span className="historia-label">Hora:</span>
+                                                <span className="historia-value">{consultaSeleccionada.hora}</span>
+                                                </div>
+                                            </div>
+
+                                            <div className="historia-info-item">
+                                                <FaStethoscope className="historia-icon" />
+                                                <div>
+                                                <span className="historia-label">Tipo de consulta:</span>
+                                                <span className="historia-value">{consultaSeleccionada.tipo_consulta}</span>
+                                                </div>
+                                            </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="historia-right-column">
+                                            {/* Información del paciente */}
+                                            <div className="historia-section">
+                                            <h3>Información del Paciente</h3>
+                                            <div className="historia-info-item">
+                                                <FaUser className="historia-icon" />
+                                                <div>
+                                                <span className="historia-label">Paciente:</span>
+                                                <span className="historia-value">{consultaSeleccionada.paciente_name}</span>
+                                                </div>
+                                            </div>
+
+                                            <div className="historia-info-item">
+                                                <FaVenusMars className="historia-icon" />
+                                                <div>
+                                                <span className="historia-label">Género:</span>
+                                                <span className="historia-value">{consultaSeleccionada.genero}</span>
+                                                </div>
+                                            </div>
+
+                                            <div className="historia-info-item">
+                                                <FaBirthdayCake className="historia-icon" />
+                                                <div>
+                                                <span className="historia-label">Edad:</span>
+                                                <span className="historia-value">{consultaSeleccionada.edad} años</span>
+                                                </div>
+                                            </div>
+
+                                            <div className="historia-info-item">
+                                                <FaTint className="historia-icon" />
+                                                <div>
+                                                <span className="historia-label">Tipo de Sangre:</span>
+                                                <span className="historia-value">{consultaSeleccionada.tipo_sangre}</span>
+                                                </div>
+                                            </div>
+
+                                            {consultaSeleccionada.genero === "F" && consultaSeleccionada.embarazo !== null && (
+                                                <div className="historia-info-item">
+                                                    <FaBaby className="historia-icon" />
+                                                    <div>
+                                                        <span className="historia-label">Embarazo:</span>
+                                                        <span className="historia-value">{consultaSeleccionada.embarazo ? "Sí" : "No"}</span>
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            <div className="historia-info-item">
+                                                <FaAllergies className="historia-icon" />
+                                                <div>
+                                                <span className="historia-label">Alergias:</span>
+                                                <span className="historia-value">{consultaSeleccionada.alergias || "Ninguna"}</span>
+                                                </div>
+                                            </div>
+
+                                            <div className="historia-info-item">
+                                            <FaHeartbeat className="historia-icon" /> 
+                                            <div>
+                                                <span className="historia-label">Enfermedad de Base:</span>
+                                                <span className="historia-value">{consultaSeleccionada.enfermedad_base}</span>
+                                            </div>
+                                            </div>
+
+                                            <div className="historia-info-item">
+                                            <FaPills className="historia-icon" /> 
+                                            <div>
+                                                <span className="historia-label">Medicacion Actual:</span>
+                                                <span className="historia-value">{consultaSeleccionada.medicacion}</span>
+                                            </div>
+                                            </div>
+
+                                            <div className="historia-info-item">
+                                            <FaProcedures className="historia-icon" /> 
+                                            <div>
+                                                <span className="historia-label">Cirugías Previas:</span>
+                                                <span className="historia-value">{consultaSeleccionada.cirugia}</span>
+                                            </div>
+                                            </div>
+                                            </div>
+
+                                            {/* Motivo de consulta */}
+                                            <div className="historia-section historia-motivo-section">
+                                            <h3>Motivo de Consulta</h3>
+                                            <div className="historia-motivo">{consultaSeleccionada.motivo_consulta}</div>
+                                            </div>
+
+                                            {/* Documentos adjuntos */}
+                                            {consultaSeleccionada.archivo_pdf && (
+                                            <div className="historia-section">
+                                                <h3>Documentos Adjuntos</h3>
+                                                <a
+                                                href={`http://localhost:8000${consultaSeleccionada.archivo_pdf}`}
+                                                download
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="historia-pdf-link"
+                                                >
+                                                <FaFilePdf className="historia-pdf-icon" />
+                                                <span>Descargar Análisis (PDF)</span>
+                                                </a>
+                                            </div>
+                                            )}
+                                        </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="historia-modal-footer">
+                                        <button className="historia-close-modal-btn" onClick={cerrarModalDetalle}>
+                                        Cerrar
+                                        </button>
+                                    </div>
+                                    </div>
+                                </div>
+                                )}
         </div>
+        
     );
 };
 

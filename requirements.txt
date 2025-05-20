@@ -1,0 +1,12 @@
+pip install django djangorestframework
+pip install mysqlclient
+pip install django-cors-headers
+pip install channels
+pip install channels channels_redis
+pip install daphne
+pip install uvicorn
+pip install python-dotenv
+pip install reportlab
+pip install qrcode[pil]
+pip install pillow
+pip install fpdf

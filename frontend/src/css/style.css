@@ -19,9 +19,25 @@ h2 {
   gap: 20px;
 }
 
+.form-dias-horarios {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-dias-horarios label {
+  font-weight: bold;
+  margin-bottom: 15px;
+}
+
+.custom-days label {
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
 .form-group {
   display: flex;
   flex-direction: column;
+  gap:5px
 }
 
 .form-group label {
@@ -29,13 +45,45 @@ h2 {
   margin-bottom: 5px;
 }
 
-.form-group input,
-.form-group select,
+.form-group input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.form-group input:focus {
+  border-color: #4e4ab7;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(78, 74, 183, 0.2);
+}
+
 .form-group textarea {
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 4px;
   font-size: 12px;
+  margin-top: auto;
+}
+
+.form-group textarea:focus {
+  border-color: #4e4ab7;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(78, 74, 183, 0.2);
+}
+
+.form-group select{
+  padding: 9px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 12px;
+  margin-top: auto;
+}
+
+.form-group select:focus {
+  border-color: #4e4ab7;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(78, 74, 183, 0.2);
 }
 
 textarea {
@@ -63,7 +111,7 @@ textarea {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background: url('http://localhost:3000/images/fondo-logo18.png') repeat; /* Repite la imagen */
+  background: url('http://localhost:3000/images/logo-fondo4.png') repeat; /* Repite la imagen */
   background-size: 70px 70px; /* Incluye espacio entre repeticiones */
   width: 100%;
   flex-grow: 1;
@@ -83,14 +131,36 @@ footer {
 
 .predefined-options {
   display: flex;
-  gap: 1rem;
-  margin-bottom: 1rem;
+  gap: 0.7rem;
+  margin-bottom: auto;
 }
 
-.day-buttons-group {
+.predefined-options-consultas {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
+  gap: 0.7rem;
+  margin-top: 15px;
+}
+
+.form-group-modalidad {
+  display: flex;
+  flex-direction: column; /* Pone los elementos en columna */
+  align-items: start; /* Alinea los elementos a la izquierda */
+  gap: 20px; /* Espacio entre el label y el select */
+}
+
+.form-group-modalidad label {
+  font-weight: bold;
+  margin-bottom: 5px;
+  
+}
+
+.form-group-modalidad select {
+  padding: 9px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 12px;
+  margin-top: auto;
+  width: 100%;
 }
 
 .day-button {
@@ -102,6 +172,26 @@ footer {
   font-size: 11px;
   cursor: pointer;
   transition: background-color 0.3s, color 0.3s;
+  margin-bottom: 4.5px;
+}
+
+.day-buttons-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 10px;
+}
+
+.day-button-custom {
+  padding: 0.5rem 1rem;
+  border: 2px solid #4caf50;
+  border-radius: 8px;
+  background-color: #fff;
+  color: #4caf50;
+  font-size: 11px;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+  margin-top: 20px;
 }
 
 .day-button:hover {
@@ -114,7 +204,15 @@ footer {
   color: #fff;
 }
 
+.day-button-custom:hover {
+  background-color: #4caf50;
+  color: #fff;
+}
 
+.day-button-custom.selected {
+  background-color: #4caf50;
+  color: #fff;
+}
 .custom-days {
   margin-top: -0.2rem;
 }
@@ -140,23 +238,34 @@ footer {
   display: flex;
   flex-direction: column;
   gap: 10px; /* Ajusta el espacio entre los elementos dentro del grupo */
+  margin-bottom: auto;
+}
+
+.time-fields-wrapper label {
+  margin-bottom: -10px;
+  margin-top: auto;
 }
 
 .time-fields {
   display: flex;
   align-items: center;
-  gap: 10px; /* Espacio entre el label/input de horario inicio y el label/input de horario fin */
+  gap: 15px; /* Espacio entre el label/input de horario inicio y el label/input de horario fin */
 }
 
 .time-fields label {
-  margin-right: 5px; /* Ajusta el margen derecho del label */
-  margin-top: 5px;
+  margin-right: 0px; /* Ajusta el margen derecho del label */
+  margin-top: -5px;
+  font-weight: normal;
 }
 
 .time-fields input {
   width: 100px; /* Asegura un tamaño uniforme para los inputs */
   padding: 8px; /* Ajusta el espacio interno de los campos */
   font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  margin-top: 10px;
 }
 
 .map-modal {
@@ -199,8 +308,9 @@ footer {
   font-size: 15px;
   cursor: pointer;
   margin-left: 10px;
-  margin-bottom: -9px;
-  padding: 7.5px 12px;
+  margin-bottom: 0px;
+  border-radius: 6px;
+  padding: 8.5px 12px;
 }
 
 .suggestions {
@@ -303,8 +413,13 @@ footer {
 .password-container i {
   position: absolute;
   right: 10px;
-  top: 20px;
+  top: 11px;
   cursor: pointer;
+  color: #7c7c7c;
+}
+
+.password-container i:hover {
+  color: #333;
 }
 
 .error-text {
@@ -312,5 +427,187 @@ footer {
   font-size: 0.9rem;
 }
 
+.file-input {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 7px;
+}
 
+.custom-file-label {
+  background-color: #f1f1f1;
+  color: #6A1B9A;
+  padding: 8px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  border: 2px solid #ccc;
+  transition: background-color 0.3s;
+  font-size: 11px;
+  font-weight: normal;
+  display: inline-block;
+}
+
+.custom-file-label:hover {
+  background-color: #e0e0e0;
+}
+
+/* Ocultar el input nativo */
+.file-input-field {
+  display: none;
+}
+
+/* Estilos de la imagen de previsualización */
+.preview-image-custom {
+  max-width: 150px; /* Tamaño máximo de la imagen */
+  max-height: 150px; /* Tamaño máximo de la imagen */
+  border-radius: 10px; /* Bordes redondeados */
+  border: 2px solid #ccc; /* Borde sutil */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra suave */
+  transition: transform 0.3s ease; /* Efecto de transición */
+}
+.preview-image-custom:hover {
+  transform: scale(1.05); /* Efecto de zoom al pasar el mouse */
+}
+
+/* Estilos del botón para eliminar la imagen */
+.remove-picture-button {
+  background-color: #D32F2F;
+  color: white;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.remove-picture-button:hover {
+  background-color: #B71C1C;
+}
+
+/* 📱 RESPONSIVE: En pantallas pequeñas, ocupa casi todo el ancho */
+@media (max-width: 768px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .btn-primary {
+    grid-column: span 1;
+  }
+}
+
+/* 📱 RESPONSIVE: Inputs más grandes en móviles */
+@media (max-width: 480px) {
+  .form-group input,
+  .form-group textarea,
+  .form-group select {
+    font-size: 16px;
+    padding: 14px;
+  }
+  .btn-primary {
+    width: 100%;
+    font-size: 18px;
+    padding: 14px;
+  }
+  
+  .day-button {
+    font-size: 14px;
+    padding: 10px;
+    text-align: center;
+  }
+
+  .day-button-custom {
+    font-size: 14px;
+    padding: 10px;
+    text-align: center;
+  }
+  
+  .custom-file-label {
+    font-size: 14px;
+    padding: 12px;
+    text-align: center;
+  }
+  .preview-image-custom {
+    max-width: 250px;
+    max-height: 250px;
+  }
+  .remove-picture-button {
+    font-size: 14px;
+    padding: 10px;
+  }
+  .password-container i {
+    position: absolute;
+    right: 10px;
+    top: 17px;
+    cursor: pointer;
+  }
+}
+
+.spinner-register {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #fff;
+  border-top: 2px solid transparent;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  display: inline-block;
+  margin-right: 8px;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.success-message-overlay {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+}
+
+.success-message-content {
+  background-color: #34d399;
+  color: #064e3b;
+  padding: 12px 24px;
+  border-radius: 25px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 300px;
+  animation: fadeInUp 0.4s ease-out;
+}
+
+.success-message-content p {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.success-message-content button {
+  background: #064e3b;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: 12px;
+  margin-left: 15px;
+  padding: 4px 8px;
+  border-radius: 20px;
+}
+
+@keyframes fadeInUp {
+  from {
+    transform: translate(-50%, 20px);
+    opacity: 0;
+  }
+  to {
+    transform: translate(-50%, 0);
+    opacity: 1;
+  }
+}
 

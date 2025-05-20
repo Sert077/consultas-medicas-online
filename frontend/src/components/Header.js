@@ -7,13 +7,9 @@ import {
     IconStethoscope,
     IconSettings,
     IconLogout,
-    IconMenu,
     IconHelpCircle,
     IconCirclePlus,
-    IconChartBar,
-    IconChartLine,
-    IconFileText,
-    IconHistory    
+    IconChartBar,  
 } from "@tabler/icons-react";
 import "../css/Header.css";
 import { FaBars } from "react-icons/fa";
@@ -26,13 +22,13 @@ const Header = () => {
     const navigate = useNavigate();
     const [profilePicture, setProfilePicture] = useState('/images/icon-user.png'); // Imagen por defecto
     const dropdownRef = useRef(null);
+    const userType = localStorage.getItem("tipo_usuario");
 
     useEffect(() => {
         const token = localStorage.getItem("token");
         const user = localStorage.getItem("username");
         const superUser = localStorage.getItem("is_superuser");
-        const userType = localStorage.getItem("tipo_usuario");
-
+        
         if (token && user) {
             setIsLoggedIn(true);
             setUsername(user);
@@ -97,7 +93,7 @@ const Header = () => {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
-                        Authorization: `Token ${token}`,
+                        Authorization: `Bearer ${token}`,
                     },
                 });
     
@@ -124,7 +120,7 @@ const Header = () => {
     return (
         <header className="header">
             <div className="logo">
-                <img src="/images/logo.png" alt="Logo" />
+                <img src="/images/logo1.png" alt="Logo" />
                 <div className="logo-text">
                     <span className="main-title">MEDITEST</span>
                     <span className="subtitle">Consultas médicas online</span>
@@ -143,13 +139,15 @@ const Header = () => {
                             Home
                         </Link>
                     </li>
+                    { userType != "medico" && (
                     <li>
                         <Link to="/doctores">
                             <IconStethoscope className="icon" />
                             Médicos
                         </Link>
                     </li>
-    
+                    )}
+
                     {isLoggedIn && (
                         <li>
                             <Link to="/misreservas">
@@ -158,14 +156,16 @@ const Header = () => {
                             </Link>
                         </li>
                     )}
-    
-                    <li>
-                        <Link to="#!" className="disabled">
-                            <IconHelpCircle className="icon-help" />
-                            Conoce más!
-                        </Link>
-                    </li>
-    
+
+                    {isLoggedIn && userType === "medico" && (
+                        <li>
+                            <Link to="/pacientes">
+                                <IconUsers className="icon-consultas" />
+                                Pacientes
+                            </Link>
+                        </li>
+                    )}
+
                     {isSuperUser && (
                         <li>
                             <Link to="/registerdoctor">
@@ -183,6 +183,12 @@ const Header = () => {
                             </Link>
                         </li>
                     )}
+                    <li>
+                        <Link to="/conocenos" className="disabled">
+                            <IconHelpCircle className="icon-help" />
+                            Conoce más!
+                        </Link>
+                    </li>
                     {isLoggedIn ? (
                         <li className="user-menu" ref={dropdownRef}>
                             <div onClick={toggleDropdown} className="user-info">

@@ -4,6 +4,8 @@ from django.shortcuts import render
 from rest_framework import generics
 from django.contrib.auth import authenticate
 from rest_framework.response import Response
+
+from core.encryption_utils import encrypt_data
 from .models import Doctor
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -16,6 +18,7 @@ from .models import Consulta
 from .serializers import ConsultaSerializer, RecetaSerializer
 from .serializers import UserRegistrationSerializer
 from rest_framework.authtoken.models import Token
+from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import AllowAny
 from rest_framework.exceptions import ValidationError
 from django.contrib.auth.models import User
@@ -32,6 +35,7 @@ from rest_framework.permissions import IsAuthenticated
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image, Table, TableStyle
 from reportlab.lib.styles import ParagraphStyle
+from reportlab.pdfgen import canvas
 from io import BytesIO
 import os
 import qrcode
@@ -55,6 +59,21 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from django.utils.dateparse import parse_date
 import random
 from django.utils.timezone import now
+from django.core.mail import EmailMultiAlternatives 
+from email.mime.image import MIMEImage
+from rest_framework.exceptions import ValidationError
+
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
+from django.views.decorators.http import require_POST
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.decorators import authentication_classes
+from django.contrib.auth import user_logged_in
+from django.contrib.auth.models import update_last_login
+from django.utils import timezone
+
+from core import serializers
 
 # API para crear un nuevo médico
 @api_view(['POST'])
@@ -157,6 +176,20 @@ class UserRegistrationView(generics.CreateAPIView):
     serializer_class = UserRegistrationSerializer
     permission_classes = [AllowAny]
 
+    def create(self, request, *args, **kwargs):
+        try:
+            return super().create(request, *args, **kwargs)
+        except serializers.ValidationError as e:
+            return Response({"error": e.detail}, status=status.HTTP_400_BAD_REQUEST)
+        except ValidationError as e:
+
+            import traceback
+            print(traceback.format_exc())  # Esto imprime el error completo en la terminal
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
 @api_view(['POST'])
 def login_user(request):
     username = request.data.get('username')
@@ -164,13 +197,18 @@ def login_user(request):
     user = authenticate(username=username, password=password)
 
     if user is not None:
-        # Generar o recuperar el token del usuario
-        token, created = Token.objects.get_or_create(user=user)
+        # Generar tokens JWT
+        user.last_login = timezone.now()
+        user.save(update_fields=['last_login'])
+        refresh = RefreshToken.for_user(user)
+        access_token = str(refresh.access_token)
+        refresh_token = str(refresh)
 
+        # Si es superusuario
         if user.is_superuser:
-            # Si es superuser, no necesitamos 'tipo_usuario'
             return Response({
-                'token': token.key,
+                'token': access_token,
+                'refresh_token': refresh_token,
                 'username': user.username,
                 'id': user.id,
                 'is_superuser': user.is_superuser,
@@ -179,24 +217,24 @@ def login_user(request):
                 'email': user.email,
             })
 
-        # Para usuarios normales, intentar obtener el perfil
+        # Para usuarios normales, obtener perfil
         try:
-            perfil = user.perfil  # Ajusta esto si el atributo tiene otro nombre
+            perfil = user.perfil  # Si el usuario tiene perfil asociado
             tipo_usuario = perfil.tipo_usuario
             birthdate = perfil.birthdate
 
-            # Verificar si es paciente y si está verificado
+            # Si es paciente, verificar su cuenta
             if tipo_usuario == 'paciente' and not perfil.verificado:
                 return Response(
                     {'error': 'Por favor, verifica tu correo antes de iniciar sesión.'},
-                    status=403  # Forbidden
+                    status=403
                 )
         except AttributeError:
-            # En caso de que no tenga perfil
             return Response({'error': 'El usuario no tiene un perfil asociado.'}, status=400)
 
         return Response({
-            'token': token.key,
+            'token': access_token,
+            'refresh_token': refresh_token,
             'username': user.username,
             'id': user.id,
             'is_superuser': user.is_superuser,
@@ -208,7 +246,6 @@ def login_user(request):
         })
 
     return Response({'error': 'No se encontró el usuario o la contraseña es incorrecta'}, status=400)
-
 
 @api_view(['GET'])
 def consultas_doctor(request, doctor_id):
@@ -225,41 +262,64 @@ def send_email(request):
             subject = data.get('subject')
             message = data.get('message')
             recipient_list = data.get('recipient_list')
+            html_message = data.get('html_message')
 
-            send_mail(
+            email = EmailMultiAlternatives(
                 subject,
-                message,
-                'servesa07@gmail.com',  # Cambia esto por tu dirección de correo
+                message,  # Versión en texto plano
+                'servesa07@gmail.com',
                 recipient_list,
-                fail_silently=False,
             )
 
+            if html_message:
+                email.attach_alternative(html_message, "text/html")
+
+                # Ruta de la imagen del logo
+                logo_path = os.path.join(settings.MEDIA_ROOT, "profile_pictures/logos/logo1.png")
+
+                if os.path.exists(logo_path):
+                    with open(logo_path, 'rb') as logo_file:
+                        logo = MIMEImage(logo_file.read(), _subtype="png")
+                        logo.add_header('Content-ID', '<logo1>')  # Content-ID para el HTML
+                        logo.add_header('Content-Disposition', 'inline', filename="logo1.png")
+                        email.attach(logo)
+
+            email.send(fail_silently=False)
             return JsonResponse({'status': 'Email sent successfully'}, status=200)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
+
     return JsonResponse({'error': 'Invalid request method'}, status=400)
 
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def consultas_paciente(request, paciente_id):
+    perfil = Perfil.objects.filter(user=request.user).first()
+
+    if not perfil or perfil.tipo_usuario != 'paciente':
+        return Response({'error': 'Acceso no autorizado'}, status=403)
+
+    if request.user.id != int(paciente_id):
+        return Response({'error': 'No puedes ver datos de otro paciente'}, status=403)
+
     consultas = Consulta.objects.filter(paciente_id=paciente_id).select_related('medico').prefetch_related('recetas')
     
-
     data = []
     for consulta in consultas:
-        receta = consulta.recetas.first()  # Suponemos una receta por consulta
+        receta = consulta.recetas.first()
         data.append({
             'id': consulta.id,
             'fecha': consulta.fecha,
             'hora': consulta.hora,
             'estado': consulta.estado,
             'medico_name': f'{consulta.medico.first_name} {consulta.medico.last_name}',
-            'doc_receta': receta.doc_receta.url if receta and receta.doc_receta else None,  # URL del documento
-            
-            "tipo_consulta": consulta.tipo_consulta,
+            'doc_receta': receta.doc_receta.url if receta and receta.doc_receta else None,
+            'tipo_consulta': consulta.tipo_consulta,
         })
-    
+
     return Response(data)
+
 
 
 @api_view(['POST'])
@@ -269,53 +329,75 @@ def cancelar_consulta(request, consulta_id):
     return Response({'message': 'Consulta cancelada correctamente.'})
 
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def consultas_medico(request, user_id):
-    try:
-        # Verificar si el usuario es un médico
-        doctor = Doctor.objects.get(user_id=user_id)  # Buscar el doctor por su user_id
-        consultas = Consulta.objects.filter(medico_id=doctor.id)  # Filtrar las consultas por el medico_id
+    perfil = Perfil.objects.filter(user=request.user).first()
 
-        # Preparar los datos para la respuesta
+    if not perfil or perfil.tipo_usuario != 'medico':
+        return Response({'error': 'Acceso no autorizado'}, status=403)
+
+    if request.user.id != int(user_id):
+        return Response({'error': 'No puedes ver datos de otro médico'}, status=403)
+
+    try:
+        doctor = Doctor.objects.get(user_id=user_id)
+        consultas = Consulta.objects.filter(medico_id=doctor.id)
+
         consultas_data = []
         for consulta in consultas:
-            # Buscar la receta asociada a la consulta
             receta = Receta.objects.filter(consulta=consulta.id).first()
             doc_receta_url = f"{settings.MEDIA_URL}{receta.doc_receta}" if receta and receta.doc_receta else None
             archivo_pdf_url = f"{settings.MEDIA_URL}{consulta.archivo_pdf}" if consulta.archivo_pdf else None
 
-            # Crear el diccionario de datos
+            paciente_perfil = Perfil.objects.filter(user=consulta.paciente).first()
+            paciente_foto_url = f"{settings.MEDIA_URL}{paciente_perfil.user_picture}" if paciente_perfil and paciente_perfil.user_picture else None
+
             consultas_data.append({
                 "id": consulta.id,
-                "paciente_name": f"{consulta.paciente.first_name} {consulta.paciente.last_name}",
+                "paciente_name": f"{consulta.paciente.last_name} {consulta.paciente.first_name}",
+                "paciente_foto": paciente_foto_url,
                 "fecha": consulta.fecha,
                 "hora": consulta.hora,
-                "estado": consulta.estado,  # Incluir el estado de la consulta
-                "doc_receta": doc_receta_url,  # Incluir la URL de la receta si existe
+                "estado": consulta.estado,
+                "doc_receta": doc_receta_url,
                 "archivo_pdf": archivo_pdf_url,
                 "tipo_consulta": consulta.tipo_consulta,
+                "embarazo": consulta.embarazo,
+                "tipo_sangre": consulta.get_tipo_sangre(),
+                "alergias": consulta.get_alergias(),
+                "edad": consulta.edad,
+                "genero": consulta.get_genero(),
+                "motivo_consulta": consulta.get_motivo_consulta(),
+                "medicacion": consulta.get_medicacion(),
+                "cirugia": consulta.get_cirugia(),
+                "enfermedad_base": consulta.get_enfermedad_base(),
             })
 
         return JsonResponse(consultas_data, safe=False)
 
     except Doctor.DoesNotExist:
         return JsonResponse({"error": "Este usuario no es un médico"}, status=404)
+
     
 
 def get_chat_messages(request, chat_id):
     messages = ChatMessage.objects.filter(chat_id=chat_id).order_by('timestamp')
     message_list = []
+    
     for message in messages:
         message_data = {
             'id': message.id,
             'sender_id': message.sender_id,
             'sender_name': message.sender_name,
-            'message': message.message,
+            'message': message.get_message(),  # Desencriptar aquí
             'image': message.image.url if message.image else None,
             'pdf': message.pdf.url if message.pdf else None,
             'type': 'image' if message.image else 'pdf' if message.pdf else 'text',
             'timestamp': message.timestamp.isoformat(),
         }
         message_list.append(message_data)
+
     return JsonResponse(message_list, safe=False)
 
 @csrf_exempt
@@ -391,25 +473,30 @@ class VerifyEmailView(APIView):
         
 
 @api_view(['GET', 'PUT'])
+@authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
 def patient_profile(request):
     if request.method == 'GET':
-        # Serializar al usuario con los datos de perfil
         user_serializer = UserSerializer(request.user)
         return Response(user_serializer.data)
 
     elif request.method == 'PUT':
-        # Serializar al usuario para actualizar datos del perfil
         user_serializer = UserSerializer(request.user, data=request.data, partial=True)
-        perfil_serializer = PerfilSerializer(request.user.perfil, data=request.data, partial=True)  # Actualizamos el perfil
+        perfil_serializer = PerfilSerializer(request.user.perfil, data=request.data, partial=True)
 
         if user_serializer.is_valid() and perfil_serializer.is_valid():
             user_serializer.save()
-            perfil_serializer.save()  # Guardamos los cambios en el perfil
-            return Response({"message": "Datos actualizados con éxito"})
+            perfil_serializer.save()
+
+            # Recargar datos desde la BD para asegurarse de que se pasan por `to_representation`
+            request.user.refresh_from_db()
+            request.user.perfil.refresh_from_db()
+
+            return Response(UserSerializer(request.user).data)  # Esto asegurará que los valores se desencripten correctamente
         
-        # Si no es válido, respondemos con el error
-        return Response(user_serializer.errors, status=400)
+        return Response({"errors": {**user_serializer.errors, **perfil_serializer.errors}}, status=400)
+
+
     
 
 class GenerarRecetaView(APIView):
@@ -430,10 +517,10 @@ class GenerarRecetaView(APIView):
                 paciente=consulta.paciente,
                 medico=consulta.medico,
                 nombre_paciente=data['nombre_paciente'],
-                id_card=consulta.paciente.perfil.id_card,
-                genero=consulta.genero,
-                tipo_sangre=consulta.tipo_sangre,
-                alergias=consulta.alergias,
+                id_card=consulta.paciente.perfil.get_id_card(),
+                genero=consulta.get_genero(),
+                tipo_sangre=consulta.get_tipo_sangre(),
+                alergias=consulta.get_alergias(),
                 edad=consulta.edad,
                 peso=data['peso'],
                 talla=data['talla'],
@@ -502,13 +589,13 @@ class GenerarRecetaView(APIView):
             elements.append(Paragraph("<b>PACIENTE</b>", header_style))
             # Información del paciente (solo las palabras específicas en negrita)
             paciente_data = f"""
-                Nombre: {receta.nombre_paciente}<br/>
-                CI: {receta.id_card}<br/>
+                Nombre: {receta.get_nombre_paciente()}<br/>
+                CI: {receta.get_id_card()}<br/>
                 Edad: {receta.edad}<br/>
-                Género: {receta.genero}<br/>
+                Género: {receta.get_genero()}<br/>
                 <b></b>
-                Alergias: {receta.alergias or 'Ninguna'}<br/>
-                Grupo Sanguineo: {receta.tipo_sangre} Peso: {receta.peso} kg, Talla: {receta.talla} cm
+                Alergias: {receta.get_alergias() or 'Ninguna'}<br/>
+                Grupo Sanguineo: {receta.get_tipo_sangre()} Peso: {receta.peso} kg, Talla: {receta.talla} cm
             """
             # Modificar estilo de negrita solo en los datos específicos
             paciente_data = paciente_data.replace("Nombre:", "<b>Nombre:</b>").replace("CI:", "<b>CI:</b>").replace("Edad:", "<b>Edad:</b>").replace("Género:", "<b>Género:</b>").replace("Alergias:", "<b>Alergias:</b>").replace("Grupo Sanguineo:", "<b>Grupo Sanguineo:</b>").replace("Peso:", "<b>Peso:</b>").replace("Talla:", "<b>Talla:</b>")
@@ -521,7 +608,7 @@ class GenerarRecetaView(APIView):
 
             # Diagnóstico
             elements.append(Paragraph("<b>DIAGNÓSTICO</b>", header_style))
-            elements.append(Paragraph(receta.diagnostico, normal_style))
+            elements.append(Paragraph(receta.get_diagnostico(), normal_style))
             elements.append(Spacer(1, 12))
 
             # Agregar una línea horizontal después del diagnóstico
@@ -529,13 +616,13 @@ class GenerarRecetaView(APIView):
 
             # Tratamiento
             elements.append(Paragraph("<b>TRATAMIENTO</b>", header_style))
-            elements.append(Paragraph(receta.tratamiento, normal_style))
+            elements.append(Paragraph(receta.get_tratamiento(), normal_style))
             elements.append(Spacer(1, 12))
 
             # Otras indicaciones
             if receta.indicaciones:
                 elements.append(Paragraph("<b>Otras indicaciones</b>", bold_style))
-                elements.append(Paragraph(receta.indicaciones, normal_style))
+                elements.append(Paragraph(receta.get_indicaciones(), normal_style))
                 elements.append(Spacer(1, 12))
 
             # Firma
@@ -569,7 +656,7 @@ class GenerarRecetaView(APIView):
             if receta.notas:
                 elements.append(Spacer(1, 24))
                 elements.append(Paragraph("<b>Notas:</b>", bold_style_small))
-                elements.append(Paragraph(receta.notas, small_style))
+                elements.append(Paragraph(receta.get_notas(), small_style))
 
             # Construir PDF
             doc.build(elements)
@@ -636,10 +723,10 @@ class GenerarRecetaView(APIView):
 
 # Vista para obtener todas las consultas y recetas con filtros
 def historial_consultas(request):
-    consultas = Consulta.objects.all()
-    recetas = Receta.objects.all()
+    consultas = Consulta.objects.select_related('medico').all()
+    recetas = Receta.objects.select_related('medico').all()
 
-    # Filtros por fecha, consultas, recetas y búsqueda por palabra
+    # Filtros
     fecha_inicio = request.GET.get('fecha_inicio')
     fecha_fin = request.GET.get('fecha_fin')
     
@@ -656,20 +743,39 @@ def historial_consultas(request):
 
     if 'busqueda' in request.GET:
         busqueda = request.GET['busqueda']
-        consultas = consultas.filter(motivo_consulta__icontains=busqueda)
+        consultas = consultas.filter(motivo_consulta__icontains=encrypt_data(busqueda))  # La búsqueda debe compararse encriptada
 
-    # Paginación de resultados
-    paginator = Paginator(consultas, 10)  # 10 consultas por página
+    # Paginación
+    paginator = Paginator(consultas, 10)
     page = request.GET.get('page')
     consultas_paginadas = paginator.get_page(page)
 
-    # Usamos list() para convertir el queryset a una lista de diccionarios
-    consultas_data = list(consultas_paginadas.object_list.values(
-        'id', 'fecha', 'hora', 'estado', 'motivo_consulta', 'genero', 'tipo_sangre', 'edad', 'tipo_consulta', 'embarazo', 'medico__first_name', 'medico__last_name'
-    ))
-    recetas_data = list(recetas.values(
-        'id', 'nombre_paciente', 'diagnostico', 'fecha_creacion', 'medico__first_name', 'medico__last_name'
-    ))
+    # Construcción de datos desencriptados
+    consultas_data = []
+    for consulta in consultas_paginadas:
+        consultas_data.append({
+            'id': consulta.id,
+            'fecha': consulta.fecha,
+            'hora': consulta.hora,
+            'estado': consulta.estado,
+            'motivo_consulta': consulta.get_motivo_consulta(),
+            'genero': consulta.get_genero(),
+            'tipo_sangre': consulta.get_tipo_sangre(),
+            'edad': consulta.edad,
+            'tipo_consulta': consulta.tipo_consulta,
+            'embarazo': consulta.embarazo,
+            'medico_nombre': f"{consulta.medico.first_name} {consulta.medico.last_name}" if consulta.medico else None
+        })
+
+    recetas_data = []
+    for receta in recetas:
+        recetas_data.append({
+            'id': receta.id,
+            'nombre_paciente': receta.get_nombre_paciente(),
+            'diagnostico': receta.get_diagnostico(),
+            'fecha_creacion': receta.fecha_creacion,
+            'medico_nombre': f"{receta.medico.first_name} {receta.medico.last_name}" if receta.medico else None
+        })
 
     data = {
         'consultas': consultas_data,
@@ -678,7 +784,7 @@ def historial_consultas(request):
         'total_recetas': recetas.count()
     }
 
-    return JsonResponse(data)
+    return JsonResponse(data, safe=False)
 
 
 def generar_reporte(request):
@@ -708,44 +814,56 @@ def generar_reporte(request):
     promedio_edad = consultas.aggregate(promedio_edad=Avg('edad'))['promedio_edad']
     promedio_edad = round(promedio_edad, 2) if promedio_edad else "No disponible"
 
-    fecha_generacion = now().strftime("%Y-%m-%d %H:%M:%S")
+    fecha_generacion = now().strftime("%d/%m/%Y %H:%M:%S")
 
     if reporte_tipo == 'estado':
         consultas_por_estado = consultas.values('estado').annotate(count=Count('estado'))
         chart_data = consultas_por_estado
-        title = 'Consultas por estado'
+        title = 'Consultas por Estado'
         xlabel = 'Estado'
         ylabel = 'Cantidad'
     elif reporte_tipo == 'genero':
-        consultas_por_genero = consultas.values('genero').annotate(count=Count('genero'))
-        chart_data = consultas_por_genero
-        title = 'Consultas por género'
+        conteo_genero = {}
+        for consulta in consultas:
+            genero = consulta.get_genero()
+            if genero:
+                conteo_genero[genero] = conteo_genero.get(genero, 0) + 1
+
+        chart_data = [{'genero': genero, 'count': count} for genero, count in conteo_genero.items()]
+        title = 'Consultas por Género'
         xlabel = 'Género'
         ylabel = 'Cantidad'
+
     elif reporte_tipo == 'especialidad':
         consultas_por_especialidad = consultas.filter(medico__specialty__in=especialidades) \
             .values('medico__specialty').annotate(count=Count('medico__specialty'))
         chart_data = consultas_por_especialidad
-        title = 'Consultas por especialidad'
+        title = 'Consultas por Especialidad'
         xlabel = 'Especialidad'
         ylabel = 'Cantidad'
     elif reporte_tipo == 'edad':
         consultas_por_edad = consultas.values('edad').annotate(count=Count('edad'))
         chart_data = consultas_por_edad
-        title = 'Consultas por edad'
+        title = 'Consultas por Edad'
         xlabel = 'Edad'
         ylabel = 'Cantidad'
     elif reporte_tipo == 'tipo_sangre':
-        consultas_por_tipo_sangre = consultas.values('tipo_sangre').annotate(count=Count('tipo_sangre'))
-        chart_data = consultas_por_tipo_sangre
-        title = 'Consultas por tipo de sangre'
-        xlabel = 'Tipo de sangre'
+        conteo_tipo_sangre = {}
+        for consulta in consultas:
+            tipo_sangre = consulta.get_tipo_sangre()
+            if tipo_sangre:
+                conteo_tipo_sangre[tipo_sangre] = conteo_tipo_sangre.get(tipo_sangre, 0) + 1
+
+        chart_data = [{'tipo_sangre': ts, 'count': count} for ts, count in conteo_tipo_sangre.items()]
+        title = 'Consultas por Tipo de Sangre'
+        xlabel = 'Tipo de Sangre'
         ylabel = 'Cantidad'
+
     elif reporte_tipo == 'tipo_consulta':
         consultas_por_tipo_consulta = consultas.values('tipo_consulta').annotate(count=Count('tipo_consulta'))
         chart_data = consultas_por_tipo_consulta
-        title = 'Consultas por tipo de consulta'
-        xlabel = 'Tipo de consulta'
+        title = 'Consultas por Tipo de Consulta'
+        xlabel = 'Tipo de Consulta'
         ylabel = 'Cantidad'
     else:
         chart_data = []
@@ -755,102 +873,251 @@ def generar_reporte(request):
 
     def create_chart(data, title, xlabel, ylabel, chart_type='barras_verticales'):
         plt.clf()
+        plt.figure(figsize=(10, 6))  # Tamaño más grande para mejor visualización
+        
+        # Configurar estilo más profesional
+        plt.style.use('seaborn-v0_8-whitegrid')
+        
         labels = [str(item.get(list(item.keys())[0], 'Desconocido')) for item in data]
         counts = [item.get('count', 0) for item in data]
 
-        colores_aleatorios = ['#' + ''.join([random.choice('0123456789ABCDEF') for _ in range(6)]) for _ in labels]
+        # Colores corporativos en lugar de aleatorios
+        colores_corporativos = ['#392682', '#28ada8', '#4e4ab7', '#6e55e0', '#1a5e7a', 
+                               '#2c7da0', '#3f3c93', '#064e3b', '#34d399', '#10b981']
+        
+        # Si hay más categorías que colores, repetir los colores
+        colores = [colores_corporativos[i % len(colores_corporativos)] for i in range(len(labels))]
 
         if chart_type == 'barras_horizontales':
-            plt.barh(labels, counts, color=colores_aleatorios)
+            bars = plt.barh(labels, counts, color=colores)
+            # Añadir valores en las barras
+            for i, v in enumerate(counts):
+                plt.text(v + 0.1, i, str(v), va='center')
         elif chart_type == 'pastel':
-            plt.pie(counts, labels=labels, autopct='%1.1f%%', startangle=140, colors=colores_aleatorios)
-        else:
-            plt.bar(labels, counts, color=colores_aleatorios)
+            plt.pie(counts, labels=labels, autopct='%1.1f%%', startangle=140, colors=colores,
+                   wedgeprops={'edgecolor': 'white', 'linewidth': 1})
+            plt.axis('equal')  # Asegurar que el gráfico sea circular
+        else:  # barras_verticales
+            bars = plt.bar(labels, counts, color=colores)
+            # Añadir valores encima de las barras
+            for bar in bars:
+                height = bar.get_height()
+                plt.text(bar.get_x() + bar.get_width()/2., height + 0.1,
+                        str(int(height)), ha='center', va='bottom')
 
-        plt.title(title)
-        plt.xlabel(xlabel if chart_type != 'pastel' else '')
-        plt.ylabel(ylabel if chart_type != 'pastel' else '')
+        plt.title(title, fontsize=14, fontweight='bold')
+        plt.xlabel(xlabel if chart_type != 'pastel' else '', fontsize=12)
+        plt.ylabel(ylabel if chart_type != 'pastel' else '', fontsize=12)
+        
+        # Rotar etiquetas si son muchas
+        if len(labels) > 5 and chart_type != 'barras_horizontales' and chart_type != 'pastel':
+            plt.xticks(rotation=45, ha='right')
+        
+        plt.tight_layout()  # Ajustar automáticamente el diseño
 
         with tempfile.NamedTemporaryFile(delete=False, suffix='.png') as tmpfile:
-            plt.savefig(tmpfile, format='png')
+            plt.savefig(tmpfile, format='png', dpi=300)  # Mayor resolución
             tmpfile.close()
             return tmpfile.name
 
     chart = create_chart(chart_data, title, xlabel, ylabel, grafico_tipo)
 
-    pdf = FPDF()
+    # Crear una clase personalizada de FPDF para encabezados y pies de página
+    class PDF(FPDF):
+        def header(self):
+            # Logo
+            logo_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'profile_pictures/logos/logo_reportes.png')
+            if os.path.exists(logo_path):
+                self.image(logo_path, 10, 8, 30)
+            
+            # Título del reporte
+            self.set_font('Arial', 'B', 16)
+            self.set_text_color(57, 38, 130)  # Color corporativo #392682
+            self.cell(0, 10, 'REPORTE DE CONSULTAS MEDITEST', 0, 1, 'C')
+            
+            # Subtítulo con el tipo de reporte
+            self.set_font('Arial', 'I', 12)
+            self.set_text_color(44, 44, 44)
+            self.cell(0, 10, title, 0, 1, 'C')
+            
+            # Fecha de generación
+            self.set_font('Arial', '', 9)
+            self.set_text_color(100, 100, 100)
+            self.cell(0, 5, f'Fecha de Generación: {fecha_generacion}', 0, 1, 'R')
+            
+            # Espacio después del encabezado
+            self.ln(10)
+        
+        def footer(self):
+            # Posicionarse a 1.5 cm del final
+            self.set_y(-15)
+            
+            # Línea separadora
+            self.set_draw_color(57, 38, 130)  # Color corporativo #392682
+            self.line(10, self.get_y(), 200, self.get_y())
+            
+            # Información de pie de página
+            self.set_font('Arial', 'I', 8)
+            self.set_text_color(100, 100, 100)
+            self.cell(0, 10, 'MediTest - Plataforma de Consultas Médicas Online', 0, 0, 'L')
+            
+            # Número de página
+            self.cell(0, 10, f'Página {self.page_no()}', 0, 0, 'R')
+
+    # Iniciar PDF con la clase personalizada
+    pdf = PDF()
+    pdf.set_auto_page_break(auto=True, margin=15)
     pdf.add_page()
-
-    # Fecha de generación como encabezado (alineada a la derecha)
-    pdf.set_font('Arial', 'I', 10)
-    pdf.cell(0, 10, f'Fecha de Generación: {fecha_generacion}', ln=True, align='R')
-
-    # Título del reporte
-    pdf.set_font('Arial', 'B', 16)
-    pdf.cell(200, 10, 'Reporte de Consultas', ln=True, align='C')
-
-    # Título del gráfico
-    pdf.set_font('Arial', '', 12)
-    pdf.ln(10)  # Espacio antes del título
-    pdf.cell(200, 10, title, ln=True, align='C')
+    
+    # Configurar márgenes
+    pdf.set_margins(10, 10, 10)
     
     # Incluir el gráfico
     if chart:
-        pdf.image(chart, x=10, y=30, w=180)
-
+        # Calcular posición para centrar el gráfico
+        pdf.image(chart, x=15, y=40, w=180)
+    
+    # Espacio después del gráfico
+    pdf.ln(100)  # Ajustar según el tamaño del gráfico
+    
+    # Sección de estadísticas
+    pdf.set_fill_color(240, 240, 255)  # Fondo suave
+    pdf.set_font('Arial', 'B', 14)
+    pdf.set_text_color(57, 38, 130)  # Color corporativo #392682
+    pdf.cell(0, 10, 'RESUMEN ESTADÍSTICO', 0, 1, 'L', 1)
+    
+    # Línea separadora
+    pdf.ln(2)
+    
+    # Estadísticas generales
+    pdf.set_font('Arial', 'B', 11)
+    pdf.set_text_color(44, 44, 44)
+    pdf.cell(0, 8, 'Datos Generales:', 0, 1, 'L')
+    
+    pdf.set_font('Arial', '', 10)
+    
+    # Crear tabla para datos generales
+    col_width = 95
+    row_height = 8
+    
+    # Fila 1
+    pdf.set_fill_color(248, 248, 255)
+    pdf.cell(col_width, row_height, f'Total de Consultas: {total_consultas}', 1, 0, 'L', 1)
+    pdf.cell(col_width, row_height, f'Promedio de Edad: {promedio_edad}', 1, 1, 'L', 1)
+    
+    # Rango de Fechas
+    if fecha_inicio and fecha_fin:
+        fecha_inicio_format = datetime.strptime(fecha_inicio, '%Y-%m-%d').strftime('%d/%m/%Y')
+        fecha_fin_format = datetime.strptime(fecha_fin, '%Y-%m-%d').strftime('%d/%m/%Y')
+        pdf.cell(0, row_height, f'Rango de Fechas: {fecha_inicio_format} - {fecha_fin_format}', 1, 1, 'L', 1)
+    else:
+        pdf.cell(0, row_height, 'Rango de Fechas: Todas las fechas', 1, 1, 'L', 1)
+    
+    pdf.ln(5)
+    
     # Estadísticas adicionales
     consultas_por_estado = consultas.values('estado').annotate(count=Count('estado'))
     estado_consultas = {estado['estado']: estado['count'] for estado in consultas_por_estado}
     canceladas = estado_consultas.get('cancelada', 0)
     realizadas = estado_consultas.get('realizada', 0)
     pendientes = estado_consultas.get('pendiente', 0)
+    
+    # Título de sección
+    pdf.set_font('Arial', 'B', 11)
+    pdf.cell(0, 8, 'Consultas por Estado:', 0, 1, 'L')
+    
+    # Tabla de estados
+    pdf.set_font('Arial', '', 10)
+    
+    # Encabezados
+    pdf.set_fill_color(57, 38, 130)
+    pdf.set_text_color(255, 255, 255)
+    pdf.cell(col_width/2, row_height, 'Estado', 1, 0, 'C', 1)
+    pdf.cell(col_width/2, row_height, 'Cantidad', 1, 0, 'C', 1)
+    pdf.cell(col_width, row_height, 'Porcentaje', 1, 1, 'C', 1)
+    
+    # Datos
+    pdf.set_text_color(44, 44, 44)
+    
+    # Realizadas
+    pdf.set_fill_color(230, 255, 230)  # Verde claro
+    pdf.cell(col_width/2, row_height, 'Realizadas', 1, 0, 'L', 1)
+    pdf.cell(col_width/2, row_height, f'{realizadas}', 1, 0, 'C', 1)
+    pdf.cell(col_width, row_height, f'{(realizadas/total_consultas)*100:.2f}%' if total_consultas > 0 else '0.00%', 1, 1, 'C', 1)
+    
+    # Pendientes
+    pdf.set_fill_color(255, 255, 230)  # Amarillo claro
+    pdf.cell(col_width/2, row_height, 'Pendientes', 1, 0, 'L', 1)
+    pdf.cell(col_width/2, row_height, f'{pendientes}', 1, 0, 'C', 1)
+    pdf.cell(col_width, row_height, f'{(pendientes/total_consultas)*100:.2f}%' if total_consultas > 0 else '0.00%', 1, 1, 'C', 1)
+    
+    # Canceladas
+    pdf.set_fill_color(255, 230, 230)  # Rojo claro
+    pdf.cell(col_width/2, row_height, 'Canceladas', 1, 0, 'L', 1)
+    pdf.cell(col_width/2, row_height, f'{canceladas}', 1, 0, 'C', 1)
+    pdf.cell(col_width, row_height, f'{(canceladas/total_consultas)*100:.2f}%' if total_consultas > 0 else '0.00%', 1, 1, 'C', 1)
+    
+    pdf.ln(5)
+    
+    # Calcular promedio de edad por género (desencriptando)
+    promedio_edad_genero = {}
+    conteo_genero = {}
 
-    # Promedio de Edad por Género
-    promedio_edad_genero = consultas.values('genero').annotate(promedio_edad=Avg('edad'))
-    promedio_edad_genero = {item['genero']: item['promedio_edad'] for item in promedio_edad_genero}
+    for consulta in consultas:
+        genero = consulta.get_genero()
+        if genero and consulta.edad is not None:
+            if genero in promedio_edad_genero:
+                promedio_edad_genero[genero] += consulta.edad
+                conteo_genero[genero] += 1
+            else:
+                promedio_edad_genero[genero] = consulta.edad
+                conteo_genero[genero] = 1
 
-    # Agregar los datos al reporte PDF
-    pdf.ln(120)  # Espacio adicional antes de la sección
-    pdf.set_font('Arial', 'B', 12)
-    pdf.cell(0, 10, 'Datos Adicionales:', ln=True)
+    # Dividir sumatoria entre cantidad para obtener el promedio
+    for genero in promedio_edad_genero:
+        promedio_edad_genero[genero] /= conteo_genero[genero]
+    
+    # Título de sección
+    if promedio_edad_genero:
+        pdf.set_font('Arial', 'B', 11)
+        pdf.cell(0, 8, 'Promedio de Edad por Género:', 0, 1, 'L')
+        
+        # Tabla de promedios por género
+        pdf.set_font('Arial', '', 10)
+        
+        # Encabezados
+        pdf.set_fill_color(57, 38, 130)
+        pdf.set_text_color(255, 255, 255)
+        pdf.cell(col_width, row_height, 'Género', 1, 0, 'C', 1)
+        pdf.cell(col_width, row_height, 'Promedio de Edad', 1, 1, 'C', 1)
+        
+        # Datos
+        pdf.set_text_color(44, 44, 44)
+        pdf.set_fill_color(248, 248, 255)
+        
+        for i, (genero, edad) in enumerate(promedio_edad_genero.items()):
+            fill = i % 2 == 0  # Alternar colores de fila
+            pdf.cell(col_width, row_height, genero, 1, 0, 'L', fill)
+            pdf.cell(col_width, row_height, f'{edad:.2f} años', 1, 1, 'C', fill)
 
-    pdf.set_font('Arial', '', 12)
-    pdf.cell(0, 10, f'Total de Consultas: {total_consultas}', ln=True)
-    pdf.cell(0, 10, f'Promedio de Edad de los Pacientes: {promedio_edad}', ln=True)
-
-    # Rango de Fechas
-    if fecha_inicio and fecha_fin:
-        pdf.cell(0, 10, f'Rango de Fechas: {fecha_inicio} - {fecha_fin}', ln=True)
-    else:
-        pdf.cell(0, 10, 'Rango de Fechas: No disponible', ln=True)
-
-    # Consultas por Estado
-    pdf.cell(0, 10, f'Consultas Realizadas: {realizadas} ({(realizadas/total_consultas)*100:.2f}%)', ln=True)
-    pdf.cell(0, 10, f'Consultas Pendientes: {pendientes} ({(pendientes/total_consultas)*100:.2f}%)', ln=True)
-    pdf.cell(0, 10, f'Consultas Canceladas: {canceladas} ({(canceladas/total_consultas)*100:.2f}%)', ln=True)
-
-    # Promedio de Edad por Género
-    for genero, edad in promedio_edad_genero.items():
-        pdf.cell(0, 10, f'Promedio de Edad de {genero}: {edad:.2f}', ln=True)
-
-    pdf.ln(6.99)  # Espacio para el pie de página
-    pdf.set_font('Arial', 'I', 10)
-    pdf.cell(0, 10, 'Equipo de MediTest', ln=True, align='L')
-
+    # Generar el PDF
     pdf_output = pdf.output(dest='S').encode('latin1')
     response = HttpResponse(pdf_output, content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="reporte_consultas.pdf"'
+    response['Content-Disposition'] = f'attachment; filename="reporte_consultas_{reporte_tipo}.pdf"'
     
     return response
 
 
 @api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
 def get_authenticated_doctor(request):
-    if request.user.is_authenticated and hasattr(request.user, 'doctor'):
+    if hasattr(request.user, 'doctor'):
         doctor = request.user.doctor
         serializer = DoctorSerializer(doctor)
         return Response(serializer.data)
     return Response({'detail': 'Usuario no autorizado'}, status=401)
+
 
 @api_view(['POST'])
 @parser_classes([MultiPartParser, FormParser])
@@ -992,3 +1259,319 @@ def reprogramar_consulta(request, token):
         return JsonResponse({"success": False, "error": "Token inválido o consulta no encontrada"}, status=404)
 
     return JsonResponse({"success": False, "error": "Método no permitido"}, status=405)
+
+
+@csrf_exempt
+def enviar_solicitud_medico(request):
+    if request.method == 'POST':
+        try:
+            # Obtener los datos del formulario en JSON
+            data = json.loads(request.body)
+            nombre = data.get("nombre", "")
+            especialidad = data.get("especialidad", "")
+            email = data.get("email", "")
+            telefono = data.get("telefono", "")
+            mensaje = data.get("mensaje", "")
+
+            # Verificar que los campos requeridos estén completos
+            if not (nombre and especialidad and email and telefono):
+                return JsonResponse({"success": False, "error": "Todos los campos obligatorios deben estar llenos."}, status=400)
+
+            # 📌 1️⃣ Enviar correo a la empresa con los datos del médico
+            subject_empresa = "Nueva solicitud de información de un médico"
+            message_empresa = (
+                f"Nombre: {nombre}\n"
+                f"Especialidad: {especialidad}\n"
+                f"Correo Electrónico: {email}\n"
+                f"Teléfono: {telefono}\n"
+                f"Mensaje:\n\n{mensaje if mensaje else 'Sin mensaje adicional.'}\n"
+            )
+            destinatario_empresa = "servesa07@gmail.com"
+            send_mail(subject_empresa, message_empresa, 'servesa07@gmail.com', [destinatario_empresa])
+
+            # 📌 2️⃣ Enviar respuesta automática al médico solicitante con imagen adjunta
+
+            # Ruta de la imagen del logo
+            logo_path = os.path.join(settings.MEDIA_ROOT, "profile_pictures/logos/logo1.png")
+
+            # Estructura del correo en HTML con referencia a la imagen adjunta
+            message_medico_html = """
+            <html>
+            <head>
+                <style>
+                    .email-container {{
+                        font-family: Arial, sans-serif;
+                        max-width: 800px;
+                        margin: 0 auto;
+                        border: 1px solid #ddd;
+                        border-radius: 8px;
+                        overflow: hidden;
+                        box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.1);
+                    }}
+                    .email-header {{
+                        background: linear-gradient(135deg, #392682 55%, #28ADA8 100%);
+                        color: white;
+                        text-align: center;
+                        padding: 20px;
+                    }}
+                    .email-header img {{
+                        max-width: 120px;
+                    }}
+                    .email-body {{
+                        padding: 20px;
+                        color: #333;
+                    }}
+                    .email-body h2 {{
+                        color: #392682;
+                    }}
+                    .email-footer {{
+                        background: #f1f1f1;
+                        padding: 15px;
+                        text-align: center;
+                        font-size: 12px;
+                        color: #666;
+                    }}
+                </style>
+            </head>
+            <body>
+                <div class="email-container">
+                    <div class="email-header">
+                        <img src="cid:logo_meditest" alt="MediTest Logo">
+                    </div>
+                    <div class="email-body">
+                        <h2>¡Gracias por tu interés en MediTest!</h2>
+                        <p>Estimado/a <strong>{nombre}</strong>,</p>
+                        <p>Nos complace saber que estás interesado en unirte a nuestra plataforma.</p>
+                        <p>Para completar tu registro, necesitamos los siguientes documentos:</p>
+                        <ul>
+                            <li>✅ Certificado de especialidad médica</li>
+                            <li>✅ Copia de tu licencia médica</li>
+                            <li>✅ Identificación oficial</li>
+                            <li>✅ Experiencia y referencias profesionales</li>
+                        </ul>
+                        <p><strong>Beneficios de unirte a MediTest:</strong></p>
+                        <ul>
+                            <li>🔹 Flexibilidad para gestionar tu agenda</li>
+                            <li>🔹 Acceso a pacientes de distintas ubicaciones</li>
+                            <li>🔹 Herramientas digitales para recetas y diagnósticos</li>
+                            <li>🔹 Soporte técnico y administrativo continuo</li>
+                        </ul>
+                        <p>Adjunto encontrarás un contrato en borrador con más detalles sobre nuestra colaboración.</p>
+                        <p>Si tienes preguntas, contáctanos al <strong>+591 68449128</strong> o responde a este correo.</p>
+                        <p>Atentamente,<br><strong>Equipo de MediTest</strong></p>
+                    </div>
+                    <div class="email-footer">
+                        © 2025 MediTest. Todos los derechos reservados.
+                    </div>
+                </div>
+            </body>
+            </html>
+            """
+
+            # Ruta del contrato en PDF
+            contrato_path = os.path.join(settings.MEDIA_ROOT, "profile_pictures/contracts/Contrato_MediTest.pdf")
+
+            # Crear el correo en formato HTML usando EmailMultiAlternatives
+            email_medico = EmailMultiAlternatives(
+                subject="Gracias por tu interés en MediTest",
+                body="Este es un correo en formato HTML. Si ves esto, tu cliente de correo no soporta HTML.",
+                from_email='servesa07@gmail.com',
+                to=[email]
+            )
+            email_medico.attach_alternative(message_medico_html.format(nombre=nombre), "text/html")  # Adjuntar HTML
+
+            # Adjuntar el logo con una Content ID (cid)
+            if os.path.exists(logo_path):
+                with open(logo_path, 'rb') as f:
+                    logo_data = f.read()
+                    logo_mime = MIMEImage(logo_data)  # Crear un objeto MIMEImage
+                    logo_mime.add_header('Content-ID', '<logo_meditest>')  # Asignar Content-ID
+                    logo_mime.add_header('Content-Disposition', 'inline', filename='logo1.png')  # Marcar como inline
+                    email_medico.attach(logo_mime)  # Adjuntar la imagen
+
+            # Adjuntar contrato si existe
+            if os.path.exists(contrato_path):
+                email_medico.attach_file(contrato_path)
+
+            # Enviar el correo
+            email_medico.send()
+
+            return JsonResponse({"success": True, "message": "Solicitud enviada correctamente con imagen y contrato adjuntos"}, status=200)
+
+        except Exception as e:
+            print(f"Error en enviar_solicitud_medico: {e}")
+            return JsonResponse({"success": False, "error": str(e)}, status=400)
+
+    return JsonResponse({"success": False, "error": "Método no permitido"}, status=405)
+
+@csrf_exempt
+@require_POST
+def request_password_reset(request):
+    """
+    Vista para solicitar un restablecimiento de contraseña.
+    Envía un correo electrónico con un enlace para restablecer la contraseña.
+    """
+    try:
+        data = json.loads(request.body)
+        email = data.get('email')
+        
+        if not email:
+            return JsonResponse({'error': 'El correo electrónico es requerido'}, status=400)
+        
+        # Verificar si el usuario existe
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return JsonResponse({'error': 'No existe una cuenta con este correo electrónico'}, status=404)
+        
+        # Generar token único para este usuario
+        token = default_token_generator.make_token(user)
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+        
+        # Construir URL para restablecer contraseña
+        reset_url = f"{settings.FRONTEND_URL}reset-password/{uid}/{token}/"
+        
+        # Ruta de la imagen del logo
+        logo_path = os.path.join(settings.MEDIA_ROOT, "profile_pictures/logos/logo1.png")
+        
+        # Estructura del correo en HTML
+        message_html = f"""
+        <html>
+        <head>
+            <style>
+                .email-container {{
+                    font-family: Arial, sans-serif;
+                    max-width: 800px;
+                    margin: 0 auto;
+                    border: 1px solid #ddd;
+                    border-radius: 8px;
+                    overflow: hidden;
+                    box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.1);
+                }}
+                .email-header {{
+                    background: linear-gradient(135deg, #392682 55%, #28ADA8 100%);
+                    color: white;
+                    text-align: center;
+                    padding: 20px;
+                }}
+                .email-header img {{
+                    max-width: 120px;
+                }}
+                .email-body {{
+                    padding: 20px;
+                    color: #333;
+                }}
+                .email-body h2 {{
+                    color: #392682;
+                }}
+                .reset-button {{
+                    display: inline-block;
+                    background-color: #4e4ab7;
+                    color: white;
+                    text-align: center;
+                    border-radius: 6px;
+                    padding: 12px 24px;
+                    border-radius: 6px;
+                    margin: 20px 0;
+                }}
+                .reset-button:hover {{
+                    background-color: #3f3c93;
+                }}
+                .email-footer {{
+                    background: #f1f1f1;
+                    padding: 15px;
+                    text-align: center;
+                    font-size: 12px;
+                    color: #666;
+                }}
+            </style>
+        </head>
+        <body>
+            <div class="email-container">
+                <div class="email-header">
+                    <img src="cid:logo_meditest" alt="MediTest Logo">
+                </div>
+                <div class="email-body">
+                    <h2>Restablecimiento de Contraseña</h2>
+                    <p>Hola <strong>{user.first_name}</strong>,</p>
+                    <p>Hemos recibido una solicitud para restablecer la contraseña de tu cuenta en MediTest.</p>
+                    <p>Para continuar con el proceso, haz clic en el siguiente botón:</p>
+                    <p style="text-align: center;">
+                        <a href="{reset_url}" class="reset-button">Restablecer Contraseña</a>
+                    </p>
+                    <p>Si no solicitaste este cambio, puedes ignorar este correo y tu contraseña seguirá siendo la misma.</p>
+                    <p>Este enlace expirará en 24 horas por motivos de seguridad.</p>
+                    <p>Atentamente,<br><strong>Equipo de MediTest</strong></p>
+                </div>
+                <div class="email-footer">
+                    © 2025 MediTest. Todos los derechos reservados.
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+        
+        # Crear el correo en formato HTML usando EmailMultiAlternatives
+        email_message = EmailMultiAlternatives(
+            subject="Restablecimiento de Contraseña - MediTest",
+            body="Este es un correo en formato HTML. Si ves esto, tu cliente de correo no soporta HTML.",
+            from_email='servesa07@gmail.com',
+            to=[email]
+        )
+        email_message.attach_alternative(message_html, "text/html")
+        
+        # Adjuntar el logo con una Content ID (cid)
+        if os.path.exists(logo_path):
+            with open(logo_path, 'rb') as f:
+                logo_data = f.read()
+                logo_mime = MIMEImage(logo_data)
+                logo_mime.add_header('Content-ID', '<logo_meditest>')
+                logo_mime.add_header('Content-Disposition', 'inline', filename='logo1.png')
+                email_message.attach(logo_mime)
+        
+        # Enviar el correo
+        email_message.send()
+        
+        return JsonResponse({'success': True, 'message': 'Se ha enviado un correo electrónico con instrucciones para restablecer tu contraseña'})
+    
+    except Exception as e:
+        print(f"Error en request_password_reset: {e}")
+        return JsonResponse({'error': str(e)}, status=500)
+
+@csrf_exempt
+@require_POST
+def reset_password_confirm(request):
+    """
+    Vista para confirmar el restablecimiento de contraseña.
+    Verifica el token y establece la nueva contraseña.
+    """
+    try:
+        data = json.loads(request.body)
+        uid = data.get('uid')
+        token = data.get('token')
+        new_password = data.get('new_password')
+        
+        if not (uid and token and new_password):
+            return JsonResponse({'error': 'Todos los campos son requeridos'}, status=400)
+        
+        try:
+            # Decodificar el uid para obtener el ID del usuario
+            user_id = force_str(urlsafe_base64_decode(uid))
+            user = User.objects.get(pk=user_id)
+            
+            # Verificar que el token sea válido
+            if not default_token_generator.check_token(user, token):
+                return JsonResponse({'error': 'El enlace de restablecimiento no es válido o ha expirado'}, status=400)
+            
+            # Establecer la nueva contraseña
+            user.set_password(new_password)
+            user.save()
+            
+            return JsonResponse({'success': True, 'message': 'Tu contraseña ha sido restablecida con éxito'})
+            
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            return JsonResponse({'error': 'El enlace de restablecimiento no es válido'}, status=400)
+    
+    except Exception as e:
+        print(f"Error en reset_password_confirm: {e}")
+        return JsonResponse({'error': str(e)}, status=500)

@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 from pathlib import Path
 import os
+from datetime import timedelta
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -73,7 +75,15 @@ MIDDLEWARE = [
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),  # Token expira en 60 minutos
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),  # Permite renovar el token por 1 día
+    'ROTATE_REFRESH_TOKENS': True,  # Genera un nuevo refresh token en cada renovación
+    'BLACKLIST_AFTER_ROTATION': True,  # Evita reusar tokens viejos
 }
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -165,3 +175,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 MEDIA_URL = '/profile_pictures/'
 MEDIA_ROOT = os.path.join(BASE_DIR, '')
+
+# Url frontend
+FRONTEND_URL = 'http://localhost:3000/'  # Cambia esto si tu frontend está en otro lugar
