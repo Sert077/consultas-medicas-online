@@ -28,6 +28,18 @@
     height: 35px;
 }
 
+.chatbot-button:disabled,
+.chatbot-button.chatbot-disabled {
+    background-color: #ccc !important;
+    cursor: not-allowed;
+    box-shadow: none;
+    filter: grayscale(1);
+}
+
+.chatbot-button.chatbot-disabled .chatbot-icon {
+    filter: grayscale(1) brightness(0.7);
+}
+
 .chatbot-window {
     position: absolute;
     bottom: 70px;
@@ -137,8 +149,8 @@
 
 .chatbot-hint {
     position: absolute;
-    right: 60px; /* Ajusta la posición horizontal */
-    bottom: 10px; /* Ajusta la posición vertical */
+    right: 55px; /* Ajusta la posición horizontal */
+    bottom: 8px; /* Ajusta la posición vertical */
     background: #301466;
     color: white;
     padding: 8px 12px;

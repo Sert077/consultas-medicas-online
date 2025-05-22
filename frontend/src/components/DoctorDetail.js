@@ -33,6 +33,12 @@ const DoctorDetail = () => {
     const [tuvoCirugia, setTuvoCirugia] = useState(false);
     const [descripcionCirugia, setDescripcionCirugia] = useState("");
     const [direccionReal, setDireccionReal] = useState('Cargando dirección...');
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+    useEffect(() => {
+    const token = localStorage.getItem('token');
+    setIsAuthenticated(!!token); // true si hay token, false si no
+}, []);
 
     useEffect(() => {
         fetch(`http://localhost:8000/api/doctores/${id}/`)
@@ -540,12 +546,23 @@ const DoctorDetail = () => {
             </div>
 
             <div className="doctor-buttons">
-              <button className="consult-button" onClick={() => setShowModal(true)}>
-                <i className="fas fa-calendar-plus"></i> Reservar consulta médica
-              </button>
-              <button className="consult-button" onClick={() => navigate(`/misreservas`)}>
-                <i className="fas fa-comments"></i> Realizar consulta médica
-              </button>
+                <button
+                    className="consult-button"
+                    onClick={() => setShowModal(true)}
+                    disabled={!isAuthenticated}
+                    title={!isAuthenticated ? "Inicia sesión para reservar una consulta" : ""}
+                >
+                    <i className="fas fa-calendar-plus"></i> Reservar consulta médica
+                </button>
+
+                <button
+                    className="consult-button"
+                    onClick={() => navigate(`/misreservas`)}
+                    disabled={!isAuthenticated}
+                    title={!isAuthenticated ? "Inicia sesión para realizar una consulta" : ""}
+                >
+                    <i className="fas fa-comments"></i> Realizar consulta médica
+                </button>
             </div>
           </div>
         </div>

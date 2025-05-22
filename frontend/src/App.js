@@ -48,6 +48,7 @@ import PacientesAtendidos from './components/PacientesAtendidos';
 import ResetPassword from './components/ResetPassword';
 import PoliticaPrivacidad from './components/PoliticaPrivacidad';
 import InformacionLegal from './components/InformacionLegal';
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
     return (
@@ -65,12 +66,24 @@ function App() {
                     <Route path="/send-email" element={<EmailForm />} />
                     {/*<Route path="/chat/:consultaId" element={<ChatComponent />} />*/}
                     <Route path="/misreservas" element={<MisReservas />} />
-                    <Route path="/chat/:chatId" element={<Chat />} />  {/* Nueva ruta para el chat */}
-                    <Route path="/edit-patient" element={<EditPatient />} />
+                    <Route path="/chat/:chatId" element={
+                      <ProtectedRoute>
+                        <Chat />
+                      </ProtectedRoute>
+                    } />  {/* Nueva ruta para el chat */}
+                    <Route path="/edit-patient" element={
+                        <ProtectedRoute>
+                          <EditPatient />
+                        </ProtectedRoute>
+                      } />
                     <Route path="/verify-email/:token" element={<VerifyEmail />} />
                     <Route path="/historial-consultas" element={<HistorialConsultas />} />
                     <Route path="/reprogramar/:token" element={<ReprogramarConsulta />} />
-                    <Route path="/pacientes" element={<PacientesAtendidos />} />
+                    <Route path="/pacientes" element={
+                        <ProtectedRoute>
+                          <PacientesAtendidos />
+                        </ProtectedRoute>
+                      } />
                     <Route path="/meditest-logo" element={<MediTestLogoOptions />} />
                     <Route path="/reset-password/:uid/:token" element={<ResetPassword />} />
                     <Route path="/politica-privacidad" element={<PoliticaPrivacidad />} />

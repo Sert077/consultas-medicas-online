@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
+import { isTokenValid } from "../utils/jwtUtils";
 import "../css/Chatbot.css";
 
 const Chatbot = () => {
@@ -13,6 +14,16 @@ const Chatbot = () => {
     const [loading, setLoading] = useState(false);
     const [showHint, setShowHint] = useState(true);
     const messagesEndRef = useRef(null);
+
+    const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    const token = localStorage.getItem("token");
+        return token && isTokenValid(token);
+    });
+
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        setIsAuthenticated(token && isTokenValid(token));
+    }, [location]);
 
     // Scroll automático
     const scrollToBottom = () => {
@@ -38,6 +49,8 @@ const Chatbot = () => {
         location.pathname === "/edit-patient" || 
         location.pathname === "/misreservas" || 
         location.pathname === "/pacientes" ||
+        location.pathname === "/informacion-legal" ||
+        location.pathname === "/politica-privacidad" ||
         location.pathname.startsWith("/register") || 
         location.pathname.startsWith("/chat") ||
         location.pathname.startsWith("/historial-consultas") || 
@@ -107,13 +120,17 @@ const Chatbot = () => {
 
     return (
         <div className="chatbot-container">
-            {showHint && (
+            {showHint && isAuthenticated && (
                 <div className="chatbot-hint">Si necesitas ayuda con la elección del médico, pregunta aquí 😊</div>
             )}
-            <button className="chatbot-button" onClick={() => setIsOpen(!isOpen)}>
+            <button
+                className={`chatbot-button ${!isAuthenticated ? "chatbot-disabled" : ""}`}
+                onClick={() => isAuthenticated && setIsOpen(!isOpen)}
+                disabled={!isAuthenticated}
+                title={!isAuthenticated ? "Inicia sesión para usar el chatbot" : ""}
+            >
                 <img src="/images/logo-ia2.png" alt="Chatbot MEDITEST" className="chatbot-icon" />
             </button>
-
             {isOpen && (
                 <div className="chatbot-window">
                     <div className="chatbot-header">

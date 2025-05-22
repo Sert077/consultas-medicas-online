@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom'; // Para redireccionar después del login
+import { isTokenValid } from '../utils/jwtUtils';
 import '../css/Login.css';
 
 const Login = () => {
@@ -7,6 +8,13 @@ const Login = () => {
     const [password, setPassword] = useState('');
     const [message, setMessage] = useState('');
     const navigate = useNavigate(); // Hook de navegación para redirigir
+
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (token && isTokenValid(token)) {
+            navigate('/'); // Redirige al home si ya está logueado
+        }
+    }, []);
 
     const handleLogin = async (e) => {
         e.preventDefault();

@@ -189,6 +189,18 @@
   transform: translateY(-2px);
 }
 
+.consult-button:disabled {
+  background-color: #ccc !important;
+  color: #666;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+.consult-button:disabled i {
+  color: #999;
+}
+
 /* Contenido principal en dos columnas */
 .doctor-content {
   display: grid;
