@@ -60,6 +60,18 @@
   border-color: #6c63ff;
 }
 
+.contenedor-reporte {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.mensaje-error{
+  color: red;
+  margin-top: 5px;
+  font-size: 12px;
+}
 
 .select-filtros:focus {
   outline: none;

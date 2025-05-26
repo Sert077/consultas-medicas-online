@@ -201,6 +201,7 @@ def login_user(request):
         user.last_login = timezone.now()
         user.save(update_fields=['last_login'])
         refresh = RefreshToken.for_user(user)
+        refresh['is_superuser'] = user.is_superuser
         access_token = str(refresh.access_token)
         refresh_token = str(refresh)
 

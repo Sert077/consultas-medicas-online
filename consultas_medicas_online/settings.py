@@ -84,6 +84,7 @@ SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),  # Permite renovar el token por 1 día
     'ROTATE_REFRESH_TOKENS': True,  # Genera un nuevo refresh token en cada renovación
     'BLACKLIST_AFTER_ROTATION': True,  # Evita reusar tokens viejos
+    'TOKEN_OBTAIN_SERIALIZER': 'core.custom_jwt.CustomTokenObtainPairSerializer',
 }
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

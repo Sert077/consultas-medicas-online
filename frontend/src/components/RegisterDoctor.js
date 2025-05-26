@@ -1,6 +1,8 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef,  useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { FaMapMarkerAlt } from "react-icons/fa";
 import MapModal from './MapModal';
+import { isSuperUser } from '../utils/jwtUtils';
 import "leaflet/dist/leaflet.css";
 
 const RegisterDoctor = () => {
@@ -69,6 +71,17 @@ const RegisterDoctor = () => {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState(false);
+  const navigate = useNavigate();
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    const userIsAdmin = isSuperUser();
+    setIsAdmin(userIsAdmin);
+  }, []);
+
+  if (!isAdmin) {
+    return <div>No tienes permiso para acceder a esta página.</div>;
+  }
 
   const handleChange = (e) => {
     const { name, value } = e.target;

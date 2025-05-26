@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { isSuperUser } from '../utils/jwtUtils';
 import '../css/HistorialConsultas.css';
 
 const HistorialConsultas = () => {
@@ -10,16 +11,17 @@ const HistorialConsultas = () => {
   const [busqueda, setBusqueda] = useState('');
   const [consultaEstado, setConsultaEstado] = useState('');
   const [reporteTipo, setReporteTipo] = useState('');
-  const [isSuperUser, setIsSuperUser] = useState(false);
+  const [esSuperUsuario, setEsSuperUsuario] = useState(false);
   const [graficoTipo, setGraficoTipo] = useState('');
+  const [mensajeError, setMensajeError] = useState('');
 
   useEffect(() => {
-    const userIsSuperUser = localStorage.getItem('is_superuser') === 'true';
-    setIsSuperUser(userIsSuperUser);
+    const userIsSuperUser = isSuperUser();
+    setEsSuperUsuario(userIsSuperUser);
   }, []);
 
   useEffect(() => {
-    if (isSuperUser) {
+    if (esSuperUsuario) {
       const params = {};
   
       if (fechaInicio) params.fecha_inicio = fechaInicio;
@@ -34,41 +36,43 @@ const HistorialConsultas = () => {
         })
         .catch(error => console.error('Error al obtener los datos:', error));
     }
-  }, [fechaInicio, fechaFin, busqueda, consultaEstado, isSuperUser]);  
+  }, [fechaInicio, fechaFin, busqueda, consultaEstado, esSuperUsuario]);  
 
   const generarReporte = () => {
+    if(!fechaInicio || !fechaFin || !reporteTipo || !graficoTipo){
+       setMensajeError('Por favor, seleccione la fecha inicial, fecha final, tipo de reporte y tipo de gráfico antes de generar el reporte.');
+       return;
+    }
+    setMensajeError('');
+
     let url = 'http://localhost:8000/api/generar-reporte/';
     const params = new URLSearchParams();
 
-    if (graficoTipo) params.append('grafico_tipo', graficoTipo);
-    if (reporteTipo) params.append('tipo', reporteTipo);
-    if (fechaInicio) params.append('fecha_inicio', fechaInicio);
-    if (fechaFin) params.append('fecha_fin', fechaFin);
-  
-    if (params.toString()) {
-      url += `?${params.toString()}`;
-    }
-  
+    params.append('fecha_inicio', fechaInicio);
+    params.append('fecha_fin', fechaFin);
+    params.append('tipo', reporteTipo);
+    params.append('grafico_tipo', graficoTipo);
+
+    url += `?${params.toString()}`;
     window.open(url, '_blank');
   };  
 
   return (
-    isSuperUser ? (
+     esSuperUsuario ? (
       <div className="historial-consultas">
         <h2>Historial de Consultas y Recetas</h2>
 
         {/* Filtros */}
         <div className="filtros">
         <div className="input-container-historial">
-  <input 
-    type="text" 
-    placeholder="Buscar..." 
-    value={busqueda} 
-    onChange={(e) => setBusqueda(e.target.value)} 
-  />
-  <span className="icono-lupa"><i className="fas fa-search"></i></span>
-</div>
-
+          <input 
+            type="text" 
+            placeholder="Buscar..." 
+            value={busqueda} 
+            onChange={(e) => setBusqueda(e.target.value)} 
+          />
+          <span className="icono-lupa"><i className="fas fa-search"></i></span>
+        </div>
           <label>Fecha inicial:</label><input 
             type="date" 
             value={fechaInicio} 
@@ -118,10 +122,14 @@ const HistorialConsultas = () => {
       <option value="pastel">Gráfico Circular</option>
     </select>
   </div>
-
         {/* Botón de reporte */}
       <div className="filtros">
-        <button onClick={generarReporte}>Generar Reporte PDF</button>
+        <div className="contenedor-reporte">
+          <button onClick={generarReporte}>Generar Reporte PDF</button>
+          {mensajeError && (
+            <p className="mensaje-error">{mensajeError}</p>
+          )}
+        </div>
       </div>
 
         {/* Consultas */}
