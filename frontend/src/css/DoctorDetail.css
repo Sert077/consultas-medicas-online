@@ -20,7 +20,9 @@
     flex-direction: column;
     align-items: center;
     padding: 20px;
-  font-family: "Roboto", "Segoe UI", sans-serif;
+    font-family: "Roboto", "Segoe UI", sans-serif;
+    max-width: 100%;
+    overflow-x: hidden;
 }
 
 /* Cabecera con información del médico 
@@ -398,55 +400,163 @@
   animation-delay: 0.2s;
 }
 
-/* Responsive */
-@media (max-width: 1024px) {
-  .doctor-content {
-    grid-template-columns: 1fr;
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .doctor-detail-container {
+    padding: 20px 15px;
+  }
+
+  .doctor-header-bg,
+  .doctor-info-container,
+  .doctor-content,
+  .map-container {
+    max-width: 100%;
+  }
+
+  .doctor-info-container {
+    padding: 0 30px 40px;
   }
 }
 
+@media (max-width: 1024px) {
+  .doctor-content {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .doctor-info-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+}
+
+/* Ajustes específicos para pantallas menores a 768px */
 @media (max-width: 768px) {
+  /* Contenedor principal - ajustado para tener el mismo ancho que el mapa */
+  .doctor-detail-container {
+    padding: 15px;
+    width: 100%;
+    max-width: 700px;
+    margin: 0 auto;
+    box-sizing: border-box;
+  }
+
+  /* Ajuste del header para que coincida con el ancho del contenedor */
+  .doctor-header-bg {
+    width: 97%;
+    max-width: 700px;
+    padding: 15px 20px;
+    top: 40px;
+    margin-bottom: -30px;
+    box-sizing: border-box;
+  }
+
+  /* Ajuste del contenedor de información */
   .doctor-info-container {
     grid-template-columns: 1fr;
     gap: 20px;
     text-align: center;
+    padding: 0 20px 30px;
+    width: 100%;
+    max-width: 700px;
+    margin: 0 auto;
+    box-sizing: border-box;
   }
 
+  /* Ajuste del contenedor del mapa */
+  .map-container {
+    width: 100%;
+    max-width: 700px;
+  }
+
+  .info-card-header-mapa {
+    width: 100%;
+    max-width: 700px;
+    box-sizing: border-box;
+    margin: 10px auto 0;
+  }
+
+  .map-container iframe {
+    width: 100%;
+    max-width: 700px;
+    height: 350px;
+  }
+
+  /* Ajuste del contenedor de contenido */
+  .doctor-content {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    width: 100%;
+    max-width: 700px;
+    margin: 0 auto 25px;
+    margin-left: auto;
+    margin-right: auto;
+    box-sizing: border-box;
+  }
+
+  /* Resto de ajustes para móvil */
   .doctor-image-container {
-    margin: -80px auto 0;
+    margin: 60px auto 0;
+  }
+
+  .doctor-details {
+    padding-top: 50px;
+  }
+
+  .doctor-details h2 {
+    font-size: 1.8rem;
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 20px;
   }
 
   .doctor-info-grid {
     grid-template-columns: 1fr;
+    gap: 15px;
   }
 
   .doctor-info-item {
-    justify-content: center;
+    justify-content: flex-start;
+    text-align: left;
   }
 
   .doctor-buttons {
     flex-direction: column;
-    align-items: center;
+    align-items: stretch;
+    gap: 10px;
   }
 
   .consult-button {
     width: 100%;
-  }
-
-  .doctor-detail-container {
-    padding: 20px 15px;
-    gap: 20px;
+    min-width: auto;
+    margin-bottom: 10px;
   }
 
   .info-card-header,
-  .info-card-body {
+  .info-card-body,
+  .info-card-header-mapa {
     padding: 15px 20px;
   }
 }
 
+/* Ajustes para pantallas aún más pequeñas */
 @media (max-width: 480px) {
+  .doctor-detail-container,
+  .doctor-header-bg,
+  .doctor-info-container,
+  .info-card-header-mapa,
+  .doctor-content {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+
   .doctor-header-bg {
-    padding: 15px 20px;
+    padding: 12px 15px;
+    top: 30px;
+    max-width: 370px;
+  }
+
+  .doctor-header-title {
+    font-size: 1.1rem;
   }
 
   .doctor-image {
@@ -455,22 +565,87 @@
   }
 
   .doctor-image-container {
-    margin-top: -60px;
+    margin-top: 50px;
   }
 
   .doctor-details h2 {
     font-size: 1.5rem;
-    text-align: center;
+    margin-top: 10px;
   }
 
   .doctor-info-container {
-    padding: 0 20px 30px;
+    padding: 0 15px 25px;
+  }
+
+  .doctor-info-item {
+    gap: 8px;
+  }
+
+  .doctor-info-item i {
+    width: 32px;
+    height: 32px;
+    font-size: 0.9rem;
+  }
+
+  .info-card-header,
+  .info-card-body,
+  .info-card-header-mapa {
+    padding: 12px 15px;
+  }
+
+  .info-card-header h3,
+  .info-card-header-mapa h3 {
+    font-size: 1.1rem;
+  }
+
+  .map-container .info-card-body {
+    height: 200px;
+  }
+
+  .map-container iframe{
+    max-height: 200px;
+  }
+
+  .consult-button {
+    font-size: 12px;
+    padding: 10px 12px;
   }
 }
 
+@media (max-width: 360px) {
+  .doctor-detail-container,
+  .doctor-header-bg,
+  .doctor-info-container,
+  .map-container,
+  .info-card-header-mapa,
+  .doctor-content {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
 
-  
-  
+  .doctor-header-bg {
+    padding: 10px 12px;
+  }
+
+  .doctor-info-container {
+    padding: 0 12px 20px;
+  }
+
+  .doctor-image {
+    width: 100px;
+    height: 100px;
+  }
+
+  .doctor-details h2 {
+    font-size: 1.3rem;
+  }
+
+  .info-card-header,
+  .info-card-body,
+  .info-card-header-mapa {
+    padding: 10px 12px;
+  }
+}
 
 /* Estilos para el modal */
 .modal-overlay {

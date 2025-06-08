@@ -78,7 +78,14 @@ function App() {
                       } />
                     <Route path="/verify-email/:token" element={<VerifyEmail />} />
                     <Route path="/historial-consultas" element={<HistorialConsultas />} />
-                    <Route path="/reprogramar/:token" element={<ReprogramarConsulta />} />
+                    <Route
+                      path="/reprogramar/:token"
+                      element={
+                        <ProtectedRoute>
+                          <ReprogramarConsulta />
+                        </ProtectedRoute>
+                      }
+                    />
                     <Route path="/pacientes" element={
                         <ProtectedRoute>
                           <PacientesAtendidos />

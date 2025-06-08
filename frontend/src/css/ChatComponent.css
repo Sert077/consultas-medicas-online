@@ -378,7 +378,7 @@
     cursor: pointer;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     transition: background-color 0.3s, box-shadow 0.3s;
-    z-index: 1000;
+    z-index: 100;
     margin-top: 150px;
     margin-right: 27px;
 }
@@ -403,6 +403,7 @@
     padding: 15px;
     overflow-y: auto;
     border-radius: 6px;
+    z-index: 10000;
 }
 
 .recipe-form-container h3 {
@@ -449,6 +450,7 @@
     flex-direction: column; /* Coloca los botones en columna */
     align-items: center;    /* Centra los botones horizontalmente */
     gap: 0px;              /* Espaciado entre los botones */
+    margin-top: -5px;
 }
 
 .form-buttons button {
@@ -510,4 +512,20 @@
 
 .pdf-link:hover {
     text-decoration: underline;
+}
+
+.spinner-recipe {
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-top: 3px solid white;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    animation: spin 1s linear infinite;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }

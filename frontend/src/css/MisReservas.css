@@ -187,7 +187,7 @@
     .botones-derecha {
         flex-direction: column; /* Apilamos también los botones de la derecha */
         align-items: center;
-        gap: 0px;
+        gap: 15px;
         width: 100%;
     }
     .reservas-list button {

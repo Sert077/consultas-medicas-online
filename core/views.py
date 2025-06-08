@@ -381,7 +381,7 @@ def consultas_medico(request, user_id):
         return JsonResponse({"error": "Este usuario no es un médico"}, status=404)
 
     
-
+ 
 def get_chat_messages(request, chat_id):
     messages = ChatMessage.objects.filter(chat_id=chat_id).order_by('timestamp')
     message_list = []

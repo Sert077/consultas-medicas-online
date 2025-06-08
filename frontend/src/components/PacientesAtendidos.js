@@ -30,7 +30,11 @@ const PacientesAtendidos = ({ userId = localStorage.getItem("paciente_id") }) =>
 
   useEffect(() => {
     axios
-      .get(`http://localhost:8000/api/consultas/medico/${userId}/`)
+      .get(`http://localhost:8000/api/consultas/medico/${userId}/`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
       .then((response) => {
         const consultas = response.data
 

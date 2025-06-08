@@ -28,6 +28,8 @@ const Chat = () => {
     });
 
     const toggleRecipeForm = () => setShowRecipeForm(!showRecipeForm);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
 
     const handleRecipeChange = (e) => {
         const { name, value } = e.target;
@@ -48,6 +50,8 @@ const Chat = () => {
             alert('Por favor, completa todos los campos obligatorios antes de guardar la receta.');
             return;
         }
+
+        setIsSubmitting(true);
     
         try {
             const response = await axios.post(`http://localhost:8000/api/recetas/`, {
@@ -80,6 +84,8 @@ const Chat = () => {
                 console.error('Error al generar receta:', error);
                 alert('Ocurrió un error inesperado al generar la receta.');
             }
+        } finally{
+            setIsSubmitting(false);
         }
     };
     
@@ -472,8 +478,17 @@ const Chat = () => {
                                 />
                             </div>
                             <div className="form-buttons">
-                                <button className="send-recipe" type="button" onClick={handleRecipeSubmit}>
-                                    Mandar Receta
+                                <button
+                                    className="send-recipe"
+                                    type="button"
+                                    onClick={handleRecipeSubmit}
+                                    disabled={isSubmitting}
+                                >
+                                    {isSubmitting ? (
+                                        <span className="spinner-recipe"></span>
+                                    ) : (
+                                        "Mandar Receta"
+                                    )}
                                 </button>
                                 <button className="cancel-button" type="button" onClick={toggleRecipeForm}>
                                     Cancelar
